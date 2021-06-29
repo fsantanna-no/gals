@@ -1,3 +1,9 @@
+#if 0
+#!/bin/sh
+gcc -g -Wall -o main main.c -luv
+exit
+#endif
+
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
