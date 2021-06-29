@@ -1,3 +1,8 @@
+- real time conrresponds to real time
+- other events no
+
+Deterministic, Interactive, Distributed Applications
+
 Globally-Asynchronous Locally-Synchronous Deterministic Distributed Applications
 Deterministic Distributed Applications
 
