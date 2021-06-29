@@ -38,9 +38,8 @@ evt_t queue_rem () {
 
 void app (uint64_t now, int id, int data);
 
-int main() {
-    uv_loop_t* loop = malloc(sizeof(uv_loop_t));
-    uv_loop_init(loop);
+void  main (void) {
+    uv_loop_t* loop = uv_default_loop();
 
     while (1) {
         uv_run(loop, UV_RUN_DEFAULT);
@@ -51,7 +50,6 @@ int main() {
 
     uv_loop_close(loop);
     free(loop);
-    return 0;
 }
 
 void app (uint64_t now, int id, int data) {
