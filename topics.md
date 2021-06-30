@@ -1,6 +1,14 @@
 - real time conrresponds to real time
 - other events no
 
+1. all clients need to know that an input is comming
+    - they all start a DT timer
+2. only after server receives acks, it knows that clients are waiting
+    - it sends the input in the future considering DT
+
+- low DT:  clients will stall
+- high DT: lag in the input
+
 Deterministic, Interactive, Distributed Applications
 
 Globally-Asynchronous Locally-Synchronous Deterministic Distributed Applications
