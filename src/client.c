@@ -17,10 +17,11 @@ void on_write_start (uv_write_t* req, int status);
 
 void app (uint64_t now, int id, int data);
 
-static int state = 0;
+static uv_loop_t loop;
+static uint64_t  late  = 0;
+static int       state = 0;
 
 void main (void) {
-    uv_loop_t loop;
     uv_loop_init(&loop);
 
     uv_tcp_t tcp;
@@ -35,7 +36,7 @@ void main (void) {
     while (1) {
         int more = uv_run(&loop, UV_RUN_NOWAIT);
         if (more && state==1) {
-            app(uv_now(&loop), 0, 0);
+            app(uv_now(&loop) - late, 0, 0);
         }
     }
     return;
@@ -61,6 +62,8 @@ void on_read (uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
         state = 1;
         assert(nread == 1);
         assert(buf->base[0] == 0);
+        late = uv_now(&loop);
+        app(0, 0, 0);
         puts("recv START");
     } else {
         assert(0);
