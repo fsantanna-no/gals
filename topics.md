@@ -6,6 +6,10 @@
 2. only after server receives acks, it knows that clients are waiting
     - it sends the input in the future considering DT
 
+
+- servidor envia START para todos os clientes
+- clientes comecam t=0 assim que recebem o start
+
 - low DT:  clients will stall
 - high DT: lag in the input
 
