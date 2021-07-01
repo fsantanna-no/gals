@@ -68,9 +68,6 @@ fun client () {
     }
 
     while (true) {
-        app_input(NOW, null)
-        Thread.sleep(1)
-        NOW = Instant.now().toEpochMilli() - LATE
         synchronized(socket) {
             while (queue_evts.isNotEmpty() && NOW>=queue_evts[0].first) {
                 val (now,evt) = queue_evts.removeAt(0)
@@ -81,6 +78,9 @@ fun client () {
                 println("now=$NOW vs nxt=${queue_nxts.get(0)}")
             }
             assert(queue_nxts.isEmpty() || NOW<queue_nxts.get(0))
+            app_input(NOW, null)
+            NOW = Instant.now().toEpochMilli() - LATE
         }
+        Thread.sleep(1)
     }
 }
