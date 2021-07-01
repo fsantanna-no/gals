@@ -1,9 +1,7 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.net.ServerSocket
 import java.net.Socket
 import java.time.Instant
-import java.util.*
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
@@ -18,7 +16,8 @@ fun client () {
 
     val late = Instant.now().toEpochMilli()
     var now  = 0.toLong()
-    val queue: MutableList<Pair<Long,Int>> = mutableListOf()
+    val queue_nxts: MutableList<Long> = mutableListOf()
+    val queue_evts: MutableList<Pair<Long,Int>> = mutableListOf()
 
     fun app_output (evt: Int) {
         writer.writeLong(now)
@@ -52,11 +51,12 @@ fun client () {
                     synchronized(socket) {
                         //println("[back] now=$now evt=$evt ${now > Instant.now().toEpochMilli() - late}")
                         assert(now > Instant.now().toEpochMilli() - late)
-                        queue.add(Pair(now,evt))
+                        queue_evts.add(Pair(now,evt))
                     }
                 }
                 Message.QUERY.ordinal -> {
                     //Thread.sleep(5)
+                    queue_nxts.add(now+RTT_100)
                     writer.writeLong(now)
                 }
                 else -> error("impossible case")
@@ -66,13 +66,15 @@ fun client () {
 
     while (true) {
         app_input(now, null)
-        Thread.sleep(50)
+        Thread.sleep(1)
         now = Instant.now().toEpochMilli() - late
         synchronized(socket) {
-            while (queue.isNotEmpty() && now>=queue[0].first) {
-                val (now_,evt_) = queue.removeAt(0)
+            while (queue_evts.isNotEmpty() && now>=queue_evts[0].first) {
+                val (now_,evt_) = queue_evts.removeAt(0)
+                queue_nxts.removeAt(0)
                 app_input(now_, evt_)
             }
         }
+        assert(queue_nxts.isEmpty() || now<queue_nxts.get(0))
     }
 }
