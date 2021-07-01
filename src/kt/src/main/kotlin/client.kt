@@ -56,7 +56,8 @@ fun client () {
                     }
                 }
                 Message.QUERY.ordinal -> {
-                    //writer.writeLong()
+                    //Thread.sleep(5)
+                    writer.writeLong(now)
                 }
                 else -> error("impossible case")
             }

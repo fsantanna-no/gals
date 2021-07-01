@@ -25,12 +25,15 @@ fun server () {
                 //println("[server] now=$now evt=$evt")
 
                 // avisar a todos e aguardar respostas
-                //val ms = Instant.now().toEpochMilli()
-                //writer.writeInt(Message.QUERY.ordinal)
+                val ms1 = Instant.now().toEpochMilli()
+                writer.writeInt(Message.QUERY.ordinal)
+                val rem = reader.readLong()
+                val ms2 = Instant.now().toEpochMilli()
+                println("rtt = ${ms2-ms1}")
 
                 // enviar a todos
                 writer.writeInt(Message.EMIT.ordinal)
-                writer.writeLong(now+100)
+                writer.writeLong(rem+RTT_100)
                 writer.writeInt(evt)
             }
         }
