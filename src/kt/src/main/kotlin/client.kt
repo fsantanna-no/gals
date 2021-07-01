@@ -14,18 +14,18 @@ fun client () {
     assert(msg == Message.START.ordinal)
     println("[client] started")
 
-    val late = Instant.now().toEpochMilli()
-    var now  = 0.toLong()
+    var LATE = Instant.now().toEpochMilli()
+    var NOW  = 0.toLong()
     val queue_nxts: MutableList<Long> = mutableListOf()
     val queue_evts: MutableList<Pair<Long,Int>> = mutableListOf()
 
     fun app_output (evt: Int) {
-        writer.writeLong(now)
+        writer.writeLong(NOW)
         writer.writeInt(evt)
     }
 
     var nxt1: Long = 0
-    var nxt2: Long = now + Random.nextLong(10000)
+    var nxt2: Long = NOW + Random.nextLong(10000)
     fun app_input (now: Long, evt: Int?) {
         when {
             (evt != null) -> println("[app] now=${now/1000} evt=$evt")
@@ -48,15 +48,18 @@ fun client () {
                 Message.EMIT.ordinal -> {
                     val now = reader.readLong()
                     val evt = reader.readInt()
+                    assert(now > NOW)
                     synchronized(socket) {
                         //println("[back] now=$now evt=$evt ${now > Instant.now().toEpochMilli() - late}")
-                        assert(now > Instant.now().toEpochMilli() - late)
                         queue_evts.add(Pair(now,evt))
                     }
                 }
                 Message.QUERY.ordinal -> {
+                    val now = NOW
                     //Thread.sleep(5)
-                    queue_nxts.add(now+RTT_100)
+                    synchronized(socket) {
+                        queue_nxts.add(now+RTT_100)
+                    }
                     writer.writeLong(now)
                 }
                 else -> error("impossible case")
@@ -65,16 +68,19 @@ fun client () {
     }
 
     while (true) {
-        app_input(now, null)
+        app_input(NOW, null)
         Thread.sleep(1)
-        now = Instant.now().toEpochMilli() - late
+        NOW = Instant.now().toEpochMilli() - LATE
         synchronized(socket) {
-            while (queue_evts.isNotEmpty() && now>=queue_evts[0].first) {
-                val (now_,evt_) = queue_evts.removeAt(0)
+            while (queue_evts.isNotEmpty() && NOW>=queue_evts[0].first) {
+                val (now,evt) = queue_evts.removeAt(0)
                 queue_nxts.removeAt(0)
-                app_input(now_, evt_)
+                app_input(now, evt)
             }
+            if (!(queue_nxts.isEmpty() || NOW<queue_nxts.get(0))) {
+                println("now=$NOW vs nxt=${queue_nxts.get(0)}")
+            }
+            assert(queue_nxts.isEmpty() || NOW<queue_nxts.get(0))
         }
-        assert(queue_nxts.isEmpty() || now<queue_nxts.get(0))
     }
 }
