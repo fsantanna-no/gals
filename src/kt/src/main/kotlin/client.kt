@@ -72,7 +72,6 @@ fun client () {
                 val (now_,evt_) = queue.removeAt(0)
                 app_input(now_, evt_)
             }
-            app_input(now, null)
         }
     }
 }
