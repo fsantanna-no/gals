@@ -23,9 +23,9 @@ fun client () {
     var nxt2: Long = 0
     fun app_input (now: Long, evt: Int?) {
         when {
-            (evt != null) -> println("[app] now=$now evt=$evt")
+            (evt != null) -> println("[app] now=${now/1000} evt=$evt")
             (now >= nxt1) -> {
-                println("[app] now=$now evt=$evt")
+                println("[app] now=${now/1000} evt=$evt")
                 nxt1 += 1000
             }
             (now > nxt2) -> {
@@ -36,13 +36,15 @@ fun client () {
         }
     }
 
-    val start = reader.readInt()
-    assert(start == 0)
+    val msg = reader.readInt()
+    assert(msg == Message.START.ordinal)
     val late = Instant.now().toEpochMilli()
     println("[client] started")
 
     thread {
         while (true) {
+            val msg = reader.readInt()
+            assert(msg == Message.EMIT.ordinal)
             val now = reader.readLong()
             val evt = reader.readInt()
             synchronized(socket) {

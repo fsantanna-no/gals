@@ -1,6 +1,7 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.ServerSocket
+import java.time.Instant
 import kotlin.concurrent.thread
 
 fun server () {
@@ -14,13 +15,21 @@ fun server () {
             val writer = DataOutputStream(client.getOutputStream()!!)
 
             // TODO: wait all clients
-            writer.writeInt(0)     // send start
+            writer.writeInt(Message.START.ordinal)     // send start
             //println("[server] start")
 
             while (true) {
+                // novo evento
                 val now = reader.readLong()
                 val evt = reader.readInt()
                 //println("[server] now=$now evt=$evt")
+
+                // avisar a todos e aguardar respostas
+                //val ms = Instant.now().toEpochMilli()
+                //writer.writeLong(now+100)
+
+                // enviar a todos
+                writer.writeInt(Message.EMIT.ordinal)
                 writer.writeLong(now+100)
                 writer.writeInt(evt)
             }
