@@ -20,20 +20,22 @@ fun server () {
 
             while (true) {
                 // novo evento
-                val now = reader.readLong()
+                val want = reader.readLong()            // desired event timestamp
                 val evt = reader.readInt()
                 //println("[server] now=$now evt=$evt")
 
                 // avisar a todos e aguardar respostas
                 val ms1 = Instant.now().toEpochMilli()
-                writer.writeInt(Message.QUERY.ordinal)
-                val rem = reader.readLong()
+                writer.writeInt(Message.WANTED.ordinal)
+                writer.writeLong(want)                  // send desired timestamp to all
+                val rem = reader.readLong()             // receive local from all
                 val ms2 = Instant.now().toEpochMilli()
                 println("rtt = ${ms2-ms1}")
+                val max_ = rem                          // max local from all
 
                 // enviar a todos
-                writer.writeInt(Message.EMIT.ordinal)
-                writer.writeLong(rem+RTT_100)
+                writer.writeInt(Message.DECIDED.ordinal)
+                writer.writeLong(max_+RTT_100)      // at least MAX, at most MAX+100
                 writer.writeInt(evt)
             }
         }
