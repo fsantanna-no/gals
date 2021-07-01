@@ -15,13 +15,13 @@ fun server () {
 
             // TODO: wait all clients
             writer.writeInt(0)     // send start
-            println("[server] start")
+            //println("[server] start")
 
             while (true) {
                 val now = reader.readLong()
                 val evt = reader.readInt()
-                println("[server] now=$now evt=$evt")
-                writer.writeLong(now+1000)
+                //println("[server] now=$now evt=$evt")
+                writer.writeLong(now+100)
                 writer.writeInt(evt)
             }
         }
