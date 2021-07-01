@@ -8,6 +8,7 @@ exit
 #include <stdio.h>
 #include <stdlib.h>
 #include <uv.h>
+#include <string.h>
 
 void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf);
 void on_connect (uv_stream_t* server, int status);
@@ -17,7 +18,17 @@ void on_write_start (uv_write_t* req, int status);
 
 uv_loop_t loop;
 
-void main (void) {
+typedef struct {
+    int      evt;
+    uint64_t now;
+} pkt_t;
+
+void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf) {
+    printf("alloc ok: %ld\n", size);
+	*buf = uv_buf_init(malloc(size), size);
+}
+
+int main (void) {
     uv_loop_init(&loop);
 
     uv_tcp_t tcp;
@@ -28,7 +39,7 @@ void main (void) {
     assert(0 == uv_listen((uv_stream_t*) &tcp, 128, on_connect));
 
     uv_run(&loop, UV_RUN_DEFAULT);
-    return;
+    return 0;
 }
 
 void on_connect (uv_stream_t* server, int status) {
@@ -44,15 +55,10 @@ void on_connect (uv_stream_t* server, int status) {
         .base = &START,
         .len  = 1
     };
-
     uv_write_t* req = malloc(sizeof(uv_write_t));
     uv_write(req, (uv_stream_t*) client, &buf, 1, on_write_start);
-    uv_read_start((uv_stream_t*) client, on_alloc, on_read);
-}
 
-void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-    printf("alloc ok: %ld\n", size);
-	*buf = uv_buf_init(malloc(size), size);
+    uv_read_start((uv_stream_t*) client, on_alloc, on_read);
 }
 
 void on_write_start (uv_write_t* req, int status) {
@@ -66,8 +72,10 @@ void on_read (uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
         puts("read done");
         uv_close((uv_handle_t*) client, (uv_close_cb) free);
     } else {
-        assert(nread > 0);
-        printf("read ok: %ld\n", nread);
+        assert(nread == sizeof(pkt_t));
+        pkt_t pkt;
+        memcpy(&pkt, buf->base, buf->len);
+        printf("read ok: %d / %ld\n", pkt.evt, pkt.now);
     }
     free(buf->base);
 }

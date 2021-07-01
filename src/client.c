@@ -11,17 +11,28 @@ exit
 
 void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf);
 void on_connect (uv_connect_t* req, int status);
-void on_write (uv_write_t* req, int status);
+void on_write_emit (uv_write_t* req, int status);
 void on_read (uv_stream_t* stream, ssize_t nread, const uv_buf_t* buf);
 void on_write_start (uv_write_t* req, int status);
 
 void app (uint64_t now, int id, int data);
 
-static uv_loop_t loop;
-static uint64_t  late  = 0;
-static int       state = 0;
+static uv_stream_t* client;
+static uv_loop_t    loop;
+static uint64_t     late  = 0;
+static int          state = 0;
 
-void main (void) {
+typedef struct {
+    int      evt;
+    uint64_t now;
+} pkt_t;
+
+void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf) {
+    printf("alloc ok: %ld\n", size);
+	*buf = uv_buf_init(malloc(size), size);
+}
+
+int main (void) {
     uv_loop_init(&loop);
 
     uv_tcp_t tcp;
@@ -39,13 +50,14 @@ void main (void) {
             app(uv_now(&loop) - late, 0, 0);
         }
     }
-    return;
+    return 0;
 }
 
 void on_connect (uv_connect_t* conn, int status) {
     assert(status >= 0);
     puts("connect ok");
     uv_read_start(conn->handle, on_alloc, on_read);
+    client = conn->handle;
 }
 
 void on_read (uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
@@ -71,25 +83,28 @@ void on_read (uv_stream_t* client, ssize_t nread, const uv_buf_t* buf) {
     free(buf->base);
 }
 
-void on_write (uv_write_t* req, int status) {
-    assert(status == 0);
-    puts("write ok");
-    free(req);
-}
-
-void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf) {
-    printf("alloc ok: %ld\n", size);
-	*buf = uv_buf_init(malloc(size), size);
-}
-
 void app (uint64_t now, int id, int data) {
-    printf("now=%ld, id=%d, data=%d\n", now, id, data);
-#if 0
+    //printf("now=%ld, id=%d, data=%d\n", now, id, data);
     static int nxt = 0;
     if (now > nxt) {
         nxt = now + rand() % 10000;
-        queue_add(evt);
+        static pkt_t pkt;
+        pkt.evt = rand()%16;
+        pkt.now = now;
+        uv_buf_t buf = {
+            .base = (char*) &pkt,
+            .len  = sizeof(pkt_t)
+        };
+        printf("emit %d\n", pkt.evt);
+        uv_write_t* req = malloc(sizeof(uv_write_t));
+        uv_write(req, (uv_stream_t*) client, &buf, 1, on_write_emit);
+
     }
-#endif
+}
+
+void on_write_emit (uv_write_t* req, int status) {
+    assert(status == 0);
+    puts("emit ok");
+    free(req);
 }
 
