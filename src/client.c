@@ -84,14 +84,10 @@ void on_alloc (uv_handle_t* handle, size_t size, uv_buf_t* buf) {
 
 void app (uint64_t now, int id, int data) {
     printf("now=%ld, id=%d, data=%d\n", now, id, data);
-
 #if 0
     static int nxt = 0;
-    if (nxt == 0) {
-        nxt = rand() % 10000;
-    } else if (now >= nxt) {
+    if (now > nxt) {
         nxt = now + rand() % 10000;
-        evt_t evt = { EVT_XXX, rand()%100 };
         queue_add(evt);
     }
 #endif
