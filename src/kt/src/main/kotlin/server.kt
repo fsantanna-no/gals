@@ -26,7 +26,7 @@ fun server () {
 
                 // avisar a todos e aguardar respostas
                 //val ms = Instant.now().toEpochMilli()
-                //writer.writeLong(now+100)
+                //writer.writeInt(Message.QUERY.ordinal)
 
                 // enviar a todos
                 writer.writeInt(Message.EMIT.ordinal)
