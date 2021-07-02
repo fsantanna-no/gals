@@ -6,6 +6,8 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
+val MAX_DT_10 = 10    // maximum DT step in NOW
+
 fun client () {
     val socket = Socket("localhost", PORT_10000)
     val writer = DataOutputStream(socket.getOutputStream()!!)
@@ -36,7 +38,7 @@ fun client () {
                 nxt1 += 1000
             }
             (now > nxt2) -> {
-                nxt2 = now + 1000 + Random.nextLong(5000)   // TODO: remove +1000
+                nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
             }
@@ -83,13 +85,13 @@ fun client () {
             }
             assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
              */
-            if (queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0)) {
-                app_input(NOW, null)
-                NOW = Instant.now().toEpochMilli() - LATE
-            } else {
+            if (queue_expecteds.isNotEmpty() && queue_decideds.isEmpty() && NOW>=queue_expecteds.get(0)-MAX_DT_10) {
                 LATE += (Instant.now().toEpochMilli() - LATE) - NOW
                 println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
                 //error("oi")
+            } else {
+                app_input(NOW, null)
+                NOW = Instant.now().toEpochMilli() - LATE
             }
         }
         Thread.sleep(1)
