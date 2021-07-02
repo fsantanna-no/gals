@@ -17,10 +17,11 @@ fun client () {
 
     var LATE = Instant.now().toEpochMilli()
     var NOW  = 0.toLong()
-    val queue_wants: MutableList<Long> = mutableListOf()
-    val queue_emits: MutableList<Pair<Long,Int>> = mutableListOf()
+    val queue_expecteds: MutableList<Long> = mutableListOf()
+    val queue_decideds: MutableList<Pair<Long,Int>> = mutableListOf()
 
     fun app_output (evt: Int) {
+        println("[client] 1 wants $NOW")
         writer.writeLong(NOW)
         writer.writeInt(evt)
     }
@@ -35,7 +36,7 @@ fun client () {
                 nxt1 += 1000
             }
             (now > nxt2) -> {
-                nxt2 = now + Random.nextLong(10000)
+                nxt2 = now + Random.nextLong(5000)
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
             }
@@ -49,9 +50,10 @@ fun client () {
                 Message.WANTED.ordinal -> {
                     val wanted = reader.readLong()    // original time
                     val now = NOW
+                    println("[client] 3 wanted $wanted, now=$now")
                     //Thread.sleep(5)
                     synchronized(socket) {
-                        queue_wants.add(max(now,wanted)+RTT_100)   // possible time + rtt
+                        queue_expecteds.add(max(now,wanted)+RTT_100)   // possible time + rtt
                     }
                     writer.writeLong(now)
                 }
@@ -59,9 +61,9 @@ fun client () {
                     val decided = reader.readLong()
                     val evt = reader.readInt()
                     assert(decided > NOW)
+                    println("[client] decided=$decided now=$NOW")
                     synchronized(socket) {
-                        //println("[back] now=$now evt=$evt ${now > Instant.now().toEpochMilli() - late}")
-                        queue_emits.add(Pair(decided,evt))
+                        queue_decideds.add(Pair(decided,evt))
                     }
                 }
                 else -> error("impossible case")
@@ -71,16 +73,16 @@ fun client () {
 
     while (true) {
         synchronized(socket) {
-            while (queue_emits.isNotEmpty() && NOW>=queue_emits[0].first) {
-                val (now,evt) = queue_emits.removeAt(0)
-                queue_wants.removeAt(0)
+            while (queue_decideds.isNotEmpty() && NOW>=queue_decideds[0].first) {
+                val (now,evt) = queue_decideds.removeAt(0)
+                queue_expecteds.removeAt(0)
                 app_input(now, evt)
             }
-            if (!(queue_wants.isEmpty() || NOW<queue_wants.get(0))) {
-                println("now=$NOW vs nxt=${queue_wants.get(0)}")
+            if (!(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))) {
+                println("[client] now=$NOW vs nxt=${queue_expecteds.get(0)}")
             }
-            assert(queue_wants.isEmpty() || NOW<queue_wants.get(0))
-            if (queue_wants.isEmpty() || NOW<queue_wants.get(0)) {
+            assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
+            if (queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0)) {
                 app_input(NOW, null)
                 NOW = Instant.now().toEpochMilli() - LATE
             } else {
