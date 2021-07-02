@@ -11,7 +11,10 @@ fun server () {
 
     while (true) {
         val client1 = socket1.accept()
-        System.err.println("remote connect: ${client1.inetAddress.hostAddress}")
+        val client2 = socket2.accept()
+        var want: Pair<Long,Int>? = null
+
+        // new events
         thread {
             val reader1 = DataInputStream(client1.getInputStream()!!)
             val writer1 = DataOutputStream(client1.getOutputStream()!!)
@@ -21,27 +24,38 @@ fun server () {
             //println("[server] start")
 
             while (true) {
-                // novo evento
-                val want = reader1.readLong()            // desired event timestamp
+                val now = reader1.readLong()            // desired event timestamp
                 val evt = reader1.readInt()
-                println("[server] 2 want = $want")
+                want = Pair(now,evt)
+                println("[server] 2 want = $now")
+            }
+        }
 
+        // emits
+        thread {
+            val reader2 = DataInputStream(client1.getInputStream()!!)
+            val writer2 = DataOutputStream(client1.getOutputStream()!!)
+
+            while (true) {
+                while (want == null) {
+                    Thread.sleep(1)
+                }
                 // avisar a todos e aguardar respostas
                 val ms1 = Instant.now().toEpochMilli()
-                writer1.writeInt(Message.WANTED.ordinal)
-                writer1.writeLong(want)                  // send desired timestamp to all
-                val rem = reader1.readLong()             // receive local from all
+                writer2.writeInt(Message.WANTED.ordinal)
+                writer2.writeLong(want!!.first)          // send desired timestamp to all
+                val rem = reader2.readLong()             // receive local from all
                 val ms2 = Instant.now().toEpochMilli()
-                println("[server] rtt = ${ms2-ms1}")
+                println("[server] rtt = ${ms2 - ms1}")
                 println("[server] rem = $rem")
                 val max_ = rem                          // max local from all
 
                 // enviar a todos
-                writer1.writeInt(Message.DECIDED.ordinal)
-                println("[server] dec = ${max_+RTT_50}")
-                Thread.sleep((RTT_50/2 + Random.nextInt(RTT_50)).toLong())
-                writer1.writeLong(max_+RTT_50)      // at least MAX, at most MAX+100
-                writer1.writeInt(evt)
+                writer2.writeInt(Message.DECIDED.ordinal)
+                println("[server] dec = ${max_ + RTT_50}")
+                Thread.sleep((RTT_50 / 2 + Random.nextInt(RTT_50)).toLong())
+                writer2.writeLong(max_ + RTT_50)      // at least MAX, at most MAX+100
+                writer2.writeInt(want!!.second)
             }
         }
     }

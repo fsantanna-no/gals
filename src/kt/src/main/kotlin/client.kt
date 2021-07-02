@@ -13,6 +13,10 @@ fun client () {
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)
 
+    val socket2 = Socket("localhost", PORT_10002)
+    val writer2 = DataOutputStream(socket2.getOutputStream()!!)
+    val reader2 = DataInputStream(socket2.getInputStream()!!)
+
     val msg = reader1.readInt()
     assert(msg == Message.START.ordinal)
     println("[client] started")
@@ -48,34 +52,32 @@ fun client () {
 
     thread {
         while (true) {
-            val msg = reader1.readInt()
-            when (msg) {
-                Message.WANTED.ordinal -> {
-                    val wanted = reader1.readLong()    // original time
-                    val now = NOW
-                    println("[client] 3 wanted $wanted, now=$now")
-                    //Thread.sleep(5)
-                    synchronized(socket1) {
-                        queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
-                    }
-                    writer1.writeLong(now)
+            reader2.readInt().let {
+                assert(it == Message.WANTED.ordinal)
+                val wanted = reader2.readLong()    // original time
+                val now = NOW
+                println("[client] 3 wanted $wanted, now=$now")
+                //Thread.sleep(5)
+                synchronized(socket2) {
+                    queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
                 }
-                Message.DECIDED.ordinal -> {
-                    val decided = reader1.readLong()
-                    val evt = reader1.readInt()
-                    assert(decided >= NOW)
-                    println("[client] decided=$decided now=$NOW")
-                    synchronized(socket1) {
-                        queue_decideds.add(Pair(decided,evt))
-                    }
+                writer2.writeLong(now)
+            }
+            reader2.readInt().let {
+                assert(it == Message.DECIDED.ordinal)
+                val decided = reader2.readLong()
+                val evt = reader2.readInt()
+                assert(decided >= NOW)
+                println("[client] decided=$decided now=$NOW")
+                synchronized(socket2) {
+                    queue_decideds.add(Pair(decided,evt))
                 }
-                else -> error("impossible case")
             }
         }
     }
 
     while (true) {
-        synchronized(socket1) {
+        synchronized(socket2) {
             while (queue_decideds.isNotEmpty() && NOW>=queue_decideds[0].first) {
                 val (now,evt) = queue_decideds.removeAt(0)
                 queue_expecteds.removeAt(0)
