@@ -9,11 +9,13 @@ import kotlin.random.Random
 val MAX_DT_10 = 10    // maximum DT step in NOW
 
 fun client () {
-    val socket1 = Socket("localhost", PORT_10001)
+    val lock = java.lang.Object()
+
+    val socket1 = Socket("localhost", PORT_10011)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)
 
-    val socket2 = Socket("localhost", PORT_10002)
+    val socket2 = Socket("localhost", PORT_10012)
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
 
@@ -45,7 +47,7 @@ fun client () {
                 nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
-                app_output(Random.nextInt(10))
+                //app_output(Random.nextInt(10))
             }
         }
     }
@@ -58,7 +60,7 @@ fun client () {
                 val now = NOW
                 println("[client] 3 wanted $wanted, now=$now")
                 //Thread.sleep(5)
-                synchronized(socket2) {
+                synchronized(lock) {
                     queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
                 }
                 writer2.writeLong(now)
@@ -69,7 +71,7 @@ fun client () {
                 val evt = reader2.readInt()
                 assert(decided >= NOW)
                 println("[client] decided=$decided now=$NOW")
-                synchronized(socket2) {
+                synchronized(lock) {
                     queue_decideds.add(Pair(decided,evt))
                 }
             }
@@ -77,7 +79,7 @@ fun client () {
     }
 
     while (true) {
-        synchronized(socket2) {
+        synchronized(lock) {
             while (queue_decideds.isNotEmpty() && NOW>=queue_decideds[0].first) {
                 val (now,evt) = queue_decideds.removeAt(0)
                 queue_expecteds.removeAt(0)
