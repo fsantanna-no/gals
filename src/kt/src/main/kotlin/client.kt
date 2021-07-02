@@ -9,11 +9,11 @@ import kotlin.random.Random
 val MAX_DT_10 = 10    // maximum DT step in NOW
 
 fun client () {
-    val socket = Socket("localhost", PORT_10000)
-    val writer = DataOutputStream(socket.getOutputStream()!!)
-    val reader = DataInputStream(socket.getInputStream()!!)
+    val socket1 = Socket("localhost", PORT_10001)
+    val writer1 = DataOutputStream(socket1.getOutputStream()!!)
+    val reader1 = DataInputStream(socket1.getInputStream()!!)
 
-    val msg = reader.readInt()
+    val msg = reader1.readInt()
     assert(msg == Message.START.ordinal)
     println("[client] started")
 
@@ -24,8 +24,8 @@ fun client () {
 
     fun app_output (evt: Int) {
         println("[client] 1 wants $NOW")
-        writer.writeLong(NOW)
-        writer.writeInt(evt)
+        writer1.writeLong(NOW)
+        writer1.writeInt(evt)
     }
 
     var nxt1: Long = 0
@@ -41,30 +41,31 @@ fun client () {
                 nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
+                app_output(Random.nextInt(10))
             }
         }
     }
 
     thread {
         while (true) {
-            val msg = reader.readInt()
+            val msg = reader1.readInt()
             when (msg) {
                 Message.WANTED.ordinal -> {
-                    val wanted = reader.readLong()    // original time
+                    val wanted = reader1.readLong()    // original time
                     val now = NOW
                     println("[client] 3 wanted $wanted, now=$now")
                     //Thread.sleep(5)
-                    synchronized(socket) {
-                        queue_expecteds.add(max(now,wanted)+RTT_100)   // possible time + rtt
+                    synchronized(socket1) {
+                        queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
                     }
-                    writer.writeLong(now)
+                    writer1.writeLong(now)
                 }
                 Message.DECIDED.ordinal -> {
-                    val decided = reader.readLong()
-                    val evt = reader.readInt()
+                    val decided = reader1.readLong()
+                    val evt = reader1.readInt()
                     assert(decided >= NOW)
                     println("[client] decided=$decided now=$NOW")
-                    synchronized(socket) {
+                    synchronized(socket1) {
                         queue_decideds.add(Pair(decided,evt))
                     }
                 }
@@ -74,7 +75,7 @@ fun client () {
     }
 
     while (true) {
-        synchronized(socket) {
+        synchronized(socket1) {
             while (queue_decideds.isNotEmpty() && NOW>=queue_decideds[0].first) {
                 val (now,evt) = queue_decideds.removeAt(0)
                 queue_expecteds.removeAt(0)
