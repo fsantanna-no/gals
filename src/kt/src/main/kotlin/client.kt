@@ -20,7 +20,8 @@ fun client () {
     val reader2 = DataInputStream(socket2.getInputStream()!!)
 
     val msg = reader1.readInt()
-    assert(msg == Message.START.ordinal)
+    assert(msg == 0)
+    writer1.writeInt(0)
     println("[client] started")
 
     var LATE = Instant.now().toEpochMilli()
