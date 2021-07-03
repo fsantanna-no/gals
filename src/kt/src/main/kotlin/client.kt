@@ -61,7 +61,7 @@ fun client () {
             synchronized(lock) {
                 queue_expecteds.add(max(now,wanted)+rtt)   // possible time + rtt
             }
-            Thread.sleep(Random.nextLong(5000))    // XXX: force delay
+            Thread.sleep(Random.nextLong(100))    // XXX: force delay
             writer2.writeLong(now)
 
             val decided = reader2.readLong()

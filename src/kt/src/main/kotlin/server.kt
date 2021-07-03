@@ -6,17 +6,17 @@ import kotlin.concurrent.thread
 import kotlin.math.max
 import kotlin.random.Random
 
-val N = 1   // number of app clients
+val N = 2   // number of app clients
 
 fun server () {
+    val socket1 = ServerSocket(PORT_10001)
+    val socket2 = ServerSocket(PORT_10002)  // TODO: same process as above?
+
     val clients1: MutableList<Pair<DataInputStream, DataOutputStream>> = mutableListOf()
     val clients2: MutableList<Pair<DataInputStream, DataOutputStream>> = mutableListOf()
 
     // connect to all clients
     for (i in 1..N) {
-        val socket1 = ServerSocket(PORT_10001)
-        val socket2 = ServerSocket(PORT_10002)  // TODO: same process as above?
-
         val client1 = socket1.accept()      // handles start and new events
         val client2 = socket2.accept()      // handles synchronization
         assert(client1.inetAddress == client2.inetAddress)
