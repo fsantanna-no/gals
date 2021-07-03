@@ -47,7 +47,7 @@ fun client () {
                 nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
-                //app_output(Random.nextInt(10))
+                app_output(Random.nextInt(10))
             }
         }
     }
@@ -58,7 +58,7 @@ fun client () {
                 assert(it == Message.WANTED.ordinal)
                 val wanted = reader2.readLong()    // original time
                 val now = NOW
-                println("[client] 3 wanted $wanted, now=$now")
+                //println("[client] 3 wanted $wanted, now=$now")
                 //Thread.sleep(5)
                 synchronized(lock) {
                     queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
@@ -70,7 +70,7 @@ fun client () {
                 val decided = reader2.readLong()
                 val evt = reader2.readInt()
                 assert(decided >= NOW)
-                println("[client] decided=$decided now=$NOW")
+                //println("[client] decided=$decided now=$NOW")
                 synchronized(lock) {
                     queue_decideds.add(Pair(decided,evt))
                 }
@@ -92,7 +92,7 @@ fun client () {
              */
             if (queue_expecteds.isNotEmpty() && queue_decideds.isEmpty() && NOW>=queue_expecteds.get(0)-MAX_DT_10) {
                 LATE += (Instant.now().toEpochMilli() - LATE) - NOW
-                println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
+                //println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
                 //error("oi")
             } else {
                 app_input(NOW, null)

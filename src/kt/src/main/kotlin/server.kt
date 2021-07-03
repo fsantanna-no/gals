@@ -31,7 +31,7 @@ fun server () {
                     queue.add(Pair(now,evt))
                     lock.notify()
                 }
-                println("[server] 2 want = $now")
+                //println("[server] 2 want = $now")
             }
         }
 
@@ -53,13 +53,13 @@ fun server () {
                 writer2.writeLong(want.first)           // send desired timestamp to all
                 val rem = reader2.readLong()            // receive local from all
                 val ms2 = Instant.now().toEpochMilli()
-                println("[server] rtt = ${ms2 - ms1}")
-                println("[server] rem = $rem")
+                //println("[server] rtt = ${ms2 - ms1}")
+                //println("[server] rem = $rem")
                 val max_ = rem                          // max local from all
 
                 // enviar a todos
                 writer2.writeInt(Message.DECIDED.ordinal)
-                println("[server] dec = ${max_ + RTT_50}")
+                //println("[server] dec = ${max_ + RTT_50}")
                 Thread.sleep((RTT_50 / 2 + Random.nextInt(RTT_50)).toLong())
                 writer2.writeLong(max_ + RTT_50)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
