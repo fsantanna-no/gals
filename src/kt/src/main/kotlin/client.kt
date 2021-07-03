@@ -55,26 +55,21 @@ fun client () {
 
     thread {
         while (true) {
-            reader2.readInt().let {
-                assert(it == Message.WANTED.ordinal)
-                val wanted = reader2.readLong()    // original time
-                val now = NOW
-                //println("[client] 3 wanted $wanted, now=$now")
-                //Thread.sleep(5)
-                synchronized(lock) {
-                    queue_expecteds.add(max(now,wanted)+RTT_50)   // possible time + rtt
-                }
-                writer2.writeLong(now)
+            val wanted = reader2.readLong()    // original time
+            val rtt = reader2.readLong()
+            val now = NOW
+            synchronized(lock) {
+                queue_expecteds.add(max(now,wanted)+rtt)   // possible time + rtt
             }
-            reader2.readInt().let {
-                assert(it == Message.DECIDED.ordinal)
-                val decided = reader2.readLong()
-                val evt = reader2.readInt()
-                assert(decided >= NOW)
-                //println("[client] decided=$decided now=$NOW")
-                synchronized(lock) {
-                    queue_decideds.add(Pair(decided,evt))
-                }
+            Thread.sleep(Random.nextLong(5000))    // XXX: force delay
+            writer2.writeLong(now)
+
+            val decided = reader2.readLong()
+            val evt = reader2.readInt()
+            assert(decided >= NOW)
+            //println("[client] decided=$decided now=$NOW")
+            synchronized(lock) {
+                queue_decideds.add(Pair(decided,evt))
             }
         }
     }

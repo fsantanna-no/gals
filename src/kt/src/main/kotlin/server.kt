@@ -33,7 +33,7 @@ fun server () {
 
     val lock = java.lang.Object()
     val queue: MutableList<Pair<Long, Int>> = mutableListOf()
-    var RTT = 0L
+    var RTT = 1L
 
     // sends START and gets initial RTT from all clients
     clients1.map {
@@ -75,29 +75,32 @@ fun server () {
 
         // WANTED round trip to all clients
         var TIME = 0L
+        var RTT_nxt = 1L
         clients2.map {
             thread {
                 val (reader2,writer2) = it
                 val ms1 = Instant.now().toEpochMilli()
-                writer2.writeInt(Message.WANTED.ordinal)
-                writer2.writeLong(want.first)           // send desired timestamp to all
-                val time = reader2.readLong()            // receive local from all
+                writer2.writeLong(want.first)           // sends desired timestamp to all
+                writer2.writeLong(RTT)
+                val time = reader2.readLong()           // receives local time from all
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
-                    RTT = max(RTT, ms2 - ms1)
+                    RTT_nxt = max(RTT_nxt, ms2 - ms1)
                     TIME = max(TIME, time)
                 }
             }
         }.map { it.join() }
 
         // sends DECIDED event to all clients
-        for (client2 in clients2) {
-            val (_,writer2) = client2
-            writer2.writeInt(Message.DECIDED.ordinal)
-            //println("[server] dec = ${max_ + RTT_50}")
-            Thread.sleep((RTT_50 / 2 + Random.nextInt(RTT_50)).toLong())
-            writer2.writeLong(TIME + RTT_50)      // at least MAX, at most MAX+100
-            writer2.writeInt(want.second)
-        }
+        clients2.map {
+            thread {
+                val (_, writer2) = it
+                Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
+                writer2.writeLong(TIME + RTT)      // at least MAX, at most MAX+100
+                writer2.writeInt(want.second)
+            }
+        }.map { it.join() }
+
+        RTT = RTT_nxt
     }
 }
