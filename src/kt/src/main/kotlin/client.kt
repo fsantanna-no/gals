@@ -11,11 +11,11 @@ val MAX_DT_10 = 10    // maximum DT step in NOW
 fun client () {
     val lock = java.lang.Object()
 
-    val socket1 = Socket("localhost", PORT_10011)
+    val socket1 = Socket("localhost", PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)
 
-    val socket2 = Socket("localhost", PORT_10012)
+    val socket2 = Socket("localhost", PORT_10002)
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
 
@@ -47,7 +47,7 @@ fun client () {
                 nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
                 //println("[app] emit")
                 app_output(Random.nextInt(10))
-                app_output(Random.nextInt(10))
+                //app_output(Random.nextInt(10))
             }
         }
     }
