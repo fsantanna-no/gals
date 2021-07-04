@@ -7,7 +7,7 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-fun client (port: Int, DT: Long) {
+fun client (DT: Long, port: Int = PORT_10000) {
     val lock = java.lang.Object()
 
     val socket0 = ServerSocket(port)
@@ -17,7 +17,7 @@ fun client (port: Int, DT: Long) {
 
     val msg0 = reader0.readInt()
     assert(msg0 == 0)
-    println("[client] app connected")
+    //println("[client] app connected")
 
     val socket1 = Socket("localhost", PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
@@ -30,7 +30,7 @@ fun client (port: Int, DT: Long) {
     val msg1 = reader1.readInt()
     assert(msg1 == 0)
     writer1.writeInt(0)
-    println("[client] server connected")
+    //println("[client] server connected")
 
     var LATE = Instant.now().toEpochMilli()
     var NXT  = 0.toLong()
