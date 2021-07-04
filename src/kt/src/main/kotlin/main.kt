@@ -1,9 +1,7 @@
-import kotlin.concurrent.thread
-
-fun main(args: Array<String>) {
-    thread { server() }
-    Thread.sleep(1000)
-    thread { client() }
-    thread { client() }
-    //client()
+fun main (args: Array<String>) {
+    when {
+        (args[0] == "server") -> server()
+        (args[0] == "client") -> client()
+        else -> error("impossible case")
+    }
 }
