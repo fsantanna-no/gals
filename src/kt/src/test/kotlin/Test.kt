@@ -9,8 +9,8 @@ class Tests {
     fun test () {
         thread { server(2) }
         Thread.sleep(1000)
-        thread { client() }
-        thread { client() }
+        thread { client(50) }
+        thread { client(50) }
         Thread.sleep(100000)
     }
 }
