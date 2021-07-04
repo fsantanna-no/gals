@@ -1,6 +1,6 @@
 # GALS - Distributed Deterministic Applications
 
-"Globally asynchronous locally synchronous GALS)" is an architecture to
+"Globally asynchronous locally synchronous (GALS)" is an architecture to
 integrate multiple independent synchronous processes as a single distributed
 application.
 
@@ -99,7 +99,8 @@ $ gals app 9998
         - Generates events back to the `client` when appropriate.
 - The `gals` system ensures that all instances receive the logical ticks in the
   same order.
-- The default `dapp` shipped with the distribution is as follows:
+- The default `dapp` written in Kotlin and shipped with the distribution is as
+  follows:
 
 ```
 fun app (port: Int) {
