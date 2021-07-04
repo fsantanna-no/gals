@@ -30,7 +30,7 @@ fun client () {
     val queue_decideds: MutableList<Pair<Long,Int>> = mutableListOf()
 
     fun app_output (evt: Int) {
-        println("[client] 1 wants $NOW")
+        //println("[client] 1 wants $NOW")
         writer1.writeLong(NOW)
         writer1.writeInt(evt)
     }
