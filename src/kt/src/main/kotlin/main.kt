@@ -8,6 +8,5 @@ fun main (args: Array<String>) {
 }
 
 /*
- * - tcp port
  * - sdl
  */

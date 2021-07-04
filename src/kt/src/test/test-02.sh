@@ -18,16 +18,16 @@ gals client 50 9991 &
 gals client 50 9990 &
 sleep 1
 
-gals app 9999 > /tmp/gals-01.txt &
-gals app 9998 > /tmp/gals-02.txt &
-gals app 9997 > /tmp/gals-03.txt &
-gals app 9996 > /tmp/gals-04.txt &
-gals app 9995 > /tmp/gals-05.txt &
-gals app 9994 > /tmp/gals-06.txt &
-gals app 9993 > /tmp/gals-07.txt &
-gals app 9992 > /tmp/gals-08.txt &
-gals app 9991 > /tmp/gals-09.txt &
-gals app 9990 > /tmp/gals-10.txt &
+gals app 9999 | head -n 2800 > /tmp/gals-01.txt &
+gals app 9998 | head -n 2800 > /tmp/gals-02.txt &
+gals app 9997 | head -n 2800 > /tmp/gals-03.txt &
+gals app 9996 | head -n 2800 > /tmp/gals-04.txt &
+gals app 9995 | head -n 2800 > /tmp/gals-05.txt &
+gals app 9994 | head -n 2800 > /tmp/gals-06.txt &
+gals app 9993 | head -n 2800 > /tmp/gals-07.txt &
+gals app 9992 | head -n 2800 > /tmp/gals-08.txt &
+gals app 9991 | head -n 2800 > /tmp/gals-09.txt &
+gals app 9990 | head -n 2800 > /tmp/gals-10.txt &
 
 sleep 120
 pkill -f GALS.jar
