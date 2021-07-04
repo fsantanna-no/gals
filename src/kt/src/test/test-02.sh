@@ -3,19 +3,19 @@
 pkill -f GALS.jar
 sleep 1
 
-gals.sh server 10 &
+gals server 10 &
 sleep 1
 
-gals.sh client | head -n 400 > /tmp/gals-01.txt &
-gals.sh client | head -n 400 > /tmp/gals-02.txt &
-gals.sh client | head -n 400 > /tmp/gals-03.txt &
-gals.sh client | head -n 400 > /tmp/gals-04.txt &
-gals.sh client | head -n 400 > /tmp/gals-05.txt &
-gals.sh client | head -n 400 > /tmp/gals-06.txt &
-gals.sh client | head -n 400 > /tmp/gals-07.txt &
-gals.sh client | head -n 400 > /tmp/gals-08.txt &
-gals.sh client | head -n 400 > /tmp/gals-09.txt &
-gals.sh client | head -n 400 > /tmp/gals-10.txt &
+gals client | head -n 400 > /tmp/gals-01.txt &
+gals client | head -n 400 > /tmp/gals-02.txt &
+gals client | head -n 400 > /tmp/gals-03.txt &
+gals client | head -n 400 > /tmp/gals-04.txt &
+gals client | head -n 400 > /tmp/gals-05.txt &
+gals client | head -n 400 > /tmp/gals-06.txt &
+gals client | head -n 400 > /tmp/gals-07.txt &
+gals client | head -n 400 > /tmp/gals-08.txt &
+gals client | head -n 400 > /tmp/gals-09.txt &
+gals client | head -n 400 > /tmp/gals-10.txt &
 
 sleep 120
 pkill -f GALS.jar
