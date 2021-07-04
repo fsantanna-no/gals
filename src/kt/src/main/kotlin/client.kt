@@ -63,7 +63,7 @@ fun client (port: Int, DT: Long) {
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
-            assert(decided >= NXT)
+            assert(decided+DT >= NXT)
             //println("[client] decided=$decided now=$NOW")
             synchronized(lock) {
                 queue_finals.add(Pair(decided,evt))
