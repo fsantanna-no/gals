@@ -7,10 +7,10 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-fun client (DT: Long) {
+fun client (port: Int, DT: Long) {
     val lock = java.lang.Object()
 
-    val socket0 = ServerSocket(PORT_10000)
+    val socket0 = ServerSocket(port)
     val client0 = socket0.accept()
     val writer0 = DataOutputStream(client0.getOutputStream()!!)
     val reader0 = DataInputStream(client0.getInputStream()!!)
