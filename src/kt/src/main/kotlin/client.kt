@@ -15,10 +15,6 @@ fun client (DT: Long, port: Int = PORT_10000) {
     val writer0 = DataOutputStream(client0.getOutputStream()!!)
     val reader0 = DataInputStream(client0.getInputStream()!!)
 
-    val msg0 = reader0.readInt()
-    assert(msg0 == 0)
-    //println("[client] app connected")
-
     val socket1 = Socket("localhost", PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)

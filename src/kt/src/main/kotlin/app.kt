@@ -5,10 +5,10 @@ import kotlin.concurrent.thread
 import kotlin.random.Random
 
 fun app (port: Int) {
+    // connect with the client on the provided port
     val socket = Socket("localhost", port)
     val writer = DataOutputStream(socket.getOutputStream()!!)
     val reader = DataInputStream(socket.getInputStream()!!)
-    writer.writeInt(0)
 
     thread {
         while (true) {
