@@ -1,16 +1,43 @@
 import org.junit.jupiter.api.MethodOrderer.Alphanumeric
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestMethodOrder
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.net.Socket
 import kotlin.concurrent.thread
+import kotlin.random.Random
 
 @TestMethodOrder(Alphanumeric::class)
 class Tests {
     @Test
     fun test () {
-        thread { server(2) }
+        thread { server(1) }
         Thread.sleep(1000)
-        thread { client(50) }
-        thread { client(50) }
+        thread { client(100) }
+        Thread.sleep(1000)
+
+        val socket = Socket("localhost", PORT_10000)
+        val writer = DataOutputStream(socket.getOutputStream()!!)
+        val reader = DataInputStream(socket.getInputStream()!!)
+        writer.writeInt(0)
+
+        thread {
+            while (true) {
+                val now = reader.readLong()
+                val evt = reader.readInt()
+                when (evt) {
+                    0    -> println("[app] now=$now")
+                    else -> println("[app] now=$now evt=$evt")
+                }
+
+            }
+        }
+        thread {
+            while (true) {
+                Thread.sleep(Random.nextLong(5000))
+                writer.writeInt(1 + Random.nextInt(10))
+            }
+        }
         Thread.sleep(100000)
     }
 }

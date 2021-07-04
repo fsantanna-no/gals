@@ -7,8 +7,6 @@ fun main (args: Array<String>) {
 }
 
 /*
- * - passar para clientes desired DT
- * - assert se falhar
- * - sdl
  * - tcp port
+ * - sdl
  */

@@ -1,15 +1,23 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.lang.Long.max
+import java.net.ServerSocket
 import java.net.Socket
 import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-val MAX_DT_10 = 10    // maximum DT step in NOW
-
 fun client (DT: Long) {
     val lock = java.lang.Object()
+
+    val socket0 = ServerSocket(PORT_10000)
+    val client0 = socket0.accept()
+    val writer0 = DataOutputStream(client0.getOutputStream()!!)
+    val reader0 = DataInputStream(client0.getInputStream()!!)
+
+    val msg0 = reader0.readInt()
+    assert(msg0 == 0)
+    println("[client] app connected")
 
     val socket1 = Socket("localhost", PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
@@ -19,10 +27,10 @@ fun client (DT: Long) {
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
 
-    val msg = reader1.readInt()
-    assert(msg == 0)
+    val msg1 = reader1.readInt()
+    assert(msg1 == 0)
     writer1.writeInt(0)
-    println("[client] started")
+    println("[client] server connected")
 
     var LATE = Instant.now().toEpochMilli()
     var NXT  = 0.toLong()
@@ -34,27 +42,11 @@ fun client (DT: Long) {
         return Instant.now().toEpochMilli() - LATE
     }
 
-    fun app_output (evt: Int) {
-        //println("[client] 1 wants $NOW")
-        writer1.writeLong(NXT)
-        writer1.writeInt(evt)
-    }
-
-    var nxt1: Long = 0
-    var nxt2: Long = NXT + Random.nextLong(10000)
-    fun app_input (now: Long, evt: Int?) {
-        when {
-            (evt != null) -> println("[app] now=${now/1000} evt=$evt")
-            (now >= nxt1) -> {
-                println("[app] now=${now/1000} evt=$evt")
-                nxt1 += 1000
-            }
-            (now > nxt2) -> {
-                nxt2 = now + 100 + Random.nextLong(5000)   // TODO: remove +1000
-                //println("[app] emit")
-                app_output(Random.nextInt(10))
-                //app_output(Random.nextInt(10))
-            }
+    thread {
+        while (true) {
+            val evt = reader0.readInt()
+            writer1.writeLong(NXT)
+            writer1.writeInt(evt)
         }
     }
 
@@ -80,28 +72,34 @@ fun client (DT: Long) {
     }
 
     while (true) {
-        synchronized(lock) {
+        val ok = synchronized(lock) {
             while (queue_finals.isNotEmpty() && NXT>=queue_finals[0].first) {
                 val (now,evt) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
-                app_input(now, evt)
+                writer0.writeLong(NXT)
+                writer0.writeInt(evt)
             }
             /*
             if (!(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))) {
             }
             assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
              */
-            if (queue_expecteds.isNotEmpty() && queue_finals.isEmpty() && NXT>=queue_expecteds.get(0)-MAX_DT_10) {
+            if (queue_expecteds.isNotEmpty() && queue_finals.isEmpty()) {
                 LATE += NOW() - NXT
+                false
                 //println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
-                //error("oi")
+                //println("oi")
             } else {
-                app_input(NXT, null)
+                writer0.writeLong(NXT)
+                writer0.writeInt(0)
                 NXT += DT
+                true
             }
         }
-        val dt = NXT + LATE - Instant.now().toEpochMilli()
-        assert(dt >= 0)
-        Thread.sleep(dt)
+        if (ok) {
+            val dt = NXT + LATE - Instant.now().toEpochMilli()
+            assert(dt >= 0)
+            Thread.sleep(dt)
+        }
     }
 }
