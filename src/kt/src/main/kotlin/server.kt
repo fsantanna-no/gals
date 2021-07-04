@@ -6,9 +6,7 @@ import kotlin.concurrent.thread
 import kotlin.math.max
 import kotlin.random.Random
 
-val N = 2   // number of app clients
-
-fun server () {
+fun server (N: Int) { // number of app clients
     val socket1 = ServerSocket(PORT_10001)
     val socket2 = ServerSocket(PORT_10002)  // TODO: same process as above?
 

@@ -5,10 +5,9 @@ import kotlin.concurrent.thread
 
 @TestMethodOrder(Alphanumeric::class)
 class Tests {
-
     @Test
     fun test () {
-        thread { server() }
+        thread { server(2) }
         Thread.sleep(1000)
         thread { client() }
         thread { client() }
