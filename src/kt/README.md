@@ -47,6 +47,8 @@ software distribution.
 The actual `dapp` must be implemented by the user of `gals` and
 communicates with the clients through a simple TCP API to receive and generate
 events.
+The `dapp` generates local events asynchronously (in read), but which are
+received back globally and synchronously in all processes (in green).
 We provide a sample `dapp` that just generates random events and dumps the
 logical ticks in the screen.
 
