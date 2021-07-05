@@ -10,7 +10,7 @@ A logical tick may represent an event, such as a mouse click, or simply the
 passage of time.
 Since execution is guided from outside, the main advantage of the synchronous
 model is that we can reproduce the exact behavior of a program by providing the
-same sequence steps.
+same sequence of steps.
 
 Our goal is to have an application executing with the
 *very same exact behavior* in multiples machines.
@@ -27,6 +27,8 @@ order and time.
 For instance, if the user clicks the mouse in one machine, this event needs to
 travel to other machines, which will inevitably receive it in the future and at
 different times.
+
+<img src="gals.png" align="right" width="500">
 
 The GALS architecture acknowledges that distributed processes are not
 synchronized and that communication between them takes time, i.e., processes
@@ -45,7 +47,7 @@ software distribution.
 The actual `dapp` must be implemented by the user of `gals` and
 communicates with the clients through a simple TCP API to receive and generate
 events.
-We also ship a sample `dapp` that just generates random events and dumps the
+We provide a sample `dapp` that just generates random events and dumps the
 logical ticks in the screen.
 
 ## Install
