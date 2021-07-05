@@ -70,7 +70,7 @@ $ sh install-v0.1.0.sh .                    # either unzip to current directory 
 $ sudo sh install-v0.1.0.sh /usr/local/bin  # or     unzip to system  directory
 ```
 
-## Basics
+## Execute
 
 - Execute a `server` that expects `2` clients.
 - Execute each `client` to generate ticks every `50ms` and communicate with
@@ -82,7 +82,8 @@ $ gals client 50 9999 &
 $ gals client 50 9998 &
 ```
 
-- Open two other terminals to execute the default `dapp`.
+- Open two other terminals to execute the default `dapp` and connect with the
+  respective client.
 
 ```
 $ gals app 9999
@@ -92,9 +93,9 @@ $ gals app 9999
 $ gals app 9998
 ```
 
-- Observe that the apps behave exactly in the same way.
+- Observe that the apps behave in the very same way.
 
-## Custom `dapp`
+## A custom `dapp`
 
 - The life cycle of a `dapp` is as follows:
     - Opens a connection with the local `client`.
@@ -118,7 +119,11 @@ fun app (port: Int) {
         while (true) {
             val now = reader.readLong()     // current time
             val evt = reader.readInt()      // current event (0=none)
-            when (evt) {                    // we simply dump the current time/event
+
+            // ... actual code that implements the application
+
+            // here, we simply dump the current time/event
+            when (evt) {
                 0    -> println("now=$now")
                 else -> println("now=$now evt=$evt")
             }
