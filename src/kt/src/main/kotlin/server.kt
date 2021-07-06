@@ -38,6 +38,9 @@ fun server (N: Int) { // number of app clients
         thread {
             val (reader1, writer1) = it
             val ms1 = Instant.now().toEpochMilli()
+            if (DEBUG) {
+                Thread.sleep(Random.nextLong(100))    // XXX: force delay
+            }
             writer1.writeInt(0)     // send start
             val v = reader1.readInt()
             assert(v == 0)
@@ -62,6 +65,7 @@ fun server (N: Int) { // number of app clients
     }
 
     // synchronizes emits
+    var TIME = 0L
     while (true) {
         // waits for an event
         val want = synchronized(lock) {
@@ -72,19 +76,21 @@ fun server (N: Int) { // number of app clients
         }
 
         // WANTED round trip to all clients
-        var TIME = 0L
         var RTT_nxt = 1L
         clients2.map {
             thread {
                 val (reader2,writer2) = it
                 val ms1 = Instant.now().toEpochMilli()
+                if (DEBUG) {
+                    Thread.sleep(Random.nextLong(100))    // XXX: force delay
+                }
                 writer2.writeLong(want.first)           // sends desired timestamp to all
                 writer2.writeLong(RTT)
                 val time = reader2.readLong()           // receives local time from all
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
                     RTT_nxt = max(RTT_nxt, ms2 - ms1)
-                    TIME = max(TIME, time)
+                    TIME = max(TIME, time+RTT)
                 }
             }
         }.map { it.join() }
@@ -93,8 +99,10 @@ fun server (N: Int) { // number of app clients
         clients2.map {
             thread {
                 val (_, writer2) = it
-                Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
-                writer2.writeLong(TIME + RTT)      // at least MAX, at most MAX+100
+                if (DEBUG) {
+                    Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
+                }
+                writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
             }
         }.map { it.join() }

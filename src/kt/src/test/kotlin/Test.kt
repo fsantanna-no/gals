@@ -9,7 +9,7 @@ import kotlin.random.Random
 
 @TestMethodOrder(Alphanumeric::class)
 class Tests {
-    @Test
+    @Test  // see now=... and sporadic evt=...
     fun test_01 () {
         thread { server(1) }
         Thread.sleep(1000)
@@ -41,7 +41,7 @@ class Tests {
         Thread.sleep(100000)
     }
 
-    @Test
+    @Test  // see now=... and sporadic evt=... (but twice and synchronized)
     fun test_02 () {
         thread { server(2) }
         Thread.sleep(1000)

@@ -25,6 +25,9 @@ fun client (DT: Long, port: Int = PORT_10000) {
 
     val msg1 = reader1.readInt()
     assert(msg1 == 0)
+    if (DEBUG) {
+        Thread.sleep(Random.nextLong(100))    // XXX: force delay
+    }
     writer1.writeInt(0)
     //println("[client] server connected")
 
@@ -34,13 +37,12 @@ fun client (DT: Long, port: Int = PORT_10000) {
     val queue_expecteds: MutableList<Long> = mutableListOf()
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
 
-    fun NOW (): Long {
-        return Instant.now().toEpochMilli() - LATE
-    }
-
     thread {
         while (true) {
             val evt = reader0.readInt()
+            if (DEBUG) {
+                Thread.sleep(Random.nextLong(100))    // XXX: force delay
+            }
             writer1.writeLong(NXT)
             writer1.writeInt(evt)
         }
@@ -54,13 +56,15 @@ fun client (DT: Long, port: Int = PORT_10000) {
             synchronized(lock) {
                 queue_expecteds.add(max(now,wanted)+rtt)   // possible time + rtt
             }
-            //Thread.sleep(Random.nextLong(100))    // XXX: force delay
+            if (DEBUG) {
+                Thread.sleep(Random.nextLong(100))    // XXX: force delay
+            }
             writer2.writeLong(now)
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
+            //println("[client] decided=$decided + DT=$DT >= NXT=$NXT")
             assert(decided+DT >= NXT)
-            //println("[client] decided=$decided now=$NOW")
             synchronized(lock) {
                 queue_finals.add(Pair(decided,evt))
             }
@@ -68,6 +72,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
     }
 
     while (true) {
+        val now = Instant.now().toEpochMilli()
         val ok = synchronized(lock) {
             while (queue_finals.isNotEmpty() && NXT>=queue_finals[0].first) {
                 val (now,evt) = queue_finals.removeAt(0)
@@ -81,7 +86,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
             assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
              */
             if (queue_expecteds.isNotEmpty() && queue_finals.isEmpty()) {
-                LATE += NOW() - NXT
+                LATE += now - LATE - NXT
                 false
                 //println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
                 //println("oi")
@@ -93,7 +98,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
             }
         }
         if (ok) {
-            val dt = NXT + LATE - Instant.now().toEpochMilli()
+            val dt = NXT + LATE - now
             assert(dt >= 0)
             Thread.sleep(dt)
         }
