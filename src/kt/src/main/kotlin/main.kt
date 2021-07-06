@@ -8,8 +8,6 @@ fun main (args: Array<String>) {
 }
 
 /*
- * - verificar delays no SDL
- *   - mostrar freezes e max rtt
  * - fazer sync de tempo
  * - delays em todos os lugares
  * - --version

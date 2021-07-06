@@ -49,12 +49,12 @@ int main (int argc, char** argv) {
             case 2: { xdir= 1; ydir=0; break; }
             case 3: { ydir=-1; xdir=0; break; }
             case 4: { ydir= 1; xdir=0; break; }
-        }            
+            case 5: { ydir= 0; xdir=0; break; }
+        }
 
         SDL_Rect r = { x, y, 10, 10 };
-        SDL_SetRenderDrawColor(ren, 0xFF,0x00,0x00,0xFF);        
+        SDL_SetRenderDrawColor(ren, 0xFF,0x00,0x00,0xFF);
         SDL_RenderFillRect(ren, &r);
-        SDL_RenderPresent(ren);
 
         x += 5 * xdir;
         y += 5 * ydir;
@@ -70,14 +70,20 @@ int main (int argc, char** argv) {
                         case SDLK_RIGHT: { n=2; break; }
                         case SDLK_UP:    { n=3; break; }
                         case SDLK_DOWN:  { n=4; break; }
+                        case SDLK_SPACE: { n=5; break; }
                     }
                 }
                 if (n != 0) {
+                    SDL_Rect r = { 190, 190, 20, 20 };
+                    SDL_SetRenderDrawColor(ren, 0x77,0x77,0x77,0x77);
+                    SDL_RenderFillRect(ren, &r);
                     n = htobe32(n);
                     assert(SDLNet_TCP_Send(s, &n, sizeof(n)) == sizeof(n));
                 }
             }
         }
+
+        SDL_RenderPresent(ren);
 	}
 
 	SDLNet_TCP_Close(s);
