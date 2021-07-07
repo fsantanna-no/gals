@@ -43,6 +43,14 @@ As stated by Benveniste and Gary, "there is no
 reason the engineer should want his [system] to behave in some unpredictable
 manner" [12]
 
+
+- A deterministic program can be understood without concern for execution interleavings, data races, or complex memory consistency models: the program behavior is completely defined by its sequential equivalent.
+- Programmers can reason about programs, debug them during development, and diagnose error reports after deployment using the development techniques and tools currently used for sequential programs.
+- Independent software vendors can test codes as they do for sequential programs, without being concerned about the need to cover multiple possible executions for each input. The same test suites developed for the sequential code can be used for the parallel code.
+- Programmers can use an incremental parallelization strategy, progressively replacing sequential constructs with parallel constructs, while preserving program behavior.
+- Two separately developed but deterministic parallel components should be far easier to compose than more general parallel code, because a deterministic component should have the same behavior regardless of the external context within which it is executed.
+
+
 Here we use a definition that is based
 on the sequential consistency model defined by Lamport [4], but with an
 extension to accommodate the timing aspect—we call it timing-sequential
