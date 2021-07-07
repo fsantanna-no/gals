@@ -9,9 +9,6 @@ fun main (args: Array<String>) {
 
 /*
  * - fazer sync de tempo
- * - delays em todos os lugares
  * - --version
  * - server port
- * - ressaltar questão da interatividade, inclusive no título
- *   - single application, multiple views, may restrict events per node
  */

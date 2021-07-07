@@ -72,7 +72,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
     }
 
     while (true) {
-        val now = Instant.now().toEpochMilli()
+        val now1 = Instant.now().toEpochMilli()
         val ok = synchronized(lock) {
             while (queue_finals.isNotEmpty() && NXT>=queue_finals[0].first) {
                 val (now,evt) = queue_finals.removeAt(0)
@@ -86,7 +86,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
             assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
              */
             if (queue_expecteds.isNotEmpty() && queue_finals.isEmpty()) {
-                LATE += now - LATE - NXT
+                LATE += now1 - LATE - NXT
                 false
                 //println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
                 //println("oi")
@@ -98,9 +98,13 @@ fun client (DT: Long, port: Int = PORT_10000) {
             }
         }
         if (ok) {
-            val dt = NXT + LATE - now
-            assert(dt >= 0)
-            Thread.sleep(dt)
+            val now2 = Instant.now().toEpochMilli()
+            val dt = NXT + LATE - now2
+            if (dt < 0) { println("NXT=$NXT + LATE=$LATE - now=$now2 >= 0") }
+            //assert(dt >= 0)
+            if (dt > 0) {
+                Thread.sleep(dt)
+            }
         }
     }
 }
