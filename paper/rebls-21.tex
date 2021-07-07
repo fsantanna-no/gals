@@ -80,12 +80,70 @@ and testing can be done in a single instance with the same guarantees.
 
 \section{Introduction}
 
-Deterministic programs are easier to understand, test, and verify.
-%With such reproducibility property, multiple re-executions are
-%indistinguishable from one another.
+Deterministic programs are easier to understand, test, and verify~\cite{det}.
+Considering user interactions, a program is deterministic if re-execution with
+the same order and timing of inputs always leads to the same state.
+With such reproducibility property, multiple re-executions are
+indistinguishable from one another.
+Considering distribution, it should even be possible to provide the same set of
+inputs to concurrent instances in real time and observe identical behavior.
+In this work, our goal is to guarantee such real-time reproducibility property
+in a distributed setting.
+Mirrored instances of the same application should be allowed to broadcast
+asynchronous inputs to each other and yet conform to identical behavior.
+
+In the synchronous programming model~\cite{hipo}, a program executes in
+locksteps (or logical ticks) as successive reactions to inputs provided by the
+external environment.
+The environment represents the user interacting with the application, and
+inputs can be occasional events, such as a key press, or simply the passage of
+time.
+Since execution is guided from outside, the main advantage of the synchronous
+model is that it can reproduce the exact behavior of a program by providing the
+same sequence of inputs.
+A fundamental requirement, known as the \emph{synchronous hypothesis}~\cite{hypo},
+is that logical ticks are isolated from one another to preserve locksteps and
+prevent concurrent reactions to inputs, which would break determinism.
+This hypothesis is satisfied if computing reactions is faster than the rate of
+external inputs.
+
+An important concern is how to guarantee that isolated reactions are themselves
+deterministic and sufficiently fast.
+Synchronous languages~\cite{twelve} typically restrict the programming
+primitives and/or perform static analysis to ensure these properties.
+Since our solution involves standard event-driven APIs for generic programming
+languages, we assume these properties are met informally with coding best
+practices, such as avoiding stateful system calls and time-consuming loops.
+
+
+  shows that ... but local
+With distribution, communication timing is asynchronous because communication
+latency takes a non-negligible time and breaks the synchronous hypothesis.
+
+
+Synchronous: reactions run atomically and to comple-
+tion on each line of execution, i.e., there’s no implicit
+preemption or real parallelism.
+
+Synchronous: reactions run atomically and to com-
+pletion on each line of execution, i.e., there’s no
+implicit preemption or real parallelism.
+
+The synchronous execution model of Céu dictates
+that reactions to input events are atomic and that in-
+coming events are never lost, which we refer to as the
+atomicity and responsiveness properties, respectively.
+
+They rely on
+the synchronous hypothesis which states that programs take no time to produce
+outputs when reacting to inputs. The precise notion of time in these languages
+is suitable for programming operations that should be performed respecting a
+given timing constraint, which are common case in multimedia.
+
+GALS...
 
 Considering user interactions, a
- and timing
+
  property
  with just two commands
  to broadcast
