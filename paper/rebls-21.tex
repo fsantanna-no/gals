@@ -85,14 +85,106 @@ Considering user interactions, a program is deterministic if re-execution with
 the same order and timing of inputs always leads to the same state.
 With such reproducibility property, multiple re-executions are
 indistinguishable from one another.
-Considering distribution, it should even be possible to provide the same set of
-inputs to concurrent instances in real time and observe identical behavior.
-In this work, our goal is to guarantee such real-time reproducibility property
-in a distributed setting.
-Mirrored instances of the same application should be allowed to broadcast
-asynchronous inputs to each other and yet conform to identical behavior.
+Considering now distribution, it should even be possible to provide the same
+set of inputs to concurrent instances in real time and observe identical
+behavior.
 
-In the synchronous programming model~\cite{hipo}, a program executes in
+In this work, our goal is to guarantee real-time reproducibility property in a
+distributed setting.
+Mirrored instances of the same application running in different machines can
+broadcast asynchronous inputs to each other and yet conform to
+identical behavior.
+Hence, our focus is on \emph{symmetric distributed applications}, instead of
+machines playing different roles in the network.
+
+Collaborative networked applications fall in the class of symmetric
+distribution and can benefit of transparent determinism and reproducibility.
+As an example, \emph{watch parties} are social gathering to watch movies and TV
+shows.
+Users expect to be perfectly synchronized such that anyone pressing the pause
+button should stop all instances exactly in the same video frame.
+In this context, the network and distance are just inconveniences that should
+not make the experience to diverge from users sitting in front of the same TV.
+Other examples that fall in this category are multiplayer games and
+collaborative document editing.
+
+Since our goal is to make distributed applications to \emph{behave} like local
+applications, we also intend to make distributed programs to \emph{be coded}
+like local programs.
+In this sense, we provide a standard event-driven API with two main commands
+to wait and generate events.
+Programmers write the intended distributed application as if it would execute
+in a single machine.
+We also provide the middleware that connects the multiple application instances
+transparently in the network.
+The middleware intercepts event generation and synchronizes all instances so
+that receipt is identically reproducible.
+As a result, not only distributed applications benefit from determinism but
+also development and testing can be done in a single instance with the same
+guarantees.
+
+As the main limitations, the middleware relies on a centralized server and all
+instances must be known and responsive during the entire execution.
+In addition, reaction to events takes the maximum round-trip time considering
+all clients, which can be intolerable for low-latency applications such as
+video games.
+
+Section~\ref{sec.arch} describes the overall architecture of our middleware.
+Section~\ref{sec.sync} discusses the synchronous programming model, which
+programs following our event-driven API must comply in order to preserve
+determinism.
+Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
+architecture of our middleware, and the synchronization algorithm to reproduce
+the same set of inputs to all network instances in real time.
+Section~\ref{sec.eval} evaluates our middleware with...
+Section~\ref{sec.related}...
+Section~\ref{sec.conclusion}...
+
+\section{Overall Middleware Architecture}
+
+Figure~\ref{fig.middleware} illustrates the client-server architecture of our
+middleware entitled \emph{gals}.
+A distributed application (\emph{dapp}, at the top left of the Figure), is a
+set of mirrored instances running in different machines (also \emph{dapp},
+inside the circles, to emphasize that they are symmetric and represent a single
+application).
+The clients, which are part of the middleware, intermediate all communication
+with the server and empowers the \emph{dapp} instances to be specified as a
+local application.
+The server receives asynchronous events in red from the instances (which are
+just forwarded by their clients), and redirects them to all clients, including
+their origin.
+
+calculates a delay 
+with a delay
+
+
+A single server is responsible for orchestrating
+
+- ticks are predictable
+- but not events
+
+- synchronous green inputs, local execution, red events are retrofit
+    - ticks are the most visible for users and is always green, no server involved
+- asynchronous mainly server sync, since client only forwards
+
+
+The clients are synchronized by the single server in such a way that
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{middleware}
+  \caption{
+    \label{fig.middleware}
+    The architecture of the middleware \emph{gals}.
+    A single server synchronizes multiple clients, each connected to a mirrored
+    instance of the distributed application.
+  }
+  %\Description{A woman and a girl in white dresses sit in an open car.}
+\end{figure}
+
+
+In the synchronous programming model~\cite{sync}, a program executes in
 locksteps (or logical ticks) as successive reactions to inputs provided by the
 external environment.
 The environment represents the user interacting with the application, and
@@ -109,12 +201,13 @@ external inputs.
 
 An important concern is how to guarantee that isolated reactions are themselves
 deterministic and sufficiently fast.
-Synchronous languages~\cite{twelve} typically restrict the programming
+Synchronous languages~\cite{langs} typically restrict the programming
 primitives and/or perform static analysis to ensure these properties.
 Since our solution involves standard event-driven APIs for generic programming
 languages, we assume these properties are met informally with coding best
 practices, such as avoiding stateful system calls and time-consuming loops.
 
+symmetric distributed
 
   shows that ... but local
 With distribution, communication timing is asynchronous because communication
@@ -148,11 +241,6 @@ Considering user interactions, a
  with just two commands
  to broadcast
 %
-As limitations, the middleware relies on a centralized server and all instances
-must be known and responsive during the entire execution.
-In addition, reaction to events takes the maximum round-trip time considering
-all clients, which can be intolerable for low-latency applications.
-
 - not a equal apps, but the same app
     - one click in one is the same as in another, as if all xxx clicked together
 Test locally in one instance is the same as N instances in M machines
@@ -161,7 +249,7 @@ What about in realtime
 - high-level vs low-leve events, semantic events
 
 
-\section{Synchronous Programming}
+\section{Local Synchronous Programming}
 
 - transparent mechanism
 - all network communication

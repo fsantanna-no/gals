@@ -100,7 +100,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
         if (ok) {
             val now2 = Instant.now().toEpochMilli()
             val dt = NXT + LATE - now2
-            if (dt < 0) { println("NXT=$NXT + LATE=$LATE - now=$now2 >= 0") }
+            if (dt < 0) { println("NXT=$NXT + LATE=$LATE - now=$now2 = $dt >= 0") }
             //assert(dt >= 0)
             if (dt > 0) {
                 Thread.sleep(dt)
