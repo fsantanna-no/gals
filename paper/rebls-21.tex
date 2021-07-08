@@ -42,10 +42,11 @@
 %\renewcommand{\shortauthors}{Trovato and Tobin, et al.}
 
 \begin{abstract}
-A program is deterministic if re-execution with the same order of inputs always
-leads to the same state.
-It should even be possible to provide the same set of inputs to concurrent
-instances in real time and observe identical behavior.
+A program is deterministic if multiple re-executions with the same order of
+inputs always lead to the same state.
+For a given deterministic program, it should even be possible to provide the
+same set of inputs to concurrent instances and observe identical behavior in
+real time.
 %
 In this work, we guarantee real-time reproducibility in a distributed setting.
 Mirrored instances of the same application are allowed to broadcast
@@ -74,7 +75,8 @@ and testing can be done in a single instance with the same guarantees.
 \ccsdesc[100]{Networks~Network reliability}
 \end{comment}
 
-\keywords{globally-asynchronous locally-synchronous, synchronous programming}
+%\keywords{globally-asynchronous locally-synchronous, synchronous programming}
+\keywords{TODO}
 
 \maketitle
 
@@ -86,11 +88,11 @@ the same order and timing of inputs always leads to the same state.
 With such reproducibility property, multiple re-executions are
 indistinguishable from one another.
 Considering now distribution, it should even be possible to provide the same
-set of inputs to concurrent instances in real time and observe identical
-behavior.
+set of inputs to concurrent instances of a deterministic program and observe
+identical behavior in real time.
 
-In this work, our goal is to guarantee real-time reproducibility property in a
-distributed setting.
+In this work, our goal is to guarantee the real-time reproducibility property
+in a distributed setting.
 Mirrored instances of the same application running in different machines can
 broadcast asynchronous inputs to each other and yet conform to
 identical behavior.
@@ -99,11 +101,11 @@ machines playing different roles in the network.
 
 Collaborative networked applications fall in the class of symmetric
 distribution and can benefit of transparent determinism and reproducibility.
-As an example, \emph{watch parties} are social gathering to watch movies and TV
-shows.
+As an example, \emph{watch parties} are social gatherings to watch movies and
+TV shows.
 Users expect to be perfectly synchronized such that anyone pressing the pause
 button should stop all instances exactly in the same video frame.
-In this context, the network and distance are just inconveniences that should
+In this context, the network distributions is just an inconvenience that should
 not make the experience to diverge from users sitting in front of the same TV.
 Other examples that fall in this category are multiplayer games and
 collaborative document editing.
@@ -128,7 +130,7 @@ instances must be known and responsive during the entire execution.
 In addition, reaction to events takes the maximum round-trip time (RTT)
 considering all clients, which can be intolerable for low-latency applications
 such as video games.
-Finally, a client diverges from the expected RTT, the application may
+Finally, if a client diverges from the expected RTT, the application may
 experience intermittent freezes.
 
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
@@ -136,8 +138,8 @@ Section~\ref{sec.sync} discusses the synchronous programming model, which
 programs following our event-driven API must comply in order to preserve
 determinism.
 Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
-architecture of our middleware, and the synchronization algorithm to reproduce
-the same set of inputs to all network instances in real time.
+architecture of our middleware, and details the synchronization algorithm for
+real-time distributed input reproducibility.
 Section~\ref{sec.eval} evaluates our middleware with...
 Section~\ref{sec.related}...
 Section~\ref{sec.conclusion}...
@@ -145,7 +147,7 @@ Section~\ref{sec.conclusion}...
 \section{Overall Middleware Architecture}
 \label{sec.arch}
 
-Figure~\ref{fig.middleware} illustrates the client-server architecture of our
+Figure~\ref{fig.middleware} describes the client-server architecture of our
 middleware entitled \emph{gals}.
 A distributed application (\emph{dapp}, at the top left of the Figure), is a
 set of mirrored instances running in different machines (also \emph{dapp},
@@ -154,14 +156,15 @@ application).
 The clients, which are part of the middleware, intermediate all communication
 with the server and is key to permit that \emph{dapp} instances are specified
 as a local application.
-The server receives asynchronous events (in red) from the instances and is
+The server receives asynchronous events (in red) from instances and is
 responsible for redirecting them to all clients as synchronous events with an
 appropriate delta delay (in green).
-The delay is necessary because broadcast takes non-negligible time (e.g., in
-the order of milliseconds), and instances need to advance at the same time in
-order to preserve reproducibility.
+The delay is necessary because network broadcast takes non-negligible time
+(i.e., in the order of milliseconds), and instances need to advance at the same
+time in order to preserve reproducibility.
 The clients control the clock ticks of the instances and is responsible for
-issuing the received events at the appropriate timestamps.
+issuing the received events at the appropriate timestamps (both synchronized,
+in green).
 
 \begin{figure}[t]
   \centering
@@ -177,10 +180,10 @@ issuing the received events at the appropriate timestamps.
 
 The events represent user interactions, such as key presses, which are
 unpredictable and need to be communicated with the other instances.
-Since instances should be indistinguishable, event sources are irrelevant, at
-least for theoretical purposes.
+Since instances should be indistinguishable from one another, event sources are
+irrelevant.
 For instance, if a user presses a key in one instance, the \emph{dapp} behaves
-as if all users pressed the same key at the same time.
+as if all users pressed the same key in all instances simultaneously.
 %
 Clock ticks represent the rate in which applications are updated, and are
 equivalent to frame rates in video playback and games.
@@ -189,15 +192,18 @@ For practical purposes, we assume periods in the order of tens of milliseconds
 An important insight is that clock ticks are predictable inputs and need not to
 go through the server.
 This results in no delay between the \emph{dapp} and the client since
-interprocess communication takes negligible time.
-Unlike sporadic mechanical user input, clock ticks cannot accept delays in the
-order of milliseconds without going unnoticed by humans.
+interprocess communication takes negligible time (i.e., in the order of a few
+microseconds).
+Unlike sporadic mechanical user input, clock ticks cannot tolerate considerable
+delays without going unnoticed by humans.
 %
-The clock ticks and delayed events constitute the unique synchronous timeline
+Clock ticks and delayed events constitute the unique synchronous timeline
 shared by all instances of the \emph{dapp}, allowing them to manifest identical
 behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
+As detailed in Section~\ref{sec.gals}, the middleware ensures that all
+instances receive the same timeline.
 
 \begin{figure}[t]
 {\scriptsize
@@ -228,22 +234,24 @@ Tick    Event    Async
   }
 \end{figure}
 
-As detailed in Section~\ref{sec.gals}, the delay for user input is the maximum
-network round-trip time considering all clients.
-We deliberately assume unbounded delay between the clients and the server to
-augment the scope of applications.
+%As detailed in Section~\ref{sec.gals}, the delta delay for user input is the
+The delta delay for user input is the maximum network round-trip time
+considering all clients.
+We deliberately assume unbounded network delay to augment the scope of
+applications.
 Another concern is the rate of input generation in the instances.
 As an example, tracking the mouse position will inevitably flood the network
 with packets and make the application unresponsive.
-For these reasons, the viability of the applications will depend on acceptable
-delay in the user input, the nature and rate of inputs, and the maximum network
-latency.
+For these reasons, the viability of applications depends on
+    (i) the acceptable delay in the user input,
+    (ii) the nature and rate of inputs, and
+    (iii) the maximum network latency.
 
-The code for the actual \emph{dapp} is the same for all instances and use a
+The code for an actual \emph{dapp} is the same for all instances and uses a
 standard event-driven API with only four commands:
 \begin{itemize}
 \item \texttt{connect(port)}:            \\Connects with the local client in the given port.
-\item \texttt{disconnect(port)}:         \\Disconnects with the local client.
+\item \texttt{disconnect()}:             \\Disconnects with the local client.
 \item \texttt{(now,evt) = gals\_wait()}: \\Waits for the next input carrying a timestamp and event id.
 \item \texttt{gals\_emit(evt)}:          \\Emits the given asynchronous input.
 \end{itemize}
@@ -259,7 +267,7 @@ enclose the application logic.
 03     while (true) {                 // main event loop
 04        val (now,evt) = gals_wait() // awaits next input
 05        switch (evt) {              // reacts to input
-06           ...gals_emit(evt_id)...  //   possibly generates inputs
+06           ...gals_emit(nxt)...     //   possibly generates inputs
 07           ...break loop...         //   possibly terminates
 08        }
 09     }
@@ -289,19 +297,18 @@ intended.
 \section{Local Synchronous Programming}
 \label{sec.sync}
 
-\begin{comment}
 In the synchronous programming model~\cite{sync}, a program executes in
-locksteps (or logical ticks) as successive reactions to inputs provided by the
+locksteps (or logical ticks) as successive reactions to inputs provided by an
 external environment.
-The environment represents the user interacting with the application, and
-inputs can be occasional events, such as a key press, or simply the passage of
-time.
+In our context, the environment represents user interactions, and inputs can be
+occasional events, such as a key press, or simply the passage of time.
 Since execution is guided from outside, the main advantage of the synchronous
-model is that it can reproduce the exact behavior of a program by providing the
-same sequence of inputs.
-A fundamental requirement, known as the \emph{synchronous hypothesis}~\cite{hypo},
-is that logical ticks are isolated from one another to preserve locksteps and
-prevent concurrent reactions to inputs, which would break determinism.
+model is that it can record a sequence of inputs and reproduce the behavior of
+a program multiple times for reasoning and testing purposes.
+A fundamental requirement for synchronous programming, known as the
+\emph{synchronous hypothesis}~\cite{hypo}, is to isolate logical ticks from one
+another to preserve locksteps and prevent concurrent reactions to inputs, which
+would break determinism.
 This hypothesis is satisfied if computing reactions is faster than the rate of
 external inputs.
 
@@ -309,10 +316,67 @@ An important concern is how to guarantee that isolated reactions are themselves
 deterministic and sufficiently fast.
 Synchronous languages~\cite{langs} typically restrict the programming
 primitives and/or perform static analysis to ensure these properties.
-Since our solution involves standard event-driven APIs for generic programming
-languages, we assume these properties are met informally with coding best
-practices, such as avoiding stateful system calls and time-consuming loops.
+However, since our solution proposes a standard event-driven API targeting
+generic programming languages, we assume these properties are ensured
+informally.
+This may involve coding best practices like avoiding stateful system calls and
+time-consuming loops.
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{schemes}
+  \caption{
+    \label{fig.schemes}
+    Equivalent execution schemes for reactive systems.~\cite{schemes}
+    In the first scheme, a change in the environment is designated as an input
+    event. 
+    In the second scheme, an instant is a predefined time interval in which
+    the environment is polled for input events.
+  }
+\end{figure}
+
+Figure~\ref{fig.schemes} shows two common implementation schemes for
+synchronous systems~\cite{schemes}.
+In both schemes, a loop iteration updates the state of the memory completely
+before handling the next input.
+Hence, assuming memory updates are deterministic, the only source of
+non-determinism resides in the order of inputs from the environment.
+
+... TODO ...
+
+\begin{comment}
+
+Environment replicated in the clients
+
+- outputs asynchronous and retrofitted as inputs with a delay
+- rate of inputs, time to compute the memory (gancho com "this hypothesis is satisfied if..." acima)
+- link to timeline and dapp code
+
+
+
+ to the system is the source
+of non-determinism (for instance, it is impossible to predict a user interaction
+or the network latency).
+
+
+
+
+In synchronous systems, communication is instantaneous. The zero-
+delay property of the synchronous hypothesis guarantees that no time elapses
+between event announcement and receiving. Also, as communication is via
+broadcast, all systems parts share the same information all the time. These two
+characteristics make global data consensus another property of synchronous
+systems.
+The first scheme of implementation resembles the main-loops of event-
+driven programming in traditional languages. In fact, event-driven program-
+ming is the commonest way of programming synchronous systems. Among the
+common problems with this pattern are programming with control inversion
+and the lack of stack for managing state [von Behren]. We can consider that
+event-driven programming is a low-level way of programming synchronous sys-
+tems, not much different than dealing with interrupt handling in hardware.
+\end{comment}
+
+\begin{comment}
 Synchronous: reactions run atomically and to comple-
 tion on each line of execution, i.e., there’s no implicit
 preemption or real parallelism.
@@ -337,6 +401,13 @@ given timing constraint, which are common case in multimedia.
 \label{sec.gals}
 
 \begin{comment}
+- freezes make clients to fall behind in time
+- testar isso com um cliente lazy
+
+- fazer ajuste de tempo dinamico
+- qvento de sync a cada segundo? (ou multiplo do RTT)
+
+
 The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
 integrates multiple independent synchronous processes as a single distributed
 application.
