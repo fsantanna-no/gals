@@ -131,7 +131,7 @@ fun app (port: Int) {
         }
     }
 
-    // thread that generates random events back to the client
+    // thread that emits random events back to the client
     thread {
         while (true) {
             Thread.sleep(Random.nextLong(5000))

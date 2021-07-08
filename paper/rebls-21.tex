@@ -53,8 +53,8 @@ asynchronous inputs and yet conform to identical behavior.
 Collaborative networked applications, such as watch parties, document editing,
 and video games can benefit of this approach.
 %
-Using a standard event-driven API to wait and generate events, programmers
-write code as if the application executes in a single machine.
+Using a standard event-driven API to wait and emit events, programmers write
+code as if the application executes in a single machine.
 Our middleware intercepts event generation and synchronizes all instances so
 that receipt is identically reproducible.
 Not only distributed applications benefit of determinism but also development
@@ -112,7 +112,7 @@ Since our goal is to make distributed applications to \emph{behave} like local
 applications, we also intend to make distributed programs to \emph{be coded}
 like local programs.
 In this sense, we provide a standard event-driven API with two main commands
-to wait and generate events.
+to wait and emit events.
 Programmers write the intended distributed application as if it would execute
 in a single machine.
 We also provide the middleware that connects the multiple application instances
@@ -125,9 +125,11 @@ guarantees.
 
 As the main limitations, the middleware relies on a centralized server and all
 instances must be known and responsive during the entire execution.
-In addition, reaction to events takes the maximum round-trip time considering
-all clients, which can be intolerable for low-latency applications such as
-video games.
+In addition, reaction to events takes the maximum round-trip time (RTT)
+considering all clients, which can be intolerable for low-latency applications
+such as video games.
+Finally, a client diverges from the expected RTT, the application may
+experience intermittent freezes.
 
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, which
@@ -150,11 +152,14 @@ set of mirrored instances running in different machines (also \emph{dapp},
 inside the circles, to emphasize that they are symmetric and represent a single
 application).
 The clients, which are part of the middleware, intermediate all communication
-with the server and empowers the \emph{dapp} instances to be specified as a
-local application.
+with the server and is key to permit that \emph{dapp} instances are specified
+as a local application.
 The server receives asynchronous events (in red) from the instances and is
 responsible for redirecting them to all clients as synchronous events with an
 appropriate delta delay (in green).
+The delay is necessary because broadcast takes non-negligible time (e.g., in
+the order of milliseconds), and instances need to advance at the same time in
+order to preserve reproducibility.
 The clients control the clock ticks of the instances and is responsible for
 issuing the received events at the appropriate timestamps.
 
@@ -187,53 +192,104 @@ This results in no delay between the \emph{dapp} and the client since
 interprocess communication takes negligible time.
 Unlike sporadic mechanical user input, clock ticks cannot accept delays in the
 order of milliseconds without going unnoticed by humans.
+%
+The clock ticks and delayed events constitute the unique synchronous timeline
+shared by all instances of the \emph{dapp}, allowing them to manifest identical
+behavior.
+Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
+that are synchronized with a delay.
+
+\begin{figure}[t]
+{\scriptsize
+\begin{verbatim}
+Tick    Event    Async
+----    -----    -----
+0000      0
+0025      0      --> user presses key (1) and mouse (2)
+0050      0
+0075      0
+0100      0
+0125      0
+0125      1  <-- key is synchronized with delay
+0150      0
+0175      0
+0175      2  <-- mouse is synchronized with delay
+0250      0
+....     ...
+\end{verbatim}
+}
+  \caption{
+    \label{fig.timeline}
+    Example of a synchronized timeline of inputs shared by all instance of the
+    \emph{dapp}.
+    Ticks are \emph{25ms} apart.
+    Asynchronous events are synchronized with delay (\emph{100ms} and
+    \emph{150ms}, respectively).
+  }
+\end{figure}
 
 As detailed in Section~\ref{sec.gals}, the delay for user input is the maximum
 network round-trip time considering all clients.
-Hence, the viability of the applications will depend on acceptable delay in the
-user input and the maximum network latency.
+We deliberately assume unbounded delay between the clients and the server to
+augment the scope of applications.
+Another concern is the rate of input generation in the instances.
+As an example, tracking the mouse position will inevitably flood the network
+with packets and make the application unresponsive.
+For these reasons, the viability of the applications will depend on acceptable
+delay in the user input, the nature and rate of inputs, and the maximum network
+latency.
 
-Together with the 
+The code for the actual \emph{dapp} is the same for all instances and use a
+standard event-driven API with only four commands:
+\begin{itemize}
+\item \texttt{connect(port)}:            \\Connects with the local client in the given port.
+\item \texttt{disconnect(port)}:         \\Disconnects with the local client.
+\item \texttt{(now,evt) = gals\_wait()}: \\Waits for the next input carrying a timestamp and event id.
+\item \texttt{gals\_emit(evt)}:          \\Emits the given asynchronous input.
+\end{itemize}
+Figure~\ref{fig.skel} shows the skeleton of an application.
+The commands \texttt{connect} and \texttt{disconnect} are only required once to
+enclose the application logic.
 
+\begin{figure}[t]
+{\scriptsize
+\begin{verbatim}
+01  fun dapp (port: Int) {
+02     gals_connect(port)             // connects with the client
+03     while (true) {                 // main event loop
+04        val (now,evt) = gals_wait() // awaits next input
+05        switch (evt) {              // reacts to input
+06           ...gals_emit(evt_id)...  //   possibly generates inputs
+07           ...break loop...         //   possibly terminates
+08        }
+09     }
+10     gals_disconnect()              // disconnects with the client
+11  }
+\end{verbatim}
+}
+  \caption{
+    \label{fig.skel}
+    The skeleton of a \emph{dapp} is a main loop that waits synchronous and
+    emits asynchronous events.
+  }
+\end{figure}
 
-symmetric distributed
-
-  shows that ... but local
-With distribution, communication timing is asynchronous because communication
-latency takes a non-negligible time and breaks the synchronous hypothesis.
-
-
-GALS...
-
-Considering user interactions, a
-
- property
- with just two commands
- to broadcast
-%
-- not a equal apps, but the same app
-    - one click in one is the same as in another, as if all xxx clicked together
-Test locally in one instance is the same as N instances in M machines
-What about in realtime
-- a perfect mirror, cannot distinguish
-- high-level vs low-leve events, semantic events
-
-- transparent mechanism
-- all network communication
-- simple API
-- clear/sound properties to reason
-- no extra programming
-- ressaltar questão da interatividade, inclusive no título
-  - single application, multiple views, may restrict events per node
-
-- reproduceable, but not in real-time since the environments are asynchronous
-
-Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
-
+Figure~\ref{fig.timeline}~and~\ref{fig.skel} with the timeline and the program
+related as follows:
+The application initially blocks at \emph{line 4} waiting for an input.
+According to the timeline, the first input happens at \emph{tick 0} and
+\emph{event 0} (no event).
+In the second iteration \emph{tick 25}, the application emits events \emph{1}
+and \emph{2} asynchronously at \emph{line 6}.
+Only after a few ticks, these events are synchronized and awake \emph{line 4}
+in subsequent ticks.
+The main event loop is coded like a standard local event-driven application as
+intended.
 
 \section{Local Synchronous Programming}
 \label{sec.sync}
 
+\begin{comment}
 In the synchronous programming model~\cite{sync}, a program executes in
 locksteps (or logical ticks) as successive reactions to inputs provided by the
 external environment.
@@ -275,13 +331,30 @@ the synchronous hypothesis which states that programs take no time to produce
 outputs when reacting to inputs. The precise notion of time in these languages
 is suitable for programming operations that should be performed respecting a
 given timing constraint, which are common case in multimedia.
+\end{comment}
 
 \section{GALS Architecture}
 \label{sec.gals}
 
+\begin{comment}
 The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
 integrates multiple independent synchronous processes as a single distributed
 application.
+
+  shows that ... but local
+With distribution, communication timing is asynchronous because communication
+latency takes a non-negligible time and breaks the synchronous hypothesis.
+
+Test locally in one instance is the same as N instances in M machines
+What about in realtime
+- a perfect mirror, cannot distinguish
+- high-level vs low-leve events, semantic events
+    - more abstract solves both problems (delay and rate)
+- clear/sound properties to reason
+- Events: single application, multiple views, may restrict events per node
+
+Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
+\end{comment}
 
 \section{Evaluation}
 \label{sec.eval}
@@ -289,10 +362,11 @@ application.
 \section{Related Work}
 \label{sec.related}
 
+\begin{comment}
 Asynchronous languages and models:
 
 Derflow: distributed deterministic dataflow programming for erlang
-Erlang implements a message-passing execution model in which concurrent processes send each other messages asynchronously. This model is inherently non-deterministic: a process can receive messages sent by any process which knows its process identifier, leading to an exponential number of possible executions based on the number messages received. 
+Erlang implements a message-passing execution model in which concurrent processes send each other messages asynchronously. This model is inherently non-deterministic: a process can receive messages sent by any process which knows its process identifier, leading to an exponential number of possible executions based on the number messages received.
 We propose a new execution model for Erlang, ''Deterministic Dataflow Programming'', based on a highly available, scalable single-assignment data store implemented on top of the riak\_core distributed systems framework.
 
 Deterministic Actors
@@ -310,6 +384,7 @@ A Programming Model for Time-Synchronized Distributed Real-Time Systems
 Discrete-event (DE) models are formal system specifications that have analysable deterministic behaviors. Using a global, consistent notion of time, DE components communicate via time-stamped events.
 In this paper, we extend DE models with the capability of relating certain events to physical time.
 Our technique relies on having a distributed common notion of time, known to some precision.
+\end{comment}
 
 \section{Conclusion}
 \label{sec.conclusion}

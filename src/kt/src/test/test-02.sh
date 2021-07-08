@@ -6,28 +6,28 @@ sleep 1
 gals server 10 &
 sleep 1
 
-gals client 200 9999 &
-gals client 200 9998 &
-gals client 200 9997 &
-gals client 200 9996 &
-gals client 200 9995 &
-gals client 200 9994 &
-gals client 200 9993 &
-gals client 200 9992 &
-gals client 200 9991 &
-gals client 200 9990 &
+gals client 100 9999 &
+gals client 100 9998 &
+gals client 100 9997 &
+gals client 100 9996 &
+gals client 100 9995 &
+gals client 100 9994 &
+gals client 100 9993 &
+gals client 100 9992 &
+gals client 100 9991 &
+gals client 100 9990 &
 sleep 1
 
-gals app 9999 | head -n 300 > /tmp/gals-01.txt &
-gals app 9998 | head -n 300 > /tmp/gals-02.txt &
-gals app 9997 | head -n 300 > /tmp/gals-03.txt &
-gals app 9996 | head -n 300 > /tmp/gals-04.txt &
-gals app 9995 | head -n 300 > /tmp/gals-05.txt &
-gals app 9994 | head -n 300 > /tmp/gals-06.txt &
-gals app 9993 | head -n 300 > /tmp/gals-07.txt &
-gals app 9992 | head -n 300 > /tmp/gals-08.txt &
-gals app 9991 | head -n 300 > /tmp/gals-09.txt &
-gals app 9990 | head -n 300 > /tmp/gals-10.txt &
+gals app 9999 | head -n 600 > /tmp/gals-01.txt &
+gals app 9998 | head -n 600 > /tmp/gals-02.txt &
+gals app 9997 | head -n 600 > /tmp/gals-03.txt &
+gals app 9996 | head -n 600 > /tmp/gals-04.txt &
+gals app 9995 | head -n 600 > /tmp/gals-05.txt &
+gals app 9994 | head -n 600 > /tmp/gals-06.txt &
+gals app 9993 | head -n 600 > /tmp/gals-07.txt &
+gals app 9992 | head -n 600 > /tmp/gals-08.txt &
+gals app 9991 | head -n 600 > /tmp/gals-09.txt &
+gals app 9990 | head -n 600 > /tmp/gals-10.txt &
 
 sleep 120
 pkill -f GALS.jar
