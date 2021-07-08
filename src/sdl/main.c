@@ -28,6 +28,7 @@ int main (int argc, char** argv) {
     int y = 10;
     int xdir = 1;
     int ydir = 0;
+    uint64_t prv = 0;
 
 	while (1) {
         char buf[sizeof(uint64_t) + sizeof(uint32_t)];
@@ -56,8 +57,11 @@ int main (int argc, char** argv) {
         SDL_SetRenderDrawColor(ren, 0xFF,0x00,0x00,0xFF);
         SDL_RenderFillRect(ren, &r);
 
-        x += 5 * xdir;
-        y += 5 * ydir;
+        if (now!=prv && evt==0) {
+            x += 5 * xdir;
+            y += 5 * ydir;
+        }
+        prv = now;
 
 
         {

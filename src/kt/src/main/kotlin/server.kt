@@ -96,10 +96,12 @@ fun server (N: Int) { // number of app clients
         }.map { it.join() }
 
         // sends DECIDED event to all clients
+        var delay = true
         clients2.map {
             thread {
                 val (_, writer2) = it
-                if (DEBUG) {
+                if (DEBUG && delay) {
+                    delay = false
                     Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
                 }
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100

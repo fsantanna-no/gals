@@ -31,8 +31,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
     writer1.writeInt(0)
     //println("[client] server connected")
 
-    var LATE = Instant.now().toEpochMilli()
-    var NXT  = 0.toLong()
+    var app_nxt = 0.toLong()
 
     val queue_expecteds: MutableList<Long> = mutableListOf()
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
@@ -43,7 +42,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            writer1.writeLong(NXT)
+            writer1.writeLong(app_nxt)
             writer1.writeInt(evt)
         }
     }
@@ -52,19 +51,21 @@ fun client (DT: Long, port: Int = PORT_10000) {
         while (true) {
             val wanted = reader2.readLong()    // original time
             val rtt = reader2.readLong()
-            val now = NXT
+            val app_cur = app_nxt
             synchronized(lock) {
-                queue_expecteds.add(max(now,wanted)+rtt)   // possible time + rtt
+                val t1 = max(app_cur,wanted) + rtt
+                val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
+                queue_expecteds.add(t2)   // possible time + rtt
             }
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            writer2.writeLong(now)
+            writer2.writeLong(app_cur)
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
             //println("[client] decided=$decided + DT=$DT >= NXT=$NXT")
-            assert(decided+DT >= NXT)
+            assert(decided+DT >= app_nxt)
             synchronized(lock) {
                 queue_finals.add(Pair(decided,evt))
             }
@@ -72,39 +73,31 @@ fun client (DT: Long, port: Int = PORT_10000) {
     }
 
     while (true) {
-        val now1 = Instant.now().toEpochMilli()
-        val ok = synchronized(lock) {
-            while (queue_finals.isNotEmpty() && NXT>=queue_finals[0].first) {
-                val (now,evt) = queue_finals.removeAt(0)
+        val cli_now = Instant.now().toEpochMilli()
+        val app_cur = app_nxt
+        var evt = 0
+
+        synchronized(lock) {
+            app_nxt += DT
+            if (queue_finals.isEmpty()) {
+                if (queue_expecteds.isNotEmpty() && app_cur>=queue_expecteds[0]) {
+                    // cannot advance time to prevent missing expected event
+                    app_nxt -= DT
+                }
+            } else if (app_cur>=queue_finals[0].first) {
+                val (now_,evt_) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
-                writer0.writeLong(NXT)
-                writer0.writeInt(evt)
-            }
-            /*
-            if (!(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))) {
-            }
-            assert(queue_expecteds.isEmpty() || NOW<queue_expecteds.get(0))
-             */
-            if (queue_expecteds.isNotEmpty() && queue_finals.isEmpty()) {
-                LATE += now1 - LATE - NXT
-                false
-                //println("[client] XXX now=$NOW vs nxt=${queue_expecteds.get(0)}")
-                //println("oi")
-            } else {
-                writer0.writeLong(NXT)
-                writer0.writeInt(0)
-                NXT += DT
-                true
+                evt = evt_
             }
         }
-        if (ok) {
-            val now2 = Instant.now().toEpochMilli()
-            val dt = NXT + LATE - now2
-            if (dt < 0) { println("NXT=$NXT + LATE=$LATE - now=$now2 = $dt >= 0") }
-            //assert(dt >= 0)
-            if (dt > 0) {
-                Thread.sleep(dt)
-            }
-        }
+
+        writer0.writeLong(app_cur)
+        writer0.writeInt(evt)
+
+        val cli_nxt = Instant.now().toEpochMilli()
+        val dt = cli_now + DT - cli_nxt
+        if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
+        assert(dt > 0)
+        Thread.sleep(dt)
     }
 }
