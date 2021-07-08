@@ -141,6 +141,7 @@ Section~\ref{sec.related}...
 Section~\ref{sec.conclusion}...
 
 \section{Overall Middleware Architecture}
+\label{sec.arch}
 
 Figure~\ref{fig.middleware} illustrates the client-server architecture of our
 middleware entitled \emph{gals}.
@@ -151,9 +152,28 @@ application).
 The clients, which are part of the middleware, intermediate all communication
 with the server and empowers the \emph{dapp} instances to be specified as a
 local application.
-The server receives asynchronous events in red from the instances (which are
-just forwarded by their clients), and redirects them to all clients, including
-their origin.
+The server receives asynchronous events (in red) from the instances and is
+responsible for redirecting them to all clients as synchronous events with an
+appropriate delay (in green).
+The clients control the clock ticks of the instances and is responsible for
+issuing the received events at the appropriate timestamps.
+
+
+
+, which are
+just forwarded by their clients.
+
+
+
+
+Then, it redirects the events to all clients, including their origin, with an
+appropriate delay.
+The delay is calculated such that 
+
+ so that all clients can.
+
+
+Since instances are indistinguishable,
 
 calculates a delay 
 with a delay
@@ -250,6 +270,7 @@ What about in realtime
 
 
 \section{Local Synchronous Programming}
+\label{sec.sync}
 
 - transparent mechanism
 - all network communication
@@ -264,6 +285,7 @@ What about in realtime
 Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
 
 \section{GALS Architecture}
+\label{sec.gals}
 
 The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
 integrates multiple independent synchronous processes as a single distributed
