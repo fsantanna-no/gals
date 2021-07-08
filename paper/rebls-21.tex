@@ -213,13 +213,13 @@ Tick    Event    Async
 0000      0
 0025      0      --> user presses key (1) and mouse (2)
 0050      0
-0075      0
+0075      0      --> user presses key (1)
 0100      0
-0125      0
-0125      1  <-- key is synchronized with delay
+0125      1  <-- key is synchronized after delay
 0150      0
-0175      0
-0175      2  <-- mouse is synchronized with delay
+0175      2  <-- mouse is synchronized after delay
+0200      1  <-- key is synchronized after delay
+0225      0
 0250      0
 ....     ...
 \end{verbatim}
@@ -229,8 +229,9 @@ Tick    Event    Async
     Example of a synchronized timeline of inputs shared by all instance of the
     \emph{dapp}.
     Ticks are \emph{25ms} apart.
-    Asynchronous events are synchronized with delay (\emph{100ms} and
-    \emph{150ms}, respectively).
+    Asynchronous events are synchronized with a delay.
+    Note that delay is unpredictable but event order within each source
+    instance is preserved.
   }
 \end{figure}
 
