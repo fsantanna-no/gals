@@ -154,42 +154,9 @@ with the server and empowers the \emph{dapp} instances to be specified as a
 local application.
 The server receives asynchronous events (in red) from the instances and is
 responsible for redirecting them to all clients as synchronous events with an
-appropriate delay (in green).
+appropriate delta delay (in green).
 The clients control the clock ticks of the instances and is responsible for
 issuing the received events at the appropriate timestamps.
-
-
-
-, which are
-just forwarded by their clients.
-
-
-
-
-Then, it redirects the events to all clients, including their origin, with an
-appropriate delay.
-The delay is calculated such that 
-
- so that all clients can.
-
-
-Since instances are indistinguishable,
-
-calculates a delay 
-with a delay
-
-
-A single server is responsible for orchestrating
-
-- ticks are predictable
-- but not events
-
-- synchronous green inputs, local execution, red events are retrofit
-    - ticks are the most visible for users and is always green, no server involved
-- asynchronous mainly server sync, since client only forwards
-
-
-The clients are synchronized by the single server in such a way that
 
 \begin{figure}[t]
   \centering
@@ -203,6 +170,69 @@ The clients are synchronized by the single server in such a way that
   %\Description{A woman and a girl in white dresses sit in an open car.}
 \end{figure}
 
+The events represent user interactions, such as key presses, which are
+unpredictable and need to be communicated with the other instances.
+Since instances should be indistinguishable, event sources are irrelevant, at
+least for theoretical purposes.
+For instance, if a user presses a key in one instance, the \emph{dapp} behaves
+as if all users pressed the same key at the same time.
+%
+Clock ticks represent the rate in which applications are updated, and are
+equivalent to frame rates in video playback and games.
+For practical purposes, we assume periods in the order of tens of milliseconds
+(e.g., 25 milliseconds or 40 frames per second).
+An important insight is that clock ticks are predictable inputs and need not to
+go through the server.
+This results in no delay between the \emph{dapp} and the client since
+interprocess communication takes negligible time.
+Unlike sporadic mechanical user input, clock ticks cannot accept delays in the
+order of milliseconds without going unnoticed by humans.
+
+As detailed in Section~\ref{sec.gals}, the delay for user input is the maximum
+network round-trip time considering all clients.
+Hence, the viability of the applications will depend on acceptable delay in the
+user input and the maximum network latency.
+
+Together with the 
+
+
+symmetric distributed
+
+  shows that ... but local
+With distribution, communication timing is asynchronous because communication
+latency takes a non-negligible time and breaks the synchronous hypothesis.
+
+
+GALS...
+
+Considering user interactions, a
+
+ property
+ with just two commands
+ to broadcast
+%
+- not a equal apps, but the same app
+    - one click in one is the same as in another, as if all xxx clicked together
+Test locally in one instance is the same as N instances in M machines
+What about in realtime
+- a perfect mirror, cannot distinguish
+- high-level vs low-leve events, semantic events
+
+- transparent mechanism
+- all network communication
+- simple API
+- clear/sound properties to reason
+- no extra programming
+- ressaltar questão da interatividade, inclusive no título
+  - single application, multiple views, may restrict events per node
+
+- reproduceable, but not in real-time since the environments are asynchronous
+
+Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
+
+
+\section{Local Synchronous Programming}
+\label{sec.sync}
 
 In the synchronous programming model~\cite{sync}, a program executes in
 locksteps (or logical ticks) as successive reactions to inputs provided by the
@@ -227,13 +257,6 @@ Since our solution involves standard event-driven APIs for generic programming
 languages, we assume these properties are met informally with coding best
 practices, such as avoiding stateful system calls and time-consuming loops.
 
-symmetric distributed
-
-  shows that ... but local
-With distribution, communication timing is asynchronous because communication
-latency takes a non-negligible time and breaks the synchronous hypothesis.
-
-
 Synchronous: reactions run atomically and to comple-
 tion on each line of execution, i.e., there’s no implicit
 preemption or real parallelism.
@@ -253,37 +276,6 @@ outputs when reacting to inputs. The precise notion of time in these languages
 is suitable for programming operations that should be performed respecting a
 given timing constraint, which are common case in multimedia.
 
-GALS...
-
-Considering user interactions, a
-
- property
- with just two commands
- to broadcast
-%
-- not a equal apps, but the same app
-    - one click in one is the same as in another, as if all xxx clicked together
-Test locally in one instance is the same as N instances in M machines
-What about in realtime
-- a perfect mirror, cannot distinguish
-- high-level vs low-leve events, semantic events
-
-
-\section{Local Synchronous Programming}
-\label{sec.sync}
-
-- transparent mechanism
-- all network communication
-- simple API
-- clear/sound properties to reason
-- no extra programming
-- ressaltar questão da interatividade, inclusive no título
-  - single application, multiple views, may restrict events per node
-
-- reproduceable, but not in real-time since the environments are asynchronous
-
-Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
-
 \section{GALS Architecture}
 \label{sec.gals}
 
@@ -292,8 +284,10 @@ integrates multiple independent synchronous processes as a single distributed
 application.
 
 \section{Evaluation}
+\label{sec.eval}
 
 \section{Related Work}
+\label{sec.related}
 
 Asynchronous languages and models:
 
@@ -317,10 +311,8 @@ Discrete-event (DE) models are formal system specifications that have analysable
 In this paper, we extend DE models with the capability of relating certain events to physical time.
 Our technique relies on having a distributed common notion of time, known to some precision.
 
-
-
-
 \section{Conclusion}
+\label{sec.conclusion}
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{rebls-21}
