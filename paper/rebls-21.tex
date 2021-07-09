@@ -1,5 +1,7 @@
 \documentclass[sigplan,screen]{acmart}
 
+\usepackage{listings}
+
 \setcopyright{acmcopyright}
 \copyrightyear{2018}
 \acmYear{2018}
@@ -107,8 +109,8 @@ Users expect to be perfectly synchronized such that anyone pressing the pause
 button should stop all instances exactly in the same video frame.
 In this context, the network distributions is just an inconvenience that should
 not make the experience to diverge from users sitting in front of the same TV.
-Other examples that fall in this category are multiplayer games and
-collaborative document editing.
+Other examples that fall in this category are single-screen multiplayer games
+and collaborative document editing.
 
 Since our goal is to make distributed applications to \emph{behave} like local
 applications, we also intend to make distributed programs to \emph{be coded}
@@ -365,9 +367,76 @@ The sampling scheme is also adopted by popular event-driven libraries, such as
 This allows for an easier integration of our middleware with practical systems,
 and also reinforces how programming distributed versions are similar to their
 local counterparts.
-Figure
+Figure~\ref{fig.sdl}
 to move a rectangle in the screen
 
+\begin{figure}[t]
+{\scriptsize
+\begin{verbatim}
+int main (void) {
+  gals_connect(port, 40); // 25ms ticks
+
+  SDL_Init(SDL_INIT_VIDEO);                      \
+  SDL_Window*   win = SDL_CreateWindow("dapp");  |
+  SDL_Renderer* ren = SDL_CreateRenderer(win);   |> Initialize
+  int x=10, vx=0; // position and                |    Memory
+  int y=10, vy=0; // speed multipler             /
+
+  while (1) {
+    uint64_t now;                                \
+    uint32_t evt;                                |> Read Inputs
+    gals_read(&now, &evt);                       /
+
+    SDL_SetRenderDrawColor(ren, WHITE);          \
+    SDL_RenderClear(ren); // clear screen        |
+    SDL_Rect r = { x, y, 10, 10 };               |
+    SDL_SetRenderDrawColor(ren, RED);            |
+    SDL_RenderFillRect(ren, &r); // draw rect    |
+    switch (evt) { // 5px/40fps -> 200 px/s      |> Update Memory
+      case 0: { x+=5*vx; y+=5*vy; break; }       |
+      case 1: { vx=-1; vy=0; break; }            |
+      case 2: { vx= 1; vy=0; break; }            |
+      case 3: { vy=-1; vx=0; break; }            |
+      case 4: { vy= 1; vx=0; break; }            |
+      case 5: { vy= 0; vx=0; break; }            |
+    }                                            |
+    SDL_RenderPresent(ren);                      /
+
+    // emit asynchronous inputs                  \  Compute Outputs
+    ... gals_emit(evt) ...                       /
+  }
+
+  gals_disconnect();
+  return 0;
+}
+\end{verbatim}
+}
+  \caption{
+    \label{fig.skel}
+    The skeleton of a \emph{dapp} is a main loop that waits synchronous and
+    emits asynchronous events.
+  }
+\end{figure}
+
+\begin{comment}
+\begin{lstlisting}[
+  xleftmargin=1em,
+  numbers=left,
+  basicstyle=\ttfamily\scriptsize,
+  float=t,
+  caption={Synchronous application that turns the LED on whenever the button
+           is pressed and off whenever it is unpressed.},
+  label={lst.gpio.sync},
+  escapechar=\%,
+]
+#include "gpio.ceu"      // GPIO driver
+emit PIN_13(low);
+loop do
+    var high/low v = await PIN_02;
+    emit PIN_13(v);
+end
+\end{lstlisting}
+\end{comment}
 
 - SDL stub would allow for ...
 
@@ -454,6 +523,8 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 
 \section{Evaluation}
 \label{sec.eval}
+
+% - asymmetric, different view, multiple inputs
 
 \section{Related Work}
 \label{sec.related}
