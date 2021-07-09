@@ -367,48 +367,59 @@ The sampling scheme is also adopted by popular event-driven libraries, such as
 This allows for an easier integration of our middleware with practical systems,
 and also reinforces how programming distributed versions are similar to their
 local counterparts.
-Figure~\ref{fig.sdl}
-to move a rectangle in the screen
+Figure~\ref{fig.sdl} is the code for a \emph{dapp} written in SDL to control an
+animated rectangle on the screen with the keyboard.%
+\footnote{Video of the \emph{dapp} running in two instances: \url{TODO}}
+The code structure follows the synchronous implementation scheme with evident
+sections to initialize memory (\emph{ln. 4--8}), read inputs in a loop
+(\emph{ln. 11--13}), update memory (\emph{ln. 15--28}), and compute outputs
+(\emph{ln. 30--31}).
+As mentioned above, the outputs are actually asynchronous inputs, which are
+expanded in Figure~\ref{fig.xxx} and discussed further.
+The rectangle starts at position \texttt{(10,10)} with no movement
+\texttt{vx=vy=0} (\emph{ln. 7--8}).
+
+Except for the hidden xxx, the app is ... det, etc
 
 \begin{figure}[t]
 {\scriptsize
 \begin{verbatim}
-int main (void) {
-  gals_connect(port, 40); // 25ms ticks
-
-  SDL_Init(SDL_INIT_VIDEO);                      \
-  SDL_Window*   win = SDL_CreateWindow("dapp");  |
-  SDL_Renderer* ren = SDL_CreateRenderer(win);   |> Initialize
-  int x=10, vx=0; // position and                |    Memory
-  int y=10, vy=0; // speed multipler             /
-
-  while (1) {
-    uint64_t now;                                \
-    uint32_t evt;                                |> Read Inputs
-    gals_read(&now, &evt);                       /
-
-    SDL_SetRenderDrawColor(ren, WHITE);          \
-    SDL_RenderClear(ren); // clear screen        |
-    SDL_Rect r = { x, y, 10, 10 };               |
-    SDL_SetRenderDrawColor(ren, RED);            |
-    SDL_RenderFillRect(ren, &r); // draw rect    |
-    switch (evt) { // 5px/40fps -> 200 px/s      |> Update Memory
-      case 0: { x+=5*vx; y+=5*vy; break; }       |
-      case 1: { vx=-1; vy=0; break; }            |
-      case 2: { vx= 1; vy=0; break; }            |
-      case 3: { vy=-1; vx=0; break; }            |
-      case 4: { vy= 1; vx=0; break; }            |
-      case 5: { vy= 0; vx=0; break; }            |
-    }                                            |
-    SDL_RenderPresent(ren);                      /
-
-    // emit asynchronous inputs                  \  Compute Outputs
-    ... gals_emit(evt) ...                       /
-  }
-
-  gals_disconnect();
-  return 0;
-}
+01  int main (void) {
+02    gals_connect(port, 40); // 25ms ticks
+03
+04    SDL_Init(SDL_INIT_VIDEO);                 ---\
+05    SDL_Window*   win = SDL_CreateWindow();      |
+06    SDL_Renderer* ren = SDL_CreateRenderer(win); |> Initialize
+07    int x=10, vx=0; // position and              |    Memory
+08    int y=10, vy=0; // speed multipler        ---/
+09
+10    while (1) {
+11      uint64_t now;                           ---\
+12      uint32_t evt;                              |> Read Inputs
+13      gals_read(&now, &evt);                  ---/
+14
+15      SDL_SetRenderDrawColor(ren, WHITE);     ---\
+16      SDL_RenderClear(ren); // clear screen      |
+17      SDL_Rect r = { x, y, 10, 10 };             |
+18      SDL_SetRenderDrawColor(ren, RED);          |
+19      SDL_RenderFillRect(ren, &r); // draw rect  |
+20      switch (evt) { // 5px/40fps -> 200 px/s    |
+21        case 0: { x+=5*vx; y+=5*vy; break; }     |> Update Memory
+22        case 1: { vx=-1; vy=0; break; }          |
+23        case 2: { vx= 1; vy=0; break; }          |
+24        case 3: { vy=-1; vx=0; break; }          |
+25        case 4: { vy= 1; vx=0; break; }          |
+26        case 5: { vy= 0; vx=0; break; }          |
+27      }                                          |
+28      SDL_RenderPresent(ren);                 ---/
+29
+30      // emit asynchronous inputs             ---\  Compute Outputs
+31      ... gals_emit(evt) ...                  ---/
+32    }
+33
+34    gals_disconnect();
+35    return 0;
+36  }
 \end{verbatim}
 }
   \caption{
