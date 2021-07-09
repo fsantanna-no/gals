@@ -64,7 +64,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
-            //println("[client] decided=$decided + DT=$DT >= NXT=$NXT")
+            if (decided+DT < app_nxt) { println("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
             assert(decided+DT >= app_nxt)
             synchronized(lock) {
                 queue_finals.add(Pair(decided,evt))
@@ -80,7 +80,7 @@ fun client (DT: Long, port: Int = PORT_10000) {
         synchronized(lock) {
             app_nxt += DT
             if (queue_finals.isEmpty()) {
-                if (queue_expecteds.isNotEmpty() && app_cur>=queue_expecteds[0]) {
+                if (queue_expecteds.isNotEmpty() && app_nxt>=queue_expecteds[0]) {
                     // cannot advance time to prevent missing expected event
                     app_nxt -= DT
                 }
