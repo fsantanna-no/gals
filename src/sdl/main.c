@@ -24,6 +24,9 @@ int main (int argc, char** argv) {
 	TCPsocket s = SDLNet_TCP_Open(&ip);
 	assert(s != NULL);
 
+    uint32_t fps = htobe32(20);
+    assert(SDLNet_TCP_Send(s, &fps, sizeof(fps)) == sizeof(fps));
+
     int x = 10;
     int y = 10;
     int xdir = 1;

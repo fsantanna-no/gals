@@ -127,7 +127,7 @@ guarantees.
 
 As the main limitations, the middleware relies on a centralized server and all
 instances must be known and responsive during the entire execution.
-In addition, reaction to events takes the maximum round-trip time (RTT)
+In addition, the latency of events is the maximum round-trip time (RTT)
 considering all clients, which can be intolerable for low-latency applications
 such as video games.
 Finally, if a client diverges from the expected RTT, the application may
@@ -328,7 +328,7 @@ time-consuming loops.
   \includegraphics[width=\linewidth]{schemes}
   \caption{
     \label{fig.schemes}
-    Equivalent execution schemes for reactive systems.~\cite{schemes}
+    Equivalent execution schemes for synchronous systems.~\cite{schemes}
     In the first scheme, a change in the environment is designated as an input
     event. 
     In the second scheme, an instant is a predefined time interval in which
@@ -342,6 +342,40 @@ In both schemes, a loop iteration updates the state of the memory completely
 before handling the next input.
 Hence, assuming memory updates are deterministic, the only source of
 non-determinism resides in the order of inputs from the environment.
+Outputs are events in the opposite direction of inputs and signal the
+environment about changes.
+They typically represent actuators (as opposed to input sensors), such as the
+screen or printer.
+
+The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
+\emph{dapp} skeleton of Figure~\ref{fig.skel}:
+    \texttt{gals\_connect} specifies the sampling period,
+    \texttt{gals\_wait} reads inputs,
+    \texttt{gals\_emit} signals the environment back, and
+    the \texttt{switch} statement processes the inputs (to update memory).
+As a subtle difference, instead of output events, \emph{dapps} emit
+asynchronous inputs that are later retrofitted back as synchronous inputs with
+a delay, as described in Figure~\ref{fig.middleware}.
+As required by the synchronous hypothesis, the sampling period, and
+consequently the rate of inputs, must be compatible with the processing speed.
+
+The sampling scheme is also adopted by popular event-driven libraries, such as
+\emph{SDL} for computer graphics, and \emph{Arduino} for embedded systems.%
+\footnote{\url{www.libsdl.org} and \url{www.arduino.cc}}
+This allows for an easier integration of our middleware with practical systems,
+and also reinforces how programming distributed versions are similar to their
+local counterparts.
+Figure
+to move a rectangle in the screen
+
+
+- SDL stub would allow for ...
+
+how development is similar.
+
+for interaction
+with
+
 
 ... TODO ...
 
@@ -349,18 +383,8 @@ non-determinism resides in the order of inputs from the environment.
 
 Environment replicated in the clients
 
-- outputs asynchronous and retrofitted as inputs with a delay
 - rate of inputs, time to compute the memory (gancho com "this hypothesis is satisfied if..." acima)
 - link to timeline and dapp code
-
-
-
- to the system is the source
-of non-determinism (for instance, it is impossible to predict a user interaction
-or the network latency).
-
-
-
 
 In synchronous systems, communication is instantaneous. The zero-
 delay property of the synchronous hypothesis guarantees that no time elapses
@@ -398,7 +422,7 @@ is suitable for programming operations that should be performed respecting a
 given timing constraint, which are common case in multimedia.
 \end{comment}
 
-\section{GALS Architecture}
+\section{Distributed GALS Architecture}
 \label{sec.gals}
 
 \begin{comment}
