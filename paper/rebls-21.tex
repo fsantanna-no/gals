@@ -228,7 +228,7 @@ Tick    Event    Async
     \label{fig.timeline}
     Example of a synchronized timeline of inputs shared by all instance of the
     \emph{dapp}.
-    Ticks are \emph{25ms} apart.
+    Ticks are \emph{25ms} apart (40 FPS).
     Asynchronous events are synchronized with a delay.
     Note that delay is unpredictable but event order within each source
     instance is preserved.
@@ -251,7 +251,7 @@ For these reasons, the viability of applications depends on
 The code for an actual \emph{dapp} is the same for all instances and uses a
 standard event-driven API with only four commands:
 \begin{itemize}
-\item \texttt{connect(port)}:            \\Connects with the local client in the given port.
+\item \texttt{connect(port,fps)}:        \\Connects with the local client in the given port and desired FPS.
 \item \texttt{disconnect()}:             \\Disconnects with the local client.
 \item \texttt{(now,evt) = gals\_wait()}: \\Waits for the next input carrying a timestamp and event id.
 \item \texttt{gals\_emit(evt)}:          \\Emits the given asynchronous input.
@@ -264,9 +264,9 @@ enclose the application logic.
 {\scriptsize
 \begin{verbatim}
 01  fun dapp (port: Int) {
-02     gals_connect(port)             // connects with the client
+02     gals_connect(port,40)          // connects to client at 40 FPS
 03     while (true) {                 // main event loop
-04        val (now,evt) = gals_wait() // awaits next input
+04        val (now,evt) = gals_wait() // awaits input (every 25ms)
 05        switch (evt) {              // reacts to input
 06           ...gals_emit(nxt)...     //   possibly generates inputs
 07           ...break loop...         //   possibly terminates

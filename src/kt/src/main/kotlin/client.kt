@@ -7,7 +7,7 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-fun client (DT: Long, port: Int = PORT_10000) {
+fun client (port: Int = PORT_10000) {
     val lock = java.lang.Object()
 
     val socket0 = ServerSocket(port)
@@ -22,6 +22,10 @@ fun client (DT: Long, port: Int = PORT_10000) {
     val socket2 = Socket("localhost", PORT_10002)
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
+
+    val fps = reader0.readInt()
+    assert(1000%fps == 0)
+    val DT = 1000 / fps
 
     val msg1 = reader1.readInt()
     assert(msg1 == 0)
