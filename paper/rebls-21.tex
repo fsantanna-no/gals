@@ -204,6 +204,9 @@ shared by all instances of the \emph{dapp}, allowing them to manifest identical
 behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
+Except for inputs with event id \emph{0}, which reprepresent clock ticks, each
+application determines its own ids, and the middleware just forwards them with
+no processing.
 As detailed in Section~\ref{sec.gals}, the middleware ensures that all
 instances receive the same timeline.
 
@@ -404,12 +407,12 @@ Except for the hidden xxx, the app is ... det, etc
 18      SDL_SetRenderDrawColor(ren, RED);          |
 19      SDL_RenderFillRect(ren, &r); // draw rect  |
 20      switch (evt) { // 5px/40fps -> 200 px/s    |
-21        case 0: { x+=5*vx; y+=5*vy; break; }     |> Update Memory
-22        case 1: { vx=-1; vy=0; break; }          |
-23        case 2: { vx= 1; vy=0; break; }          |
-24        case 3: { vy=-1; vx=0; break; }          |
-25        case 4: { vy= 1; vx=0; break; }          |
-26        case 5: { vy= 0; vx=0; break; }          |
+21        case 0:     { x+=5*vx; y+=5*vy; break; } |> Update Memory
+22        case LEFT:  { vx=-1; vy=0; break; }      |
+23        case RIGHT: { vx= 1; vy=0; break; }      |
+24        case UP:    { vy=-1; vx=0; break; }      |
+25        case DOWN:  { vy= 1; vx=0; break; }      |
+26        case SPACE: { vy= 0; vx=0; break; }      |
 27      }                                          |
 28      SDL_RenderPresent(ren);                 ---/
 29
