@@ -1,6 +1,7 @@
 \documentclass[sigplan,screen]{acmart}
 
 \usepackage{listings}
+\newcommand{\lin}[1]{(\emph{ln. #1})}
 
 \setcopyright{acmcopyright}
 \copyrightyear{2018}
@@ -137,8 +138,7 @@ experience intermittent freezes.
 
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, which
-programs following our event-driven API must comply in order to preserve
-determinism.
+programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
 architecture of our middleware, and details the synchronization algorithm for
 real-time distributed input reproducibility.
@@ -347,10 +347,9 @@ In both schemes, a loop iteration updates the state of the memory completely
 before handling the next input.
 Hence, assuming memory updates are deterministic, the only source of
 non-determinism resides in the order of inputs from the environment.
-Outputs are events in the opposite direction of inputs and signal the
-environment about changes.
-They typically represent actuators (as opposed to input sensors), such as the
-screen or printer.
+Outputs are asynchronous events in the opposite direction of inputs and
+signal the environment about changes.
+They typically represent external actuators as opposed to input sensors.
 
 The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
 \emph{dapp} skeleton of Figure~\ref{fig.skel}:
@@ -358,31 +357,44 @@ The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
     \texttt{gals\_wait} reads inputs,
     \texttt{gals\_emit} signals the environment back, and
     the \texttt{switch} statement processes the inputs (to update memory).
-As a subtle difference, instead of output events, \emph{dapps} emit
-asynchronous inputs that are later retrofitted back as synchronous inputs with
-a delay, as described in Figure~\ref{fig.middleware}.
 As required by the synchronous hypothesis, the sampling period, and
 consequently the rate of inputs, must be compatible with the processing speed.
-
+A subtle particularity is that \emph{dapps} outputs are actually asynchronous
+inputs later retrofitted back synchronized with a delay, as described in
+Figure~\ref{fig.middleware}.
+%
 The sampling scheme is also adopted by popular event-driven libraries, such as
 \emph{SDL} for computer graphics, and \emph{Arduino} for embedded systems.%
 \footnote{\url{www.libsdl.org} and \url{www.arduino.cc}}
 This allows for an easier integration of our middleware with practical systems,
 and also reinforces how programming distributed versions are similar to their
 local counterparts.
-Figure~\ref{fig.sdl} is the code for a \emph{dapp} written in SDL to control an
-animated rectangle on the screen with the keyboard.%
-\footnote{Video of the \emph{dapp} running in two instances: \url{TODO}}
-The code structure follows the synchronous implementation scheme with evident
-sections to initialize memory (\emph{ln. 4--8}), read inputs in a loop
-(\emph{ln. 11--13}), update memory (\emph{ln. 15--28}), and compute outputs
-(\emph{ln. 30--31}).
-As mentioned above, the outputs are actually asynchronous inputs, which are
-expanded in Figure~\ref{fig.xxx} and discussed further.
-The rectangle starts at position \texttt{(10,10)} with no movement
-\texttt{vx=vy=0} (\emph{ln. 7--8}).
 
-Except for the hidden xxx, the app is ... det, etc
+Figure~\ref{fig.sdl} is the code for a \emph{dapp} written in SDL to control an
+animated rectangle on the screen with the keyboard.
+The code structure follows the synchronous implementation scheme with well
+delimited sections to initialize memory \lin{4--8}, read inputs in a loop
+\lin{11--13}, update memory \lin{15--28}, and compute outputs \lin{30--31}.
+As mentioned above, the outputs are actually asynchronous inputs that are later
+retrofitted into the \emph{dapp}.
+This section of code is expanded in Figure~\ref{fig.input} and is discussed in
+sequence.
+The application first initializes the SDL library to create a window and
+renderer handle \lin{4--6}.
+The rectangle starts at position \texttt{(10,10)} with no movement in the axes
+\texttt{vx=vy=0} \lin{7--8}.
+The main loop \lin{10--32} first waits for the next input to control the
+rectangle \lin{11--13}.
+On each iteration, the screen is cleared and the rectangle is drawn on the
+current position \lin{15--19}.
+The \texttt{switch} statement \lin{20--27} processes the current input:
+    a clock tick \lin{21} just moves the rectangle in the current direction;
+    a space \lin{22} pauses the rectangle by resetting the axes speeds;
+    the arrow keys \lin{23--26} sets the axis speeds towards the appropriate direction.
+Before the next iteration, the screen is updated \lin{28}.
+The code is enclosed by middleware calls to connect and disconnect \lin{2,34}.
+Inside the main loop, all state modifications depend only on the received
+event, which ensures that the application is deterministic.
 
 \begin{figure}[t]
 {\scriptsize
@@ -408,11 +420,11 @@ Except for the hidden xxx, the app is ... det, etc
 19      SDL_RenderFillRect(ren, &r); // draw rect  |
 20      switch (evt) { // 5px/40fps -> 200 px/s    |
 21        case 0:     { x+=5*vx; y+=5*vy; break; } |> Update Memory
-22        case LEFT:  { vx=-1; vy=0; break; }      |
-23        case RIGHT: { vx= 1; vy=0; break; }      |
-24        case UP:    { vy=-1; vx=0; break; }      |
-25        case DOWN:  { vy= 1; vx=0; break; }      |
-26        case SPACE: { vy= 0; vx=0; break; }      |
+22        case SPACE: { vy= 0; vx=0; break; }      |
+23        case LEFT:  { vx=-1; vy=0; break; }      |
+24        case RIGHT: { vx= 1; vy=0; break; }      |
+25        case UP:    { vy=-1; vx=0; break; }      |
+26        case DOWN:  { vy= 1; vx=0; break; }      |
 27      }                                          |
 28      SDL_RenderPresent(ren);                 ---/
 29
@@ -426,9 +438,45 @@ Except for the hidden xxx, the app is ... det, etc
 \end{verbatim}
 }
   \caption{
-    \label{fig.skel}
-    The skeleton of a \emph{dapp} is a main loop that waits synchronous and
-    emits asynchronous events.
+    \label{fig.sdl}
+    A \emph{dapp} in SDL to control an animated rectangle on the screen with
+    the keyboard. Video with two running instances: \url{TODO}
+  }
+\end{figure}
+
+Figure~\ref{fig.input} expands the output section with the calls to
+\texttt{gals\_emit} to generate asynchronous inputs.
+In this application, it simply calls the SDL library to check if a key is
+pressed and forward to the middleware.
+Note that in a local-only application this section of code would replace the
+section to read inputs from the middleware.
+Note also that it is not necessary to customize this code for every single
+application.
+Instead, the middleware may provide a custom input generation stub for each
+event-driven library it supports, and \emph{dapps} may reuse it.
+
+\begin{figure}[t]
+{\scriptsize
+\begin{verbatim}
+// emit asynchronous inputs
+SDL_Event inp;
+if (SDL_PollEvent(&inp)) {
+   if (inp.type == SDL_KEYDOWN) {
+      switch (inp.key.keysym.sym) {
+         case SDLK_LEFT:  { gals_emit(LEFT);  break; }
+         case SDLK_RIGHT: { gals_emit(RIGHT); break; }
+         case SDLK_UP:    { gals_emit(UP);    break; }
+         case SDLK_DOWN:  { gals_emit(DOWN);  break; }
+         case SDLK_SPACE: { gals_emit(SPACE); break; }
+      }
+   }
+}
+\end{verbatim}
+}
+  \caption{
+    \label{fig.input}
+    Asynchronous input generation with \texttt{gals\_emit}.
+    The library polls for key presses and forwards them to the middleware.
   }
 \end{figure}
 
@@ -451,14 +499,6 @@ loop do
 end
 \end{lstlisting}
 \end{comment}
-
-- SDL stub would allow for ...
-
-how development is similar.
-
-for interaction
-with
-
 
 ... TODO ...
 
