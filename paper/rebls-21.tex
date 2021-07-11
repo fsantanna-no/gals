@@ -373,11 +373,11 @@ local counterparts.
 Figure~\ref{fig.sdl} is the code for a \emph{dapp} written in SDL to control an
 animated rectangle on the screen with the keyboard.
 The code structure follows the synchronous implementation scheme with well
-delimited sections to initialize memory \lin{4--8}, read inputs in a loop
+delimited regions to initialize memory \lin{4--8}, read inputs in a loop
 \lin{11--13}, update memory \lin{15--28}, and compute outputs \lin{30--31}.
 As mentioned above, the outputs are actually asynchronous inputs that are later
 retrofitted into the \emph{dapp}.
-This section of code is expanded in Figure~\ref{fig.input} and is discussed in
+This region of code is expanded in Figure~\ref{fig.input} and is discussed in
 sequence.
 The application first initializes the SDL library to create a window and
 renderer handle \lin{4--6}.
@@ -444,16 +444,17 @@ event, which ensures that the application is deterministic.
   }
 \end{figure}
 
-Figure~\ref{fig.input} expands the output section with the calls to
-\texttt{gals\_emit} to generate asynchronous inputs.
+Figure~\ref{fig.input} expands the output region with the calls to
+\texttt{gals\_emit} that generate asynchronous inputs.
 In this application, it simply calls the SDL library to check if a key is
 pressed and forward to the middleware.
-Note that in a local-only application this section of code would replace the
-section to read inputs from the middleware.
+Note that in a local-only application this region of code would replace the
+region to read inputs from the middleware.
 Note also that it is not necessary to customize this code for every single
 application.
 Instead, the middleware may provide a custom input generation stub for each
 event-driven library it supports, and \emph{dapps} may reuse it.
+This is the reason why we split this code in a separate figure.
 
 \begin{figure}[t]
 {\scriptsize
@@ -480,27 +481,11 @@ if (SDL_PollEvent(&inp)) {
   }
 \end{figure}
 
-\begin{comment}
-\begin{lstlisting}[
-  xleftmargin=1em,
-  numbers=left,
-  basicstyle=\ttfamily\scriptsize,
-  float=t,
-  caption={Synchronous application that turns the LED on whenever the button
-           is pressed and off whenever it is unpressed.},
-  label={lst.gpio.sync},
-  escapechar=\%,
-]
-#include "gpio.ceu"      // GPIO driver
-emit PIN_13(low);
-loop do
-    var high/low v = await PIN_02;
-    emit PIN_13(v);
-end
-\end{lstlisting}
-\end{comment}
-
-... TODO ...
+To conclude this section, the ``Update Memory'' region of Figure~\ref{fig.sdl},
+which contains the core logic of the application, does not make calls to the
+middleware, being indistinguishable from a local version.
+In addition, if this region complies with the synchronous model premises, the
+application remains responsive and deterministic.
 
 \begin{comment}
 
