@@ -52,8 +52,8 @@ same set of inputs to concurrent instances and observe identical behavior in
 real time.
 %
 In this work, we guarantee real-time reproducibility in a distributed setting.
-Mirrored instances of the same application are allowed to broadcast
-asynchronous inputs and yet conform to identical behavior.
+Multiple instances of the same application can broadcast asynchronous inputs
+and yet conform to identical behavior.
 Collaborative networked applications, such as watch parties, document editing,
 and video games can benefit of this approach.
 %
@@ -86,8 +86,9 @@ and testing can be done in a single instance with the same guarantees.
 \section{Introduction}
 
 Deterministic programs are easier to understand, test, and verify~\cite{det}.
-Considering user interactions, a program is deterministic if re-execution with
-the same order and timing of inputs always leads to the same state.
+Considering unpredictable user interactions, a program is deterministic if
+re-execution with the same order and timing of inputs always leads to the same
+state.
 With such reproducibility property, multiple re-executions are
 indistinguishable from one another.
 Considering now distribution, it should even be possible to provide the same
@@ -135,6 +136,8 @@ considering all clients, which can be intolerable for low-latency applications
 such as video games.
 Finally, if a client diverges from the expected RTT, the application may
 experience intermittent freezes.
+For these reasons, the proposed middleware targets soft real-time collaborative
+applications.
 
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, which
@@ -155,9 +158,9 @@ A distributed application (\emph{dapp}, at the top left of the Figure), is a
 set of mirrored instances running in different machines (also \emph{dapp},
 inside the circles, to emphasize that they are symmetric and represent a single
 application).
-The clients, which are part of the middleware, intermediate all communication
-with the server and is key to permit that \emph{dapp} instances are specified
-as a local application.
+The clients, which are part of the middleware but co-located with each
+instance, intermediate all communication with the server and is key to permit
+that \emph{dapp} instances are specified as a local application.
 The server receives asynchronous events (in red) from instances and is
 responsible for redirecting them to all clients as synchronous events with an
 appropriate delta delay (in green).
