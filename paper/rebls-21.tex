@@ -1,9 +1,10 @@
 \documentclass[sigplan,screen]{acmart}
 
-\usepackage{listings}
-\newcommand{\lin}[1]{(\emph{ln. #1})}
-\newcommand{\dapp}{\emph{dapp}}
-\newcommand{\dapps}{\emph{dapps}}
+%\usepackage{listings}
+\usepackage{xspace}
+\newcommand{\lin}[1]{(\emph{ln. #1}\xspace)}
+\newcommand{\dapp}{\emph{dapp}\xspace}
+\newcommand{\dapps}{\emph{dapps}\xspace}
 
 \setcopyright{acmcopyright}
 \copyrightyear{2018}
@@ -527,17 +528,34 @@ synchronous inputs only (green arrows), and are allowed to output asynchronous
 events (red arrows), whose responsibility to resynchronize is left to the
 middleware.
 
-As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay to
-the original event equal to the maximum network round-trip time considering all
-clients.
-The middleware synchronization algorithm has to consider two main problems:
+As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay
+to the original event equal to the maximum network round-trip time considering
+all clients.
+The middleware synchronization algorithm needs to consider two main problems:
 %
 \begin{itemize}
 \item \textbf{Clock differences:}
-    Each instance has a independent clock that differ from others in
+    Each instance has an independent clock that differs from others in the
     \emph{offset} and \emph{rate}.
-    The offset refers to the point in time since the \dapp
+    The offset refers to the point in time since the \dapp started.
+    As an example, one instance started \emph{5000ms} ago while another started
+    \emph{5051ms} ago.
+    The \emph{rate} refers to the how fast the clock progresses, which may
+    slightly differ between machines.
+    As an example, one instance misses \emph{25ms} every hour in comparison to
+    others.
+    This difference, aka \emph{clock drift}, may affect the time offset
+    considerably over time.
+\item \textbf{Network delay:}
+    The instances carry a communication delay with the server, which varies
+    between clients and also over time.
+    As an example, a client next to the server may have a consistent RTT of
+    \emph{10ms}, while a distant one may vary between \emph{50--100ms} over
+    time.
 \end{itemize}
+%
+We do not assume any strict limits to these timings in our synchronization
+algorithm, but which may of course affect the viability of some applications.
 
 
 each machine has a local time
@@ -545,8 +563,6 @@ each machine has a local time
 Figure~\ref{}
 
 Two problems
-    - clock differences, offset and rate
-    - network delay, variable between clients and times
 
 
 - first assume
