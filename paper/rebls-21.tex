@@ -276,9 +276,9 @@ enclose the application logic.
 03     while (true) {                 // main event loop
 04        val (now,evt) = gals_wait() // awaits input (every 25ms)
 05        switch (evt) {              // reacts to input
-06           ...gals_emit(nxt)...     //   possibly generates inputs
-07           ...break loop...         //   possibly terminates
-08        }
+06           ...break loop...         //   possibly terminates
+07        }
+08        ...gals_emit(nxt)...        // possibly generates inputs
 09     }
 10     gals_disconnect()              // disconnects with the client
 11  }
@@ -297,7 +297,7 @@ The application initially blocks at \emph{line 4} waiting for an input.
 According to the timeline, the first input happens at \emph{tick 0} and
 \emph{event 0} (no event).
 In the second iteration \emph{tick 25}, the application emits events \emph{1}
-and \emph{2} asynchronously at \emph{line 6}.
+and \emph{2} asynchronously at \emph{line 8}.
 Only after a few ticks, these events are synchronized and awake \emph{line 4}
 in subsequent ticks.
 The main event loop is coded like a standard local event-driven application as
@@ -336,7 +336,7 @@ time-consuming loops.
   \includegraphics[width=\linewidth]{schemes}
   \caption{
     \label{fig.schemes}
-    Equivalent execution schemes for synchronous systems.~\cite{schemes}
+    Equivalent execution schemes for synchronous systems~\cite{schemes}.
     In the first scheme, a change in the environment is designated as an input
     event. 
     In the second scheme, an instant is a predefined time interval in which
@@ -497,12 +497,63 @@ and \texttt{y} will always be the same.
 In the next section, we discuss how to extend these guarantees to a distributed
 setting.
 
+\section{Distributed GALS Architecture}
+\label{sec.gals}
+
+The synchronous programming model assumes a single clock that controls the main
+loop to update the application state synchronously in locksteps.
+However, when we distribute the \emph{dapp} in multiple instances, we can no
+longer assume a single clock source, and we also introduce a delay in
+communication that compromises the synchronous hypothesis.
+
+Towards symmetric distributed applications with identical behavior, we need to
+read inputs synchronized and in real time in all instances.
+For instance, in the rectangle example of Figure~\ref{fig.sdl}, the challenge
+is
+    to awake all calls to \texttt{gals\_read} at the same time \lin{13}, and
+    to broadcast and resynchronize all asynchronous calls to \texttt{gals\_emit} \lin{31}.
+
+The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
+integrates multiple independent synchronous processes as a single distributed
+application~\cite{TODO}.
+%
+By adopting this architecture, we can keep the simplicity and guarantees of the
+synchronous model to program local instances, and transfer the responsibility
+to deal with asynchrony to the middleware at a global level.
+%
+In Figure~\ref{fig.middleware}, we can see that \emph{dapp} instances depend on
+synchronous inputs only (green arrows), and are allowed to output asynchronous
+events (red arrows), whose responsibility to resynchronize is left to the
+middleware.
+
+As introduced in Section~\ref{arch}, resynchronization adds a delta delay to
+the original event equal to the maximum network round-trip time considering all
+clients.
+The middleware synchronization algorithm has to consider two main problems:
+%
+\begin{itemize}
+\item \textbf{Clock differences:}
+    Each instance has a independent clock that differ from others in
+    \emph{offset} and \emph{rate}.
+    The offset refers to the point in time since the \emph{dapp}
+\end{itemize}
+
+
+each machine has a local time
+
+Figure~\ref{}
+
+Two problems
+    - clock differences, offset and rate
+    - network delay, variable between clients and times
+
+
+- first assume
+
+
 \begin{comment}
 
 Environment replicated in the clients
-
-- rate of inputs, time to compute the memory (gancho com "this hypothesis is satisfied if..." acima)
-- link to timeline and dapp code
 
 In synchronous systems, communication is instantaneous.
 The zero-delay property of the synchronous hypothesis guarantees that no time
@@ -513,9 +564,6 @@ characteristics make global data consensus another property of synchronous
 systems.
 \end{comment}
 
-\section{Distributed GALS Architecture}
-\label{sec.gals}
-
 \begin{comment}
 - freezes make clients to fall behind in time
 - testar isso com um cliente lazy
@@ -523,10 +571,6 @@ systems.
 - fazer ajuste de tempo dinamico
 - qvento de sync a cada segundo? (ou multiplo do RTT)
 
-
-The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
-integrates multiple independent synchronous processes as a single distributed
-application.
 
   shows that ... but local
 With distribution, communication timing is asynchronous because communication
