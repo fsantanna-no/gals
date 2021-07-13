@@ -53,8 +53,8 @@ fun client (port: Int = PORT_10000) {
 
     thread {
         while (true) {
-            val wanted = reader2.readLong()    // original time
-            val rtt = reader2.readLong()
+            val wanted = reader2.readLong()     // original time
+            val rtt = reader2.readLong()        // previous rtt to consider in freeze
             val app_cur = app_nxt
             synchronized(lock) {
                 val t1 = max(app_cur,wanted) + rtt

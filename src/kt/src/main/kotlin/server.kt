@@ -31,7 +31,7 @@ fun server (N: Int) { // number of app clients
 
     val lock = java.lang.Object()
     val queue: MutableList<Pair<Long, Int>> = mutableListOf()
-    var RTT = 1L
+    var RTT = 1L  // max RTT from previous cycle considering all clients
 
     // sends START and gets initial RTT from all clients
     clients1.map {
@@ -65,7 +65,6 @@ fun server (N: Int) { // number of app clients
     }
 
     // synchronizes emits
-    var TIME = 0L
     while (true) {
         // waits for an event
         val want = synchronized(lock) {
@@ -75,8 +74,10 @@ fun server (N: Int) { // number of app clients
             queue.removeAt(0)
         }
 
+        var TIME = 0L   // final time with delta
+
         // WANTED round trip to all clients
-        var RTT_nxt = 1L
+        var RTT_nxt = 1L  // max RTT to become next "previous cycle" considering all clients
         clients2.map {
             thread {
                 val (reader2,writer2) = it
@@ -85,11 +86,13 @@ fun server (N: Int) { // number of app clients
                     Thread.sleep(Random.nextLong(100))    // XXX: force delay
                 }
                 writer2.writeLong(want.first)           // sends desired timestamp to all
-                writer2.writeLong(RTT)
+                writer2.writeLong(RTT)                  // sends previous RTT to freeze
                 val time = reader2.readLong()           // receives local time from all
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
-                    RTT_nxt = max(RTT_nxt, ms2 - ms1)
+                    val rtt = ms2 - ms1
+                    // store probable time+rtt/2
+                    RTT_nxt = max(RTT_nxt, rtt)
                     TIME = max(TIME, time+RTT)
                 }
             }
