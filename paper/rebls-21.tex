@@ -234,7 +234,7 @@ Tick    Event    Async
 }
   \caption{
     \label{fig.timeline}
-    Example of a synchronized timeline of inputs shared by all instance of the
+    Example of a synchronized timeline of inputs shared by all instances of the
     \emph{dapp}.
     Ticks are \emph{25ms} apart (40 FPS).
     Asynchronous events are synchronized with a delay.
@@ -487,8 +487,15 @@ if (SDL_PollEvent(&inp)) {
 To conclude this section, the ``Update Memory'' region of Figure~\ref{fig.sdl},
 which contains the core logic of the application, does not make calls to the
 middleware, being indistinguishable from a local version.
-In addition, if this region complies with the synchronous model premises, the
-application remains responsive and deterministic.
+In addition, since this region complies with the synchronous model premises,
+the application remains responsive and deterministic.
+For instance, the computations to update the positions are clearly faster than
+\emph{25ms} (a tick period), satisfying the synchronous hypothesis.
+Also, if a given timeline such as that of Figure~\ref{fig.timeline} is
+reproduced to the application, all intermediate and final values of \texttt{x}
+and \texttt{y} will always be the same.
+In the next section, we discuss how to extend these guarantees to a distributed
+setting.
 
 \begin{comment}
 
@@ -497,40 +504,13 @@ Environment replicated in the clients
 - rate of inputs, time to compute the memory (gancho com "this hypothesis is satisfied if..." acima)
 - link to timeline and dapp code
 
-In synchronous systems, communication is instantaneous. The zero-
-delay property of the synchronous hypothesis guarantees that no time elapses
-between event announcement and receiving. Also, as communication is via
-broadcast, all systems parts share the same information all the time. These two
+In synchronous systems, communication is instantaneous.
+The zero-delay property of the synchronous hypothesis guarantees that no time
+elapses between event announcement and receiving.
+Also, as communication is via broadcast, all systems parts share the same
+information all the time. These two
 characteristics make global data consensus another property of synchronous
 systems.
-The first scheme of implementation resembles the main-loops of event-
-driven programming in traditional languages. In fact, event-driven program-
-ming is the commonest way of programming synchronous systems. Among the
-common problems with this pattern are programming with control inversion
-and the lack of stack for managing state [von Behren]. We can consider that
-event-driven programming is a low-level way of programming synchronous sys-
-tems, not much different than dealing with interrupt handling in hardware.
-\end{comment}
-
-\begin{comment}
-Synchronous: reactions run atomically and to comple-
-tion on each line of execution, i.e., there’s no implicit
-preemption or real parallelism.
-
-Synchronous: reactions run atomically and to com-
-pletion on each line of execution, i.e., there’s no
-implicit preemption or real parallelism.
-
-The synchronous execution model of Céu dictates
-that reactions to input events are atomic and that in-
-coming events are never lost, which we refer to as the
-atomicity and responsiveness properties, respectively.
-
-They rely on
-the synchronous hypothesis which states that programs take no time to produce
-outputs when reacting to inputs. The precise notion of time in these languages
-is suitable for programming operations that should be performed respecting a
-given timing constraint, which are common case in multimedia.
 \end{comment}
 
 \section{Distributed GALS Architecture}
