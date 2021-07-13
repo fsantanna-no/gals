@@ -2,6 +2,8 @@
 
 \usepackage{listings}
 \newcommand{\lin}[1]{(\emph{ln. #1})}
+\newcommand{\dapp}{\emph{dapp}}
+\newcommand{\dapps}{\emph{dapps}}
 
 \setcopyright{acmcopyright}
 \copyrightyear{2018}
@@ -154,13 +156,13 @@ Section~\ref{sec.conclusion}...
 
 Figure~\ref{fig.middleware} describes the client-server architecture of our
 middleware entitled \emph{gals}.
-A distributed application (\emph{dapp}, at the top left of the Figure), is a
-set of mirrored instances running in different machines (also \emph{dapp},
-inside the circles, to emphasize that they are symmetric and represent a single
+A distributed application (\dapp, at the top left of the Figure), is a set of
+mirrored instances running in different machines (also \dapp, inside the
+circles, to emphasize that they are symmetric and represent a single
 application).
 The clients, which are part of the middleware but co-located with each
 instance, intermediate all communication with the server and is key to permit
-that \emph{dapp} instances are specified as a local application.
+that \dapp instances are specified as a local application.
 The server receives asynchronous events (in red) from instances and is
 responsible for redirecting them to all clients as synchronous events with an
 appropriate delta delay (in green).
@@ -187,8 +189,8 @@ The events represent user interactions, such as key presses, which are
 unpredictable and need to be communicated with the other instances.
 Since instances should be indistinguishable from one another, event sources are
 irrelevant.
-For instance, if a user presses a key in one instance, the \emph{dapp} behaves
-as if all users pressed the same key in all instances simultaneously.
+For instance, if a user presses a key in one instance, the \dapp behaves as if
+all users pressed the same key in all instances simultaneously.
 %
 Clock ticks represent the rate in which applications are updated, and are
 equivalent to frame rates in video playback and games.
@@ -196,14 +198,13 @@ For practical purposes, we assume periods in the order of tens of milliseconds
 (e.g., 25 milliseconds or 40 frames per second).
 An important insight is that clock ticks are predictable inputs and need not to
 go through the server.
-This results in no delay between the \emph{dapp} and the client since
-interprocess communication takes negligible time (i.e., in the order of a few
-microseconds).
+This results in no delay between the \dapp and the client since interprocess
+communication takes negligible time (i.e., in the order of a few microseconds).
 Unlike sporadic mechanical user input, clock ticks cannot tolerate considerable
 delays without going unnoticed by humans.
 %
 Clock ticks and delayed events constitute the unique synchronous timeline
-shared by all instances of the \emph{dapp}, allowing them to manifest identical
+shared by all instances of the \dapp, allowing them to manifest identical
 behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
@@ -235,7 +236,7 @@ Tick    Event    Async
   \caption{
     \label{fig.timeline}
     Example of a synchronized timeline of inputs shared by all instances of the
-    \emph{dapp}.
+    \dapp.
     Ticks are \emph{25ms} apart (40 FPS).
     Asynchronous events are synchronized with a delay.
     Note that delay is unpredictable but event order within each source
@@ -256,8 +257,8 @@ For these reasons, the viability of applications depends on
     (ii) the nature and rate of inputs, and
     (iii) the maximum network latency.
 
-The code for an actual \emph{dapp} is the same for all instances and uses a
-standard event-driven API with only four commands:
+The code for an actual \dapp is the same for all instances and uses a standard
+event-driven API with only four commands:
 \begin{itemize}
 \item \texttt{connect(port,fps)}:        \\Connects with the local client in the given port and desired FPS.
 \item \texttt{disconnect()}:             \\Disconnects with the local client.
@@ -286,8 +287,8 @@ enclose the application logic.
 }
   \caption{
     \label{fig.skel}
-    The skeleton of a \emph{dapp} is a main loop that waits synchronous and
-    emits asynchronous events.
+    The skeleton of a \dapp is a main loop that waits synchronous and emits
+    asynchronous events.
   }
 \end{figure}
 
@@ -355,15 +356,15 @@ signal the environment about changes.
 They typically represent external actuators as opposed to input sensors.
 
 The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
-\emph{dapp} skeleton of Figure~\ref{fig.skel}:
+\dapp skeleton of Figure~\ref{fig.skel}:
     \texttt{gals\_connect} specifies the sampling period,
     \texttt{gals\_wait} reads inputs,
     \texttt{gals\_emit} signals the environment back, and
     the \texttt{switch} statement processes the inputs (to update memory).
 As required by the synchronous hypothesis, the sampling period, and
 consequently the rate of inputs, must be compatible with the processing speed.
-A subtle particularity is that \emph{dapps} outputs are actually asynchronous
-inputs later retrofitted back synchronized with a delay, as described in
+A subtle particularity is that \dapps outputs are actually asynchronous inputs
+later retrofitted back synchronized with a delay, as described in
 Figure~\ref{fig.middleware}.
 %
 The sampling scheme is also adopted by popular event-driven libraries, such as
@@ -373,13 +374,13 @@ This allows for an easier integration of our middleware with practical systems,
 and also reinforces how programming distributed versions are similar to their
 local counterparts.
 
-Figure~\ref{fig.sdl} is the code for a \emph{dapp} written in SDL to control an
+Figure~\ref{fig.sdl} is the code for a \dapp written in SDL to control an
 animated rectangle on the screen with the keyboard.
 The code structure follows the synchronous implementation scheme with well
 delimited regions to initialize memory \lin{4--8}, read inputs in a loop
 \lin{11--13}, update memory \lin{15--28}, and compute outputs \lin{30--31}.
 As mentioned above, the outputs are actually asynchronous inputs that are later
-retrofitted into the \emph{dapp}.
+retrofitted into the \dapp.
 This region of code is expanded in Figure~\ref{fig.input} and is discussed in
 sequence.
 The application first initializes the SDL library to create a window and
@@ -442,8 +443,8 @@ event, which ensures that the application is deterministic.
 }
   \caption{
     \label{fig.sdl}
-    A \emph{dapp} in SDL to control an animated rectangle on the screen with
-    the keyboard. Video with two running instances: \url{TODO}
+    A \dapp in SDL to control an animated rectangle on the screen with the keyboard.
+    Video with two running instances: \url{TODO}
   }
 \end{figure}
 
@@ -456,7 +457,7 @@ region to read inputs from the middleware.
 Note also that it is not necessary to customize this code for every single
 application.
 Instead, the middleware may provide a custom input generation stub for each
-event-driven library it supports, and \emph{dapps} may reuse it.
+event-driven library it supports, and \dapps may reuse it.
 This is the reason why we split this code in a separate figure.
 
 \begin{figure}[t]
@@ -502,9 +503,9 @@ setting.
 
 The synchronous programming model assumes a single clock that controls the main
 loop to update the application state synchronously in locksteps.
-However, when we distribute the \emph{dapp} in multiple instances, we can no
-longer assume a single clock source, and we also introduce a delay in
-communication that compromises the synchronous hypothesis.
+However, when we distribute the \dapp in multiple instances, we can no longer
+assume a single clock source, and we also introduce a delay in communication
+that compromises the synchronous hypothesis.
 
 Towards symmetric distributed applications with identical behavior, we need to
 read inputs synchronized and in real time in all instances.
@@ -521,12 +522,12 @@ By adopting this architecture, we can keep the simplicity and guarantees of the
 synchronous model to program local instances, and transfer the responsibility
 to deal with asynchrony to the middleware at a global level.
 %
-In Figure~\ref{fig.middleware}, we can see that \emph{dapp} instances depend on
+In Figure~\ref{fig.middleware}, we can see that \dapp instances depend on
 synchronous inputs only (green arrows), and are allowed to output asynchronous
 events (red arrows), whose responsibility to resynchronize is left to the
 middleware.
 
-As introduced in Section~\ref{arch}, resynchronization adds a delta delay to
+As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay to
 the original event equal to the maximum network round-trip time considering all
 clients.
 The middleware synchronization algorithm has to consider two main problems:
@@ -535,7 +536,7 @@ The middleware synchronization algorithm has to consider two main problems:
 \item \textbf{Clock differences:}
     Each instance has a independent clock that differ from others in
     \emph{offset} and \emph{rate}.
-    The offset refers to the point in time since the \emph{dapp}
+    The offset refers to the point in time since the \dapp
 \end{itemize}
 
 
