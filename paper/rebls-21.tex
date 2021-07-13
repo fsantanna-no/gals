@@ -554,9 +554,30 @@ The middleware synchronization algorithm needs to consider two main problems:
     time.
 \end{itemize}
 %
-We do not assume any strict limits to these timings in our synchronization
-algorithm, but which may of course affect the viability of some applications.
+We do not assume any strict timing bounds in our synchronization algorithm,
+which may of course affect the viability of some applications.
 
+The synchronization algorithm performed by the middleware has the following
+objectives:
+%
+\begin{itemize}
+\item Keep the instances clock offsets close to each other.
+\item Receive asynchronous inputs from instances.
+\item Generate back synchronous inputs to instances with a minimum delay.
+\item Ensure that instances read the inputs with perfect time precision.
+\end{itemize}
+%
+Offset differences are inevitable but should be under a few milliseconds to not
+be perceived by users.
+The smaller is the input delay, the better is the user experience regarding
+interactivity.
+However, if too small, a distant instance may nevertheless receive the delayed
+input after its local time.
+In this case, the middleware may freeze the instance to pause its local time
+and ensure time precision.
+
+Figure~\ref{fig.algo} describes the synchronization algorithm performed by the
+middleware.
 
 each machine has a local time
 
