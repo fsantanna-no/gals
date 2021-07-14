@@ -238,7 +238,7 @@ Tick    Event    Async
     \label{fig.timeline}
     Example of a synchronized timeline of inputs shared by all instances of the
     \dapp.
-    Ticks are \emph{25ms} apart (40 FPS).
+    Ticks are \emph{25ms} apart (\emph{40 FPS}).
     Asynchronous events are synchronized with a delay.
     Note that delay is unpredictable but event order within each source
     instance is preserved.
@@ -577,7 +577,8 @@ to ensure time precision.
 
 Figure~\ref{fig.protocol} describes the synchronization protocol performed by
 the middleware.
-%
+The next paragraphs explains the protocol in detail.
+
 The server starts first and needs to know in advance how many instances will
 participate in the \dapp (\emph{Server (N)}).
 Each instance connects through its client (\emph{Client 1 ... Client N}) with
@@ -587,10 +588,10 @@ receipt, starts to send ticks to their instances (\emph{started}).
 Note that clients will inevitably start at different global times due to
 network latency.
 The clients also send back an \emph{ack} so that the server can calculate the
-maximum network RTT (\emph{45ms}), which is used next.
+maximum network RTT1 (\emph{45ms}), which is used next.
 %
 After the startup process, each \dapp instance executes at the same pace
-(except for drifts) with similar offset differences (under maximum RTT).
+(except for drifts) with similar offset differences (under maximum RTT1).
 We consider that, at this point, the instances are indistinguishable from each
 other.
 
@@ -629,80 +630,75 @@ for all clients, and to ensure that instances do not miss the deadline even if
 everything goes wrong.
 %
 First, the server broadcasts the intention to emit an event, passing the source
-instance offset time and current network maximum RTT (\emph{propose(750,45)}).
-Then, each client calculates its own deadline as follows:
+instance offset time and current network maximum RTT1 (\emph{propose(750,45)}).
+The final confirmation of the event is yet to come after all clients
+acknowledge the server (\emph{event(890,1)}).
+Before that, each client calculates its own deadline as follows:
     (i) take the maximum time between the source and local offset,
-    (ii) add the RTT to this maximum, and
+    (ii) add twice the received RTT to this maximum, and
     (iii) set this sum as the local event deadline.
 As examples, the sum for
-    \emph{Client 1} is $max(750,700)+45=795$, and for
-    \emph{Client N} is $max(750,800)+45=845$.
+    \emph{Client 1} is $max(750,700)+2x45=840$, and for
+    \emph{Client N} is $max(750,800)+2x45=890$.
 %
-Taking the maximum local time and adding the RTT is a reasonable value, because
-it is a bit over the expected confirmation for the instance most ahead in time.
-
-
-
-, which is the most likely
-to miss the deadline.
+This sum is reasonable because it considers
+    the instance most ahead in time, and also
+    the worst RTT with an extra margin.
+For instance, \emph{Client N} with the worst RTT (\emph{45ms}) is also ahead of
+time \emph{800ms} and the final confirmation will arrive after another round
+trip to the server (\emph{event(890,1)}), making \emph{890ms} a reasonable
+deadline.
 %
+During this process, the server recalculates the RTT to use in the next event
+emission (\emph{RTT2=50ms}).
+
 Each client also starts a timer to pause the instance if the confirmation of
 the event is not received until the deadline.
+In this case, the client pauses the instance by repeating the same tick over
+and over until it receives the now expected event.
 This at least ensures identical timelines in all instances of the \dapp.
-The client pauses the instance by repeating the same tick over and over.
+%
+The server then wait for all client acknowledgments carrying their local
+offsets (\emph{ack(800)} and \emph{ack(700)}), recalculate each deadline (in
+the same way each client did), and takes the largest as the final event
+timestamp to broadcast to all clients (\emph{event(890,1)}).
+The server also sends a drift compensation (\emph{dt(0)} and \emph{dt(100)})
+based on offset differences, which is discussed further.
+At this point, all clients are expecting a timestamp that is greater than or
+equal to their own timer deadlines.
+Therefore, even if the network deteriorates, no instances can miss the
+synchronized event.
 
+Finally, the final confirmation is received by the clients.
+\emph{Client N} receives it before the deadline, at local time \emph{870ms},
+which requires to postpone local emission for \emph{20ms}.
+However, \emph{Client 1} expires its timer before receipt and needs to pause
+the \dapp for a while (red area).
+Then, the event confirmation is received at local time \emph{860ms}, but which
+still requires to postpone local emission for another \emph{30ms}.
+In the end, both clients emit the event exactly at local time \emph{890ms} as
+expected (white circle in the Figure).
 
-
-In the example, the sever knows that 
-
-
-
-queue in the server
-
-
-
-
-
-
-inindistinguishable from 
-
-
-
-- PHASE 1: connection
-    - server waits N connections
-        - may sit idle for long time
-    - all connected
-    - calculate first RTT
-
-each machine has a local time
-
-Figure~\ref{}
-
-- freeze may increase offset diff
-
-
-\begin{comment}
-
-Environment replicated in the clients
-
-In synchronous systems, communication is instantaneous.
-The zero-delay property of the synchronous hypothesis guarantees that no time
-elapses between event announcement and receiving.
-Also, as communication is via broadcast, all systems parts share the same
-information all the time. These two
-characteristics make global data consensus another property of synchronous
-systems.
-\end{comment}
+Note that \emph{Client 1} was harmed in the process mainly because the maximum
+time it used (\emph{750ms}) was much smaller than \emph{Client N} did
+(\emph{800ms}).
+This is because the local clocks were too distant from each other, breaking our
+\emph{goal 1}.
+As an additional remark, note that pausing \emph{Client 1}, increased the
+offset difference even further (\emph{offset diff} in the Figure).
+%
+The middleware also implements an algorithm to compensate clock drifts as
+follows:
+Once the server receives all acknowledges carrying local offsets
+(\emph{ack(800)} and \emph{ack(700)}), the server sends back how much each
+client is delayed it in comparison to the maximum value (\emph{0} and
+\emph{100}).
+If the number is greater than zero, the client speeds up each instance tick in
+\emph{20\%} until the time drift is compensated.
+For instance, if the client generates new ticks every \emph{25ms}, it will
+instead generate a new \emph{25ms} tick every \emph{20ms}.
 
 \begin{comment}
-- freezes make clients to fall behind in time
-- testar isso com um cliente lazy
-
-- fazer ajuste de tempo dinamico
-- qvento de sync a cada segundo? (ou multiplo do RTT)
-
-
-  shows that ... but local
 With distribution, communication timing is asynchronous because communication
 latency takes a non-negligible time and breaks the synchronous hypothesis.
 
