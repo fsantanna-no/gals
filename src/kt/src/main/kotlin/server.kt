@@ -34,10 +34,10 @@ fun server (N: Int) { // number of app clients
     var RTT = 1L  // max RTT from previous cycle considering all clients
 
     // sends START and gets initial RTT from all clients
+    val ms1 = Instant.now().toEpochMilli()
     clients1.map {
         thread {
             val (reader1, writer1) = it
-            val ms1 = Instant.now().toEpochMilli()
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
@@ -80,10 +80,10 @@ fun server (N: Int) { // number of app clients
         var RTT_nxt = 1L  // max RTT to become next "previous cycle" considering all clients
         val ths = Array<Thread?>(clients2.size){null}
         val tms = Array<Long>(clients2.size){0}
+        val ms1 = Instant.now().toEpochMilli()
         for (i in 0..clients2.size-1) {
             ths[i] = thread {
                 val (reader2,writer2) = clients2[i]
-                val ms1 = Instant.now().toEpochMilli()
                 if (DEBUG) {
                     Thread.sleep(Random.nextLong(100))    // XXX: force delay
                 }
@@ -95,7 +95,7 @@ fun server (N: Int) { // number of app clients
                     val rtt = ms2 - ms1
                     tms[i] = time+rtt/2
                     RTT_nxt = max(RTT_nxt, rtt)
-                    TIME = max(TIME, time+RTT)
+                    TIME = max(TIME, time+2*RTT)
                 }
             }
         }
@@ -109,6 +109,7 @@ fun server (N: Int) { // number of app clients
                 if (DEBUG && delay) {
                     delay = false
                     Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
+                    //Thread.sleep(RTT/2 + Random.nextLong(RTT/2))    // XXX: force delay
                 }
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
