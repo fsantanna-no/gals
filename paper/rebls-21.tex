@@ -560,33 +560,125 @@ which may of course affect the viability of some applications.
 The synchronization algorithm performed by the middleware has the following
 objectives:
 %
-\begin{itemize}
+\begin{enumerate}
 \item Keep the instances clock offsets close to each other.
-\item Receive asynchronous inputs from instances.
-\item Generate back synchronous inputs to instances with a minimum delay.
+\item Generate synchronous inputs to instances with a minimum delay.
 \item Ensure that instances read the inputs with perfect time precision.
-\end{itemize}
+\end{enumerate}
 %
-Offset differences are inevitable but should be under a few milliseconds to not
-be perceived by users.
-The smaller is the input delay, the better is the user experience regarding
-interactivity.
+Regarding \emph{goal 1}, offset differences are inevitable but should be under
+a few milliseconds to not be perceived by users.
+Regarding \emph{goal 2}, the smaller is the input delay, the better is the user
+experience regarding interactivity.
 However, if too small, a distant instance may nevertheless receive the delayed
-input after its local time.
-In this case, the middleware may freeze the instance to pause its local time
-and ensure time precision.
+input after its local time, which is unacceptable considering \emph{goal 3}.
+In this case, the middleware may freeze the instance and pause its local time
+to ensure time precision.
 
-Figure~\ref{fig.algo} describes the synchronization algorithm performed by the
-middleware.
+Figure~\ref{fig.protocol} describes the synchronization protocol performed by
+the middleware.
+%
+The server starts first and needs to know in advance how many instances will
+participate in the \dapp (\emph{Server (N)}).
+Each instance connects through its client (\emph{Client 1 ... Client N}) with
+the server, which waits for all connections to succeed (\emph{all connected}).
+Then, the server broadcasts a \emph{start} message to all clients, which on
+receipt, starts to send ticks to their instances (\emph{started}).
+Note that clients will inevitably start at different global times due to
+network latency.
+The clients also send back an \emph{ack} so that the server can calculate the
+maximum network RTT (\emph{45ms}), which is used next.
+%
+After the startup process, each \dapp instance executes at the same pace
+(except for drifts) with similar offset differences (under maximum RTT).
+We consider that, at this point, the instances are indistinguishable from each
+other.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{protocol}
+  \caption{
+    \label{fig.protocol}
+    The architecture of the middleware \emph{gals}.
+    A single server synchronizes multiple clients, each connected to a mirrored
+    instance of the distributed application.
+  }
+  %\Description{A woman and a girl in white dresses sit in an open car.}
+\end{figure}
+
+Now, let's consider an asynchronous event: \emph{Client N} emits event \emph{1}
+at local time \emph{750ms}.
+The server enqueues all event requests (in red) and handles each atomically, in
+sequence, as described further.
+%
+Note that the client cannot determine a reasonable timestamp for the event and
+broadcast it directly to others.
+First, the client has no idea about the network RTT to propose a deadline
+timestamp (e.g, \emph{750+RTT}) that guarantees that all clients receive the
+event in time to fulfill \emph{goal 3}.
+Second, even if known, there is no guarantee that the RTT will not slightly
+increase this time, making an instance to miss the event deadline.
+Third, even if the RTT was known and bounded, the local instances may still
+diverge on their local time offsets (e.g., \emph{750ms} vs \emph{800ms}), again
+making an instance to miss the deadline.
+%
+As mentioned above, we do not assume any bounds in RTT and offset variance.
+
+Hence, our protocol relies on the server to determine a reasonable timestamp
+for all clients, and to ensure that instances do not miss the deadline even if
+everything goes wrong.
+%
+First, the server broadcasts the intention to emit an event, passing the source
+instance offset time and current network maximum RTT (\emph{propose(750,45)}).
+Then, each client calculates its own deadline as follows:
+    (i) take the maximum time between the source and local offset,
+    (ii) add the RTT to this maximum, and
+    (iii) set this sum as the local event deadline.
+As examples, the sum for
+    \emph{Client 1} is $max(750,700)+45=795$, and for
+    \emph{Client N} is $max(750,800)+45=845$.
+%
+Taking the maximum local time and adding the RTT is a reasonable value, because
+it is a bit over the expected confirmation for the instance most ahead in time.
+
+
+
+, which is the most likely
+to miss the deadline.
+%
+Each client also starts a timer to pause the instance if the confirmation of
+the event is not received until the deadline.
+This at least ensures identical timelines in all instances of the \dapp.
+The client pauses the instance by repeating the same tick over and over.
+
+
+
+In the example, the sever knows that 
+
+
+
+queue in the server
+
+
+
+
+
+
+inindistinguishable from 
+
+
+
+- PHASE 1: connection
+    - server waits N connections
+        - may sit idle for long time
+    - all connected
+    - calculate first RTT
 
 each machine has a local time
 
 Figure~\ref{}
 
-Two problems
-
-
-- first assume
+- freeze may increase offset diff
 
 
 \begin{comment}
