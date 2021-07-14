@@ -51,12 +51,14 @@ fun client (port: Int = PORT_10000) {
         }
     }
 
+    var DRIFT = 0
     thread {
         while (true) {
             val wanted = reader2.readLong()     // original time
             val rtt = reader2.readLong()        // previous rtt to consider in freeze
             val app_cur = app_nxt
             synchronized(lock) {
+                DRIFT = 0
                 val t1 = max(app_cur,wanted) + rtt
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
                 queue_expecteds.add(t2)   // possible time + rtt
@@ -68,9 +70,11 @@ fun client (port: Int = PORT_10000) {
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
+            val drift = reader2.readInt()
             if (decided+DT < app_nxt) { println("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
             assert(decided+DT >= app_nxt)
             synchronized(lock) {
+                DRIFT = drift
                 queue_finals.add(Pair(decided,evt))
             }
         }
@@ -102,6 +106,8 @@ fun client (port: Int = PORT_10000) {
         val dt = cli_now + DT - cli_nxt
         if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
         assert(dt > 0)
-        Thread.sleep(dt)
+        //if (DRIFT > 10) { println("DRIFT=$DRIFT") }
+        val drift = if (dt.toInt()==0 || DRIFT<10) 0 else { DRIFT-=10 ; 10 }
+        Thread.sleep(dt-drift)
     }
 }

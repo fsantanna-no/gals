@@ -102,6 +102,7 @@ fun server (N: Int) { // number of app clients
         ths.forEach { it!!.join() }
 
         var delay = true
+        val maxLocal = tms.maxOrNull()!!
         (0..clients2.size-1).map {
             thread {
                 val (_, writer2) = clients2[it]
@@ -111,6 +112,7 @@ fun server (N: Int) { // number of app clients
                 }
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
+                writer2.writeInt((maxLocal - tms[it]).toInt())  // clock drift
             }
         }.map { it.join() }
 
