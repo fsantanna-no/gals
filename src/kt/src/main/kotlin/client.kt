@@ -5,6 +5,7 @@ import java.net.ServerSocket
 import java.net.Socket
 import java.time.Instant
 import kotlin.concurrent.thread
+import kotlin.math.min
 import kotlin.random.Random
 
 fun client (port: Int = PORT_10000) {
@@ -90,7 +91,7 @@ fun client (port: Int = PORT_10000) {
             if (queue_finals.isEmpty()) {
                 if (queue_expecteds.isNotEmpty() && app_nxt>=queue_expecteds[0]) {
                     // cannot advance time to prevent missing expected event
-                    println("[WRN] pause")
+                    println("[WRN] freeze")
                     app_nxt -= DT
                 }
             } else if (app_cur>=queue_finals[0].first) {
@@ -107,9 +108,16 @@ fun client (port: Int = PORT_10000) {
         val dt = cli_now + DT - cli_nxt
         if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
         assert(dt > 0)
-        //if (DRIFT > 10) { println("DRIFT=$DRIFT") }
-        val x = DT/5  // if drift is over a full frame, recover 20% each frame
-        val drift = if (dt.toInt()==0 || DRIFT<DT) 0 else { DRIFT-=x ; x }
-        Thread.sleep(dt-drift)
+        val x = min(DRIFT,DT/2)  // if drift is over a full frame, recover 20% each frame
+        if (DRIFT > 0) { println("DRIFT=$DRIFT") }
+        val drift = if (dt.toInt()==0 || DRIFT==0) 0 else { DRIFT-=x ; x }
+        /*
+        if (port%2 == 0) {
+            Thread.sleep(((dt - drift)*0.8).toLong())
+        } else
+         */
+        {
+            Thread.sleep(dt - drift)
+        }
     }
 }

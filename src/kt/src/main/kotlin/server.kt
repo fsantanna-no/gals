@@ -108,8 +108,9 @@ fun server (N: Int) { // number of app clients
                 val (_, writer2) = clients2[it]
                 if (DEBUG && delay) {
                     delay = false
-                    Thread.sleep(RTT / 2 + Random.nextLong(RTT))    // XXX: force delay
-                    //Thread.sleep(RTT/2 + Random.nextLong(RTT/2))    // XXX: force delay
+                    Thread.sleep(RTT/2 + Random.nextLong(RTT/2))    // XXX: force delay
+                    //Thread.sleep(RTT/2 + Random.nextLong(RTT))      // XXX: force delay
+                    //Thread.sleep(Random.nextLong(5*RTT))    // XXX: force delay
                 }
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
