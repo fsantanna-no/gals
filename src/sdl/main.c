@@ -29,7 +29,7 @@ int main (int argc, char** argv) {
 
     int x = 10;
     int y = 10;
-    int xdir = 1;
+    int xdir = 0;
     int ydir = 0;
     uint64_t prv = 0;
 
@@ -43,7 +43,7 @@ int main (int argc, char** argv) {
         }
         uint64_t now = be64toh(*(uint64_t*)&buf[0]);
         uint32_t evt = be32toh(*(uint32_t*)&buf[sizeof(uint64_t)]);
-        printf("now=%ld evt=%d\n", now, evt);
+        //printf("now=%ld evt=%d\n", now, evt);
 
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
         SDL_RenderClear(ren);
@@ -53,7 +53,7 @@ int main (int argc, char** argv) {
             case 2: { xdir= 1; ydir=0; break; }
             case 3: { ydir=-1; xdir=0; break; }
             case 4: { ydir= 1; xdir=0; break; }
-            case 5: { ydir= 0; xdir=0; break; }
+            case 5: { ydir= 0; xdir=0; printf("PAUSE: t=%ld, xy=(%d,%d)\n",now,x,y); break; }
         }
 
         SDL_Rect r = { x, y, 10, 10 };
@@ -71,6 +71,9 @@ int main (int argc, char** argv) {
             SDL_Event inp;
             while (SDL_PollEvent(&inp)) {
                 uint32_t n = 0;
+                if (inp.type == SDL_QUIT) {
+                    exit(0);
+                }
                 if (inp.type == SDL_KEYDOWN) {
                     switch (inp.key.keysym.sym) {
                         case SDLK_LEFT:  { n=1; break; }
