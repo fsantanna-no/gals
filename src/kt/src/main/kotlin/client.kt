@@ -108,7 +108,7 @@ fun client (port: Int = PORT_10000) {
         val dt = cli_now + DT - cli_nxt
         if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
         assert(dt > 0)
-        val x = min(DRIFT,DT/2)  // if drift is over a full frame, recover 20% each frame
+        val x = min(DRIFT,DT/5)  // if drift is over a full frame, recover 20% each frame
         if (DRIFT > 0) { println("DRIFT=$DRIFT") }
         val drift = if (dt.toInt()==0 || DRIFT==0) 0 else { DRIFT-=x ; x }
         /*
