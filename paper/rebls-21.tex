@@ -378,7 +378,10 @@ and also reinforces how, in our proposal, programming distributed versions
 becomes similar to their local counterparts.
 
 Figure~\ref{fig.sdl} is the code for a \dapp written in SDL to control an
-animated rectangle on the screen with the keyboard.
+animated rectangle on the screen with the keyboard.%
+\footnote {
+    Video with two distributed instances: \url{https://youtu.be/HSIwmrUenqg}
+}
 The code structure follows the synchronous implementation scheme with well
 delimited regions to initialize memory \lin{4--8}, read inputs in a loop
 \lin{11--13}, update memory \lin{15--28}, and compute outputs \lin{30--31}.
@@ -447,7 +450,6 @@ event, which ensures that the application is deterministic.
   \caption{
     \label{fig.sdl}
     A \dapp in SDL to control an animated rectangle on the screen with the keyboard.
-    Video with two running instances: \url{https://youtu.be/HSIwmrUenqg}
   }
 \end{figure}
 
@@ -580,8 +582,25 @@ In this case, the middleware may freeze the instance and pause its local time
 to ensure time accuracy.
 
 Figure~\ref{fig.protocol} describes the synchronization protocol performed by
-the middleware.
+the middleware.%
+\footnote {
+    Video with two distributed instances, now with deliberate RTTs in the order
+    of \emph{100ms}: \url{https://youtu.be/bf9C2mwkTzA}
+}
 The next paragraphs explains the protocol in detail.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{protocol}
+  \caption{
+    \label{fig.protocol}
+    The synchronization protocol
+        (i) keeps clock offsets together,
+        (ii) generates synchronous inputs with minimum delays, and
+        (iii) ensures that instances read inputs with accuracy.
+  }
+  %\Description{A woman and a girl in white dresses sit in an open car.}
+\end{figure}
 
 The server starts first and needs to know in advance how many instances will
 participate in the \dapp (\emph{Server (N)}).
@@ -599,19 +618,6 @@ After the startup process, each \dapp instance executes at the same pace
 (except for drifts) with similar offset differences (at most \emph{RTT1}).
 We consider that, at this point, the instances are indistinguishable from each
 other.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\linewidth]{protocol}
-  \caption{
-    \label{fig.protocol}
-    The synchronization protocol
-        (i) keeps clock offsets together,
-        (ii) generates synchronous inputs with minimum delays, and
-        (iii) ensures that instances read inputs with accuracy.
-  }
-  %\Description{A woman and a girl in white dresses sit in an open car.}
-\end{figure}
 
 Now, let's consider an asynchronous event (in red): \emph{Client N} emits event
 \emph{1} at local time \emph{750ms} (\emph{async(750,1)}).
@@ -698,7 +704,11 @@ As an additional remark, note that pausing \emph{Client 1}, increased the
 offset difference even further (\emph{offset diff}).
 %
 The middleware also implements an algorithm to compensate clock drifts as
-follows:
+follows:%
+\footnote {
+    Video with two distributed instances, now with exaggerated clock drifts:
+    \url{https://youtu.be/wwlAURjN5YY}
+}
 Once the server receives all acknowledges carrying local offsets
 (\emph{ack(700)} and \emph{ack(800)}), the server sends back how much each
 client is delayed in comparison to the maximum value (i.e., \emph{800-700=100}
@@ -707,6 +717,7 @@ If this number is greater than zero, the client speeds up each local tick in
 \emph{20\%} until the time drift is compensated.
 For instance, if the client behind generates new ticks every \emph{25ms}, it
 will instead generate \emph{25ms} ticks every \emph{20ms}.
+
 
 \begin{comment}
 With distribution, communication timing is asynchronous because communication
