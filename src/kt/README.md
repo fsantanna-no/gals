@@ -63,11 +63,11 @@ $ sudo apt install default-jre
 Then, you are ready to install `gals`:
 
 ```
-$ wget https://github.com/fsantanna-no/gals/releases/download/v0.1.0/install-v0.1.0.sh
+$ wget https://github.com/fsantanna-no/gals/releases/download/v0.2.0/install-v0.2.0.sh
 
 # choose one:
-$ sh install-v0.1.0.sh .                    # either unzip to current directory (must be in the PATH)
-$ sudo sh install-v0.1.0.sh /usr/local/bin  # or     unzip to system  directory
+$ sh install-v0.2.0.sh .                    # either unzip to current directory (must be in the PATH)
+$ sudo sh install-v0.2.0.sh /usr/local/bin  # or     unzip to system  directory
 ```
 
 ## Execute

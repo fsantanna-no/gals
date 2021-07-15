@@ -26,11 +26,11 @@
 #
 # TEST
 # $ cd /x/gals/bin/
-# $ wget https://github.com/fsantanna-no/gals/releases/download/v0.1.0/install-v0.1.0.sh
-# $ sudo sh install-v0.1.0.sh /usr/local/bin
+# $ wget https://github.com/fsantanna-no/gals/releases/download/v0.2.0/install-v0.2.0.sh
+# $ sudo sh install-v0.2.0.sh /usr/local/bin
 # $ gals --version
 
-VER=v0.1.0
+VER=v0.2.0
 DIR=/tmp/gals-build/
 
 rm -Rf $DIR
