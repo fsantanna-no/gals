@@ -78,19 +78,19 @@ $ sudo sh install-v0.2.0.sh /usr/local/bin  # or     unzip to system  directory
 
 ```
 $ gals server 2 &
-$ gals client 50 9999 &
-$ gals client 50 9998 &
+$ gals client 9999 &
+$ gals client 9998 &
 ```
 
 - Open two other terminals to execute the default `dapp` and connect with the
   respective client.
 
 ```
-$ gals app 9999
+$ gals app 9999 50
 ```
 
 ```
-$ gals app 9998
+$ gals app 9998 50
 ```
 
 - Observe that the apps behave in the very same way.
@@ -108,11 +108,14 @@ $ gals app 9998
   follows:
 
 ```
-fun app (port: Int) {
+fun app (port: Int, fps: Int) {
     // connects with the client on the provided port
     val socket = Socket("localhost", port)
     val writer = DataOutputStream(socket.getOutputStream()!!)
     val reader = DataInputStream(socket.getInputStream()!!)
+
+    // sends the desired FPS
+    writer.writeInt(fps)
 
     // thread that receives the logical ticks from the client
     thread {

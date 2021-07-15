@@ -5,13 +5,15 @@ import kotlin.concurrent.thread
 import kotlin.random.Random
 
 fun app (port: Int, fps: Int) {
-    // connect with the client on the provided port
+    // connects with the client on the provided port
     val socket = Socket("localhost", port)
     val writer = DataOutputStream(socket.getOutputStream()!!)
     val reader = DataInputStream(socket.getInputStream()!!)
 
+    // sends the desired FPS
     writer.writeInt(fps)
 
+    // thread that receives the logical ticks from the client
     thread {
         while (true) {
             val now = reader.readLong()
@@ -23,6 +25,8 @@ fun app (port: Int, fps: Int) {
 
         }
     }
+
+    // thread that emits random events back to the client
     thread {
         while (true) {
             Thread.sleep(Random.nextLong(5000))
