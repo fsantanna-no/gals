@@ -114,10 +114,9 @@ fun client (port: Int = PORT_10000) {
         /*
         if (port%2 == 0) {
             Thread.sleep(((dt - drift)*0.8).toLong())
-        } else
+        } else {
          */
-        {
-            Thread.sleep(dt - drift)
-        }
+        Thread.sleep(dt - drift)
+        //}
     }
 }
