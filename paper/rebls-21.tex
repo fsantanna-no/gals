@@ -48,23 +48,22 @@
 %\renewcommand{\shortauthors}{Trovato and Tobin, et al.}
 
 \begin{abstract}
-A program is deterministic if multiple re-executions with the same order of
-inputs always lead to the same state.
-For a given deterministic program, it should even be possible to provide the
-same set of inputs to concurrent instances and observe identical behavior in
-real time.
+A program is deterministic if multiple re-executions with the same inputs
+always lead to the same state.
+Even concurrent instances of a deterministic program should observe identical
+behavior---in real time---if assigned the same set of inputs.
 %
-In this work, we guarantee real-time reproducibility in a distributed setting.
-Multiple instances of the same application can broadcast asynchronous inputs
-and yet conform to identical behavior.
+In this work, we guarantee real-time reproducibility for distributed programs.
+Multiple instances of the same interactive application are can broadcast
+asynchronous inputs and yet conform to identical behavior.
 Collaborative networked applications, such as watch parties, document editing,
-and video games can benefit of this approach.
+and video games can benefit from this approach.
 %
 Using a standard event-driven API to wait and emit events, programmers write
 code as if the application executes in a single machine.
 Our middleware intercepts event generation and synchronizes all instances so
 that receipt is identically reproducible.
-Not only distributed applications benefit of determinism but also development
+Not only distributed applications benefit from determinism but also development
 and testing can be done in a single instance with the same guarantees.
 \end{abstract}
 
@@ -96,7 +95,7 @@ With such reproducibility property, multiple re-executions are
 indistinguishable from one another.
 Considering now distribution, it should even be possible to provide the same
 set of inputs to concurrent instances of a deterministic program and observe
-identical behavior in real time.
+identical behavior \emph{in real time}.
 
 In this work, our goal is to guarantee the real-time reproducibility property
 in a distributed setting.
@@ -107,24 +106,25 @@ Hence, our focus is on \emph{symmetric distributed applications}, instead of
 machines playing different roles in the network.
 
 Collaborative networked applications fall in the class of symmetric
-distribution and can benefit of transparent determinism and reproducibility.
+distribution and can benefit from transparent determinism and reproducibility.
 As an example, \emph{watch parties} are social gatherings to watch movies and
 TV shows.
-Users expect to be perfectly synchronized such that anyone pressing the pause
-button should stop all instances exactly in the same video frame.
-In this context, the network distributions is just an inconvenience that should
-not make the experience to diverge from users sitting in front of the same TV.
+Users expect to be perfectly synchronized such that pressing the pause button
+in any machine should stop all others exactly in the same video frame.
+In this context, the delay imposed by the network is just an inconvenience that
+should not degrade the experience in comparison to users sitting in front of
+the same TV.
 Other examples that fall in this category are single-screen multiplayer games
 and collaborative document editing.
 
-Since our goal is to make distributed applications to \emph{behave} like local
-applications, we also intend to make distributed programs to \emph{be coded}
-like local programs.
+In addition to make distributed applications \emph{behave} like local
+applications, we also intend to make distributed programs \emph{be coded} like
+local programs.
 In this sense, we provide a standard event-driven API with two main commands
 to wait and emit events.
 Programmers write the intended distributed application as if it would execute
 in a single machine.
-We also provide the middleware that connects the multiple application instances
+We also provide the middleware to connect multiple application instances
 transparently in the network.
 The middleware intercepts event generation and synchronizes all instances so
 that receipt is identically reproducible.
@@ -132,13 +132,13 @@ As a result, not only distributed applications benefit from determinism but
 also development and testing can be done in a single instance with the same
 guarantees.
 
-As the main limitations, the middleware relies on a centralized server and all
+As the main limitations, the middleware relies on a central server and all
 instances must be known and responsive during the entire execution.
-In addition, the latency of events is the maximum round-trip time (RTT)
-considering all clients, which can be intolerable for low-latency applications
-such as video games.
-Finally, if a client diverges from the expected RTT, the application may
-experience intermittent freezes.
+In addition, since the latency of events is proportional to the maximum
+round-trip time (RTT) in the network, low-latency applications might become
+impractical.
+Finally, if clients diverge considerably from the expected RTT, applications
+may experience intermittent freezes.
 For these reasons, the proposed middleware targets soft real-time collaborative
 applications.
 
@@ -146,8 +146,8 @@ Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, which
 programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
-architecture of our middleware, and details the synchronization algorithm for
-real-time distributed input reproducibility.
+architecture of our middleware, and details the synchronization protocol for
+input reproducibility.
 Section~\ref{sec.eval} evaluates our middleware with...
 Section~\ref{sec.related}...
 Section~\ref{sec.conclusion}...
@@ -158,21 +158,21 @@ Section~\ref{sec.conclusion}...
 Figure~\ref{fig.middleware} describes the client-server architecture of our
 middleware entitled \emph{gals}.
 A distributed application (\dapp, at the top left of the Figure), is a set of
-mirrored instances running in different machines (also \dapp, inside the
-circles, to emphasize that they are symmetric and represent a single
+mirrored instances running in different machines (also \dapp, at the edges of
+the figure, to emphasize that they are symmetric and represent a single
 application).
 The clients, which are part of the middleware but co-located with each
-instance, intermediate all communication with the server and is key to permit
-that \dapp instances are specified as a local application.
-The server receives asynchronous events (in red) from instances and is
-responsible for redirecting them to all clients as synchronous events with an
-appropriate delta delay (in green).
-The delay is necessary because network broadcast takes non-negligible time
-(i.e., in the order of milliseconds), and instances need to advance at the same
-time in order to preserve reproducibility.
-The clients control the clock ticks of the instances and is responsible for
-issuing the received events at the appropriate timestamps (both synchronized,
-in green).
+instance, intermediate all communication with the server and enable that \dapp
+instances are specified as a local application.
+The server receives asynchronous events (in red) from instances and redirects
+them to all clients as synchronous events with an appropriate delta delay (in
+green).
+The delay is necessary because network communication takes non-negligible time
+(i.e., in the order of milliseconds), but instances need to advance together
+to preserve reproducibility.
+Hence, delaying the events is the only possibility to achieve reproducibility.
+The clients control the local clock ticks in the instances and issue the
+received events at the appropriate timestamps (both synchronized, in green).
 
 \begin{figure}[t]
   \centering
@@ -186,32 +186,31 @@ in green).
   %\Description{A woman and a girl in white dresses sit in an open car.}
 \end{figure}
 
-The events represent user interactions, such as key presses, which are
+Events represent user interactions, such as key presses, which are
 unpredictable and need to be communicated with the other instances.
-Since instances should be indistinguishable from one another, event sources are
+Since instances should be indistinguishable from each other, event sources are
 irrelevant.
 For instance, if a user presses a key in one instance, the \dapp behaves as if
 all users pressed the same key in all instances simultaneously.
 %
 Clock ticks represent the rate in which applications are updated, and are
 equivalent to frame rates in video playback and games.
-For practical purposes, we assume periods in the order of tens of milliseconds
-(e.g., 25 milliseconds or 40 frames per second).
+We assume periods in the order of tens of milliseconds (e.g., 25 milliseconds
+or 40 frames per second).
 An important insight is that clock ticks are predictable inputs and need not to
 go through the server.
-This results in no delay between the \dapp and the client since interprocess
+This results in no delay between the client and the \dapp since interprocess
 communication takes negligible time (i.e., in the order of a few microseconds).
-Unlike sporadic mechanical user input, clock ticks cannot tolerate considerable
-delays without going unnoticed by humans.
+Unlike for sporadic mechanical user inputs, users would notice and condemn
+delays in clock ticks.
 %
 Clock ticks and delayed events constitute the unique synchronous timeline
-shared by all instances of the \dapp, allowing them to manifest identical
-behavior.
+shared by all instances of the \dapp, making them manifest identical behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
-Except for inputs with event id \emph{0}, which reprepresent clock ticks, each
-application determines its own ids, and the middleware just forwards them with
-no processing.
+Except for event id \emph{0}, which represent clock ticks, applications
+determine their own ids.
+The middleware just forwards events with no further interpretation.
 As detailed in Section~\ref{sec.gals}, the middleware ensures that all
 instances receive the same timeline.
 
@@ -246,10 +245,10 @@ Tick    Event    Async
 \end{figure}
 
 %As detailed in Section~\ref{sec.gals}, the delta delay for user input is the
-The delta delay for user input is the maximum network round-trip time
-considering all clients.
-We deliberately assume unbounded network delay to augment the scope of
-applications.
+The delta delay for user input is proportional to the maximum network
+round-trip time considering all clients.
+We deliberately assume unbounded network delay to augment the possible
+application scenarios.
 Another concern is the rate of input generation in the instances.
 As an example, tracking the mouse position will inevitably flood the network
 with packets and make the application unresponsive.
@@ -260,13 +259,15 @@ For these reasons, the viability of applications depends on
 
 The code for an actual \dapp is the same for all instances and uses a standard
 event-driven API with only four commands:
+%
 \begin{itemize}
 \item \texttt{connect(port,fps)}:        \\Connects with the local client in the given port and desired FPS.
 \item \texttt{disconnect()}:             \\Disconnects with the local client.
 \item \texttt{(now,evt) = gals\_wait()}: \\Waits for the next input carrying a timestamp and event id.
 \item \texttt{gals\_emit(evt)}:          \\Emits the given asynchronous input.
 \end{itemize}
-Figure~\ref{fig.skel} shows the skeleton of an application.
+%
+Figure~\ref{fig.skel} shows the skeleton of a distributed application.
 The commands \texttt{connect} and \texttt{disconnect} are only required once to
 enclose the application logic.
 
@@ -294,16 +295,17 @@ enclose the application logic.
 \end{figure}
 
 Figure~\ref{fig.timeline}~and~\ref{fig.skel} with the timeline and the program
-related as follows:
-The application initially blocks at \emph{line 4} waiting for an input.
-According to the timeline, the first input happens at \emph{tick 0} and
+relate as follows:
+The application initially blocks waiting for an input \lin{4}.
+According to the timeline, the first input happens at \emph{tick 0} with
 \emph{event 0} (no event).
-In the second iteration \emph{tick 25}, the application emits events \emph{1}
-and \emph{2} asynchronously at \emph{line 8}.
-Only after a few ticks, these events are synchronized and awake \emph{line 4}
-in subsequent ticks.
-The main event loop is coded like a standard local event-driven application as
-intended.
+In the second iteration (\emph{tick 25}), the application emits events \emph{1}
+and \emph{2} asynchronously \lin{8}.
+Only after a few ticks, these events are synchronized (\emph{ticks 125 and 175})
+in the main loop \lin{4}.
+As intended, note how the main event loop is coded like a standard local
+event-driven application.
+We extend this discussion in the next section.
 
 \section{Local Synchronous Programming}
 \label{sec.sync}
@@ -709,6 +711,7 @@ What about in realtime
     - more abstract solves both problems (delay and rate)
 - clear/sound properties to reason
 - Events: single application, multiple views, may restrict events per node
+    - gals\_self()
 
 Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
 \end{comment}
