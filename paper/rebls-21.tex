@@ -21,7 +21,7 @@
 
 \begin{document}
 
-\title{Deterministic Distributed Interactive Applications}
+\title{Symmetric Distributed Applications}
 
 \author{Francisco Sant'Anna}
 \email{francisco@ime.uerj.br}
@@ -54,10 +54,11 @@ Even concurrent instances of a deterministic program should observe identical
 behavior---in real time---if assigned the same set of inputs.
 %
 In this work, we guarantee real-time reproducibility for distributed programs.
-Multiple instances of the same interactive application are can broadcast
+Multiple instances of the same interactive application can broadcast
 asynchronous inputs and yet conform to identical behavior.
 Collaborative networked applications, such as watch parties, document editing,
 and video games can benefit from this approach.
+We name this class of applications as \emph{symmetric distributed applications}.
 %
 Using a standard event-driven API to wait and emit events, programmers write
 code as if the application executes in a single machine.
@@ -446,7 +447,7 @@ event, which ensures that the application is deterministic.
   \caption{
     \label{fig.sdl}
     A \dapp in SDL to control an animated rectangle on the screen with the keyboard.
-    Video with two running instances: \url{TODO}
+    Video with two running instances: \url{https://youtu.be/HSIwmrUenqg}
   }
 \end{figure}
 
