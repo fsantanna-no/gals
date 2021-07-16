@@ -17,4 +17,4 @@ sleep 30
 pkill -f GALS.jar
 sleep 1
 
-diff /tmp/gals-01.txt /tmp/gals-02.txt || exit 1
+diff -q /tmp/gals-01.txt /tmp/gals-02.txt || exit 1

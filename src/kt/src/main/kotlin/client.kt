@@ -28,11 +28,12 @@ fun client (port: Int = PORT_10000) {
     assert(1000%fps == 0)
     val DT = 1000 / fps
 
-    val msg1 = reader1.readInt()
-    assert(msg1==1 || msg1==0) // 1 = first client
+    val self = reader1.readInt()
+    assert(self==1 || self==0) // 1 = first client
     if (DEBUG) {
         Thread.sleep(Random.nextLong(100))    // XXX: force delay
     }
+    writer0.writeInt(self)
     writer1.writeInt(0)
     //println("[client] server connected")
 
@@ -42,7 +43,7 @@ fun client (port: Int = PORT_10000) {
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
 
     // first client generates null event every 5s
-    if (msg1 == 1) {
+    if (self == 1) {
         thread {
             while (true) {
                 Thread.sleep(5000)

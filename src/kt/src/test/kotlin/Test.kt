@@ -52,4 +52,16 @@ class Tests {
         thread { app(PORT_10000-1, 1) }
         Thread.sleep(100000)
     }
+
+    @Test  // see now=... and sporadic evt=... (but twice and synchronized)
+    fun eval_01 () {
+        thread { server(2) }
+        Thread.sleep(1000)
+        thread { client(PORT_10000-0) }
+        thread { client(PORT_10000-1) }
+        Thread.sleep(1000)
+        thread { eval(PORT_10000-0, 1, 10) }
+        thread { eval(PORT_10000-1, 1, 10) }
+        Thread.sleep(100000)
+    }
 }

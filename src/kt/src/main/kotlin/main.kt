@@ -8,7 +8,6 @@ fun main (args: Array<String>) {
 }
 
 /*
- * - fazer sync de tempo
  * - --version
  * - server port
  */

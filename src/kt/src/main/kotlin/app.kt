@@ -10,8 +10,9 @@ fun app (port: Int, fps: Int) {
     val writer = DataOutputStream(socket.getOutputStream()!!)
     val reader = DataInputStream(socket.getInputStream()!!)
 
-    // sends the desired FPS
+    // sends the desired FPS and receives client id
     writer.writeInt(fps)
+    val self = reader.readInt()
 
     // thread that receives the logical ticks from the client
     thread {
