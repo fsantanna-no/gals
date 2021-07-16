@@ -78,12 +78,11 @@ fun server (N: Int) { // number of app clients
 
         // WANTED round trip to all clients
         var RTT_nxt = 1L  // max RTT to become next "previous cycle" considering all clients
-        val ths = Array<Thread?>(clients2.size){null}
         val tms = Array<Long>(clients2.size){0}
         val ms1 = Instant.now().toEpochMilli()
-        for (i in 0..clients2.size-1) {
-            ths[i] = thread {
-                val (reader2,writer2) = clients2[i]
+        (0..clients2.size-1).map {
+            thread {
+                val (reader2,writer2) = clients2[it]
                 if (DEBUG) {
                     Thread.sleep(Random.nextLong(100))    // XXX: force delay
                 }
@@ -93,13 +92,12 @@ fun server (N: Int) { // number of app clients
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
                     val rtt = ms2 - ms1
-                    tms[i] = time+rtt/2
+                    tms[it] = time+rtt/2
                     RTT_nxt = max(RTT_nxt, rtt)
                     TIME = max(TIME, time+2*RTT)
                 }
             }
-        }
-        ths.forEach { it!!.join() }
+        }.map { it!!.join() }
 
         var delay = true
         val maxLocal = tms.maxOrNull()!!

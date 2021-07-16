@@ -91,7 +91,7 @@ fun client (port: Int = PORT_10000) {
             if (queue_finals.isEmpty()) {
                 if (queue_expecteds.isNotEmpty() && app_nxt>=queue_expecteds[0]) {
                     // cannot advance time to prevent missing expected event
-                    println("[WRN] freeze")
+                    //println("[WRN] freeze")
                     app_nxt -= DT
                 }
             } else if (app_cur>=queue_finals[0].first) {
