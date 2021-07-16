@@ -718,6 +718,15 @@ If this number is greater than zero, the client speeds up each local tick in
 For instance, if the client behind generates new ticks every \emph{25ms}, it
 will instead generate \emph{25ms} ticks every \emph{20ms}.
 
+In order to maintain the overall network RTT updated and the clock offsets
+close to each other, the first client to connect with the server sends a
+periodic null event (\emph{id=0}) every \emph{5 seconds} to kick off the
+synchronization algorithm automatically%
+\footnote {
+    Video with two distributed instances, now with random RTTs, clock drifts,
+    and periodic synchronization:
+    \url{https://youtu.be/BYNHGsHnMx8}
+}.
 
 \begin{comment}
 With distribution, communication timing is asynchronous because communication
