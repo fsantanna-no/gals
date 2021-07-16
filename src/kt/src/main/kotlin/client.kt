@@ -49,6 +49,7 @@ fun client (port: Int = PORT_10000) {
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
 
     // first client generates null event every 5s
+    /*
     if (self == 1) {
         thread {
             while (true) {
@@ -60,6 +61,7 @@ fun client (port: Int = PORT_10000) {
             }
         }
     }
+     */
 
     // receives async from local dapp and forwards to server
     thread {
@@ -68,10 +70,10 @@ fun client (port: Int = PORT_10000) {
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            synchronized(lock) {
+            //synchronized(lock) {
                 writer1.writeLong(app_nxt)
                 writer1.writeInt(evt)
-            }
+            //}
         }
     }
 
