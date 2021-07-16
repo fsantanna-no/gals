@@ -24,7 +24,6 @@ fun app (port: Int, fps: Int) {
                 0    -> println("now=$now")
                 else -> println("now=$now evt=$evt")
             }
-
         }
     }
 

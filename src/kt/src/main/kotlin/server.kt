@@ -100,14 +100,18 @@ fun server (N: Int) { // number of app clients
             }
         }.map { it!!.join() }
 
+        if (want.second == 0) {
+            println("rtt $RTT_nxt")
+        }
+
         var delay = true
         val maxLocal = tms.maxOrNull()!!
-        (0..clients2.size-1).map {
+        (0..clients2.size - 1).map {
             thread {
                 val (_, writer2) = clients2[it]
                 if (DEBUG && delay) {
                     delay = false
-                    Thread.sleep(RTT/2 + Random.nextLong(RTT/2))    // XXX: force delay
+                    Thread.sleep(RTT / 2 + Random.nextLong(RTT / 2))    // XXX: force delay
                     //Thread.sleep(RTT/2 + Random.nextLong(RTT))      // XXX: force delay
                     //Thread.sleep(Random.nextLong(5*RTT))    // XXX: force delay
                 }

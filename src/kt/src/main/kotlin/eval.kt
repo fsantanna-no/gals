@@ -1,6 +1,7 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
+import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
@@ -13,6 +14,7 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
     // sends the desired FPS and receives client id
     writer.writeInt(fps)
     val self = reader.readInt()
+    var evt_ms: Long = 0
 
     // thread that receives the logical ticks from the client
     thread {
@@ -25,6 +27,9 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
             val now = reader.readLong()
             val evt = reader.readInt()
             val ms_per_frame = 1000/fps
+            if (evt == self) {
+                println("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
+            }
 
             if (old == now) {
                 if (!pause_flip) {
@@ -39,18 +44,21 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
             old = now
 
             // between 70% - 110%
-            Thread.sleep((ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*1.4)).toLong())
+            val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.4)).toLong()
+            //println(">>> $ms_per_frame // $x")
+            Thread.sleep(x)
         }
     }
 
     // thread that emits random events back to the client
     thread {
         // 1 evt/min = 60000 ms/evt
-        val ms_per_evt = evt_per_min * 60000
+        val ms_per_evt = 60000 / evt_per_min
         while (true) {
             // between 90% - 110%
-            Thread.sleep((ms_per_evt*0.9 + Random.nextDouble(ms_per_evt*1.2)).toLong())
-            writer.writeInt(1 + Random.nextInt(10))
+            Thread.sleep((ms_per_evt*0.9 + Random.nextDouble(ms_per_evt*0.2)).toLong())
+            writer.writeInt(self)
+            evt_ms = Instant.now().toEpochMilli()
         }
     }
 }
