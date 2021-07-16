@@ -13,7 +13,7 @@ fun app (port: Int, fps: Int) {
     // sends the desired FPS and receives client id
     writer.writeInt(fps)
     val self = reader.readInt()
-    println("[dapp] $self")
+    log("[dapp] $self")
 
     // thread that receives the logical ticks from the client
     thread {

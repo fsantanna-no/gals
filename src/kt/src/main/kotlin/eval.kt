@@ -28,7 +28,7 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
             val evt = reader.readInt()
             val ms_per_frame = 1000/fps
             if (evt == self) {
-                println("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
+                log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
             }
 
             if (old == now) {
@@ -37,7 +37,7 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
                 }
                 pause_flip = true
                 pause_nn++
-                println("pause [$self] $pause_nn/$pause_n")
+                log("pause [$self] $pause_nn/$pause_n")
             } else {
                 pause_flip = false
             }

@@ -9,7 +9,7 @@ import kotlin.math.min
 import kotlin.random.Random
 
 fun client (port: Int = PORT_10000) {
-    println("[client] started")
+    log("[client] started")
     val lock = java.lang.Object()
 
     val socket1 = Socket("localhost", PORT_10001)
@@ -18,30 +18,30 @@ fun client (port: Int = PORT_10000) {
     val socket2 = Socket("localhost", PORT_10002)
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
-    println("[client] connected with server")
+    log("[client] connected with server")
 
     val self = reader1.readInt()
     if (DEBUG) {
         Thread.sleep(Random.nextLong(100))    // XXX: force delay
     }
-    println("[client] self = $self")
+    log("[client] self = $self")
 
     val socket0 = ServerSocket(port)
     val client0 = socket0.accept()
     val writer0 = DataOutputStream(client0.getOutputStream()!!)
     val reader0 = DataInputStream(client0.getInputStream()!!)
-    println("[client] connected with local dapp")
+    log("[client] connected with local dapp")
 
     val fps = reader0.readInt()
     assert(1000%fps == 0)
     val DT = 1000 / fps
-    println("[client] fps = $fps")
+    log("[client] fps = $fps")
 
     val started = reader1.readInt()
     assert(started == 1)
     writer1.writeInt(1)     // sends started ACK
     writer0.writeInt(self)      // starts local dapp
-    println("[client] all started")
+    log("[client] all started")
 
     var app_nxt = 0.toLong()
 
@@ -95,10 +95,10 @@ fun client (port: Int = PORT_10000) {
             val decided = reader2.readLong()
             val evt = reader2.readInt()
             val drift = reader2.readInt()
-            if (decided+DT < app_nxt) { println("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
-            assert(decided+DT >= app_nxt)
             synchronized(lock) {
-                if (drift>DRIFT) { println("drift [$self] $drift") }
+                if (decided+DT < app_nxt) { log("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
+                assert(decided+DT >= app_nxt)
+                if (drift>DRIFT) { log("drift [$self] $drift") }
                 DRIFT = drift
                 queue_finals.add(Pair(decided,evt))
             }

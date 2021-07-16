@@ -101,7 +101,7 @@ fun server (N: Int) { // number of app clients
         }.map { it!!.join() }
 
         if (want.second == 0) {
-            println("rtt $RTT_nxt")
+            log("rtt $RTT_nxt")
         }
 
         var delay = true
