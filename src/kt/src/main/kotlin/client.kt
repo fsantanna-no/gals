@@ -29,7 +29,7 @@ fun client (port: Int = PORT_10000) {
     val DT = 1000 / fps
 
     val msg1 = reader1.readInt()
-    assert(msg1 == 0)
+    assert(msg1==1 || msg1==0) // 1 = first client
     if (DEBUG) {
         Thread.sleep(Random.nextLong(100))    // XXX: force delay
     }
@@ -40,6 +40,17 @@ fun client (port: Int = PORT_10000) {
 
     val queue_expecteds: MutableList<Long> = mutableListOf()
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
+
+    // first client generates null event every 5s
+    if (msg1 == 1) {
+        thread {
+            while (true) {
+                Thread.sleep(5000)
+                writer1.writeLong(app_nxt)
+                writer1.writeInt(0)
+            }
+        }
+    }
 
     thread {
         while (true) {
@@ -109,14 +120,15 @@ fun client (port: Int = PORT_10000) {
         if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
         assert(dt > 0)
         val x = min(DRIFT,DT/5)  // if drift is over a full frame, recover 20% each frame
+        //val x = min(DRIFT,DT/2)
         //if (DRIFT > 0) { println("DRIFT=$DRIFT") }
         val drift = if (dt.toInt()==0 || DRIFT==0) 0 else { DRIFT-=x ; x }
         /*
         if (port%2 == 0) {
             Thread.sleep(((dt - drift)*0.8).toLong())
         } else {
-         */
-        Thread.sleep(dt - drift)
+            */
+            Thread.sleep(dt - drift)
         //}
     }
 }

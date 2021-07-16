@@ -35,13 +35,13 @@ fun server (N: Int) { // number of app clients
 
     // sends START and gets initial RTT from all clients
     val ms1 = Instant.now().toEpochMilli()
-    clients1.map {
+    (0..clients1.size-1).map {
         thread {
-            val (reader1, writer1) = it
+            val (reader1, writer1) = clients1[it]
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            writer1.writeInt(0)     // send start
+            writer1.writeInt(if (it==0) 1 else 0) // send start (1=first)
             val v = reader1.readInt()
             assert(v == 0)
             val ms2 = Instant.now().toEpochMilli()
