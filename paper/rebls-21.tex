@@ -728,6 +728,13 @@ synchronization algorithm automatically%
     \url{https://youtu.be/BYNHGsHnMx8}
 }.
 
+\subsection{Asymmetric Distributed Applications}
+
+- non-det as whole but still locally det
+- view
+- event gen, other can't generate same inputs
+- best practices, gals_self_nondet()
+
 \begin{comment}
 With distribution, communication timing is asynchronous because communication
 latency takes a non-negligible time and breaks the synchronous hypothesis.
@@ -744,8 +751,26 @@ What about in realtime
 Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
 \end{comment}
 
+\section{Applications}
+\label{sec.apps}
+
 \section{Evaluation}
 \label{sec.eval}
+
+- com qual FPS? (50 FPS)
+- quanto tempo de simulação? (10 minutos)
+- qual o peso de processamento? (70-110\%)
+
+- O que avaliar:
+    - RTT (para ver se bate com estilo da rede)
+    - Delay (entre async/sync)
+    - Freeze: ocorrências e tempo total
+    - Drift: ocorrências e tempo total
+
+- O que variar:
+    - Rede: localhost, cable, wi-fi, internet
+    - Instâncias: 4, 10, 100
+    - Taxa de async: 1/min (60s/1), 10/min (6s/1), 100/min (600ms/1), 1000/min (60ms/1)
 
 % - asymmetric, different view, multiple inputs
 % - what ifs c/ videos
