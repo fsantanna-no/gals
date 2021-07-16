@@ -22,6 +22,7 @@ fun server (N: Int) { // number of app clients
         val reader1 = DataInputStream(client1.getInputStream()!!)
         val writer1 = DataOutputStream(client1.getOutputStream()!!)
         clients1.add(Pair(reader1, writer1))
+        writer1.writeInt(i) // sends self
 
         //val id2 = client2.inetAddress.hostAddress + ":" + client2.port
         val reader2 = DataInputStream(client2.getInputStream()!!)
@@ -41,9 +42,9 @@ fun server (N: Int) { // number of app clients
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            writer1.writeInt(if (it==0) 1 else 0) // send start (1=first)
-            val v = reader1.readInt()
-            assert(v == 0)
+            writer1.writeInt(1)      // sends start
+            val v = reader1.readInt()   // receives start ACK
+            assert(v == 1)
             val ms2 = Instant.now().toEpochMilli()
             RTT = max(RTT, ms2 - ms1)
         }

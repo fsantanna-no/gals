@@ -9,33 +9,39 @@ import kotlin.math.min
 import kotlin.random.Random
 
 fun client (port: Int = PORT_10000) {
+    println("[client] started")
     val lock = java.lang.Object()
+
+    val socket1 = Socket("localhost", PORT_10001)
+    val writer1 = DataOutputStream(socket1.getOutputStream()!!)
+    val reader1 = DataInputStream(socket1.getInputStream()!!)
+    val socket2 = Socket("localhost", PORT_10002)
+    val writer2 = DataOutputStream(socket2.getOutputStream()!!)
+    val reader2 = DataInputStream(socket2.getInputStream()!!)
+    println("[client] connected with server")
+
+    val self = reader1.readInt()
+    if (DEBUG) {
+        Thread.sleep(Random.nextLong(100))    // XXX: force delay
+    }
+    println("[client] self = $self")
 
     val socket0 = ServerSocket(port)
     val client0 = socket0.accept()
     val writer0 = DataOutputStream(client0.getOutputStream()!!)
     val reader0 = DataInputStream(client0.getInputStream()!!)
-
-    val socket1 = Socket("localhost", PORT_10001)
-    val writer1 = DataOutputStream(socket1.getOutputStream()!!)
-    val reader1 = DataInputStream(socket1.getInputStream()!!)
-
-    val socket2 = Socket("localhost", PORT_10002)
-    val writer2 = DataOutputStream(socket2.getOutputStream()!!)
-    val reader2 = DataInputStream(socket2.getInputStream()!!)
+    println("[client] connected with local dapp")
 
     val fps = reader0.readInt()
     assert(1000%fps == 0)
     val DT = 1000 / fps
+    println("[client] fps = $fps")
 
-    val self = reader1.readInt()
-    assert(self==1 || self==0) // 1 = first client
-    if (DEBUG) {
-        Thread.sleep(Random.nextLong(100))    // XXX: force delay
-    }
-    writer0.writeInt(self)
-    writer1.writeInt(0)
-    //println("[client] server connected")
+    val started = reader1.readInt()
+    assert(started == 1)
+    writer1.writeInt(1)     // sends started ACK
+    writer0.writeInt(self)      // starts local dapp
+    println("[client] all started")
 
     var app_nxt = 0.toLong()
 
@@ -47,20 +53,25 @@ fun client (port: Int = PORT_10000) {
         thread {
             while (true) {
                 Thread.sleep(5000)
-                writer1.writeLong(app_nxt)
-                writer1.writeInt(0)
+                synchronized(lock) {
+                    writer1.writeLong(app_nxt)
+                    writer1.writeInt(0)
+                }
             }
         }
     }
 
+    // receives async from local dapp and forwards to server
     thread {
         while (true) {
             val evt = reader0.readInt()
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            writer1.writeLong(app_nxt)
-            writer1.writeInt(evt)
+            synchronized(lock) {
+                writer1.writeLong(app_nxt)
+                writer1.writeInt(evt)
+            }
         }
     }
 
@@ -87,6 +98,7 @@ fun client (port: Int = PORT_10000) {
             if (decided+DT < app_nxt) { println("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
             assert(decided+DT >= app_nxt)
             synchronized(lock) {
+                if (drift>DRIFT) { println("drift [$self] $drift") }
                 DRIFT = drift
                 queue_finals.add(Pair(decided,evt))
             }
@@ -122,7 +134,7 @@ fun client (port: Int = PORT_10000) {
         assert(dt > 0)
         val x = min(DRIFT,DT/5)  // if drift is over a full frame, recover 20% each frame
         //val x = min(DRIFT,DT/2)
-        //if (DRIFT > 0) { println("DRIFT=$DRIFT") }
+        //if (DRIFT > 0) { println("drift [$self] $DRIFT") }
         val drift = if (dt.toInt()==0 || DRIFT==0) 0 else { DRIFT-=x ; x }
         /*
         if (port%2 == 0) {
