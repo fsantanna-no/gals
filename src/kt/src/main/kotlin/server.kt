@@ -99,7 +99,7 @@ fun server (N: Int) { // number of app clients
                     val rtt = ms2 - ms1
                     tms[it] = time+rtt/2
                     RTT_nxt = max(RTT_nxt, rtt)
-                    TIME = max(TIME, max(time+DT!!,time+2*RTT))
+                    TIME = max(TIME, max(time,time+2*RTT))
                 }
             }
         }.map { it!!.join() }

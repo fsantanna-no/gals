@@ -80,26 +80,24 @@ fun client (port: Int = PORT_10000) {
         while (true) {
             val wanted = reader2.readLong()     // original time
             val rtt = reader2.readLong()        // previous rtt to consider in freeze
-            val app_cur = app_nxt
+            if (DEBUG) {
+                Thread.sleep(Random.nextLong(100))    // XXX: force delay
+            }
             synchronized(lock) {
                 DRIFT = 0
-                // at least next frame (app_cur+DT)
-                val t1 = max(app_cur+DT, max(app_cur,wanted) + 2*rtt)
+                writer2.writeLong(app_nxt)          // returns current time for final value and drift compensation
+                val t1 = max(app_nxt, max(app_nxt,wanted) + 2*rtt)
                 // maybe a previous event will already expire after this one
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
                 queue_expecteds.add(t2)   // possible time + 2*rtt
             }
-            if (DEBUG) {
-                Thread.sleep(Random.nextLong(100))    // XXX: force delay
-            }
-            writer2.writeLong(app_cur)          // returns current time for final value and drift compensation
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
             val drift = reader2.readInt()
             synchronized(lock) {
-                if (decided+DT < app_nxt) { log("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
-                assert(decided+DT >= app_nxt)
+                //if (decided+DT < app_nxt) { log("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
+                //assert(decided+DT >= app_nxt)
                 if (drift>DRIFT) { log("drift [$self] $drift") }
                 DRIFT = drift
                 queue_finals.add(Pair(decided,evt))
@@ -132,18 +130,20 @@ fun client (port: Int = PORT_10000) {
 
         val cli_nxt = Instant.now().toEpochMilli()
         val dt = cli_now + DT - cli_nxt
-        if (dt <= 0) { println("[WRN] now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
-        assert(dt > 0)
-        val x = min(DRIFT,DT/5)  // if drift is over a full frame, recover 20% each frame
-        //val x = min(DRIFT,DT/2)
-        //if (DRIFT > 0) { println("drift [$self] $DRIFT") }
-        val drift = if (dt.toInt()==0 || DRIFT==0) 0 else { DRIFT-=x ; x }
-        /*
-        if (port%2 == 0) {
-            Thread.sleep(((dt - drift)*0.8).toLong())
-        } else {
-            */
-            Thread.sleep(dt - drift)
-        //}
+        if (dt <= 0) { println("[client] late frame // now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
+        //assert(dt > 0)
+        if (dt > 0) {
+            val x = min((dt-1).toInt(), min(DRIFT, DT / 5))  // if drift is over a full frame, recover 20% each frame
+            //val x = min(DRIFT,DT/2)
+            //if (DRIFT > 0) { println("drift [$self] $DRIFT") }
+            val drift = if (dt.toInt() == 0 || DRIFT == 0) 0 else {
+                DRIFT -= x; x
+            }
+            //if (port%2 == 0) {
+            //    Thread.sleep(((dt - drift)*0.8).toLong())
+            //} else {
+                Thread.sleep(dt - drift)
+            //}
+        }
     }
 }

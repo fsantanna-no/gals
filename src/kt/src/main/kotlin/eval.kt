@@ -19,9 +19,9 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
     // thread that receives the logical ticks from the client
     thread {
         var old: Long = -1
-        var pause_n = 0
-        var pause_nn = 0
-        var pause_flip = false
+        var freeze_n = 0
+        var freeze_nn = 0
+        var freeze_flip = false
 
         while (true) {
             val now = reader.readLong()
@@ -32,14 +32,14 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
             }
 
             if (old == now) {
-                if (!pause_flip) {
-                    pause_n++
+                if (!freeze_flip) {
+                    freeze_n++
                 }
-                pause_flip = true
-                pause_nn++
-                log("pause [$self] $pause_nn/$pause_n")
+                freeze_flip = true
+                freeze_nn++
+                log("freeze [$self] $freeze_nn/$freeze_n")
             } else {
-                pause_flip = false
+                freeze_flip = false
             }
             old = now
 
