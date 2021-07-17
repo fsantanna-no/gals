@@ -130,8 +130,9 @@ fun client (port: Int = PORT_10000) {
 
         val cli_nxt = Instant.now().toEpochMilli()
         val dt = cli_now + DT - cli_nxt
-        if (dt <= 0) { println("[client] late frame // now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
-        //assert(dt > 0)
+        //if (dt < 0) { log("[client] late frame // now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
+        if (dt < 0) { log("late [$self] ${-dt}") }
+        //assert(dt >= 0)
         if (dt > 0) {
             val x = min((dt-1).toInt(), min(DRIFT, DT / 5))  // if drift is over a full frame, recover 20% each frame
             //val x = min(DRIFT,DT/2)

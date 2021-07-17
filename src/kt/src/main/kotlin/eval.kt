@@ -19,9 +19,6 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
     // thread that receives the logical ticks from the client
     thread {
         var old: Long = -1
-        var freeze_n = 0
-        var freeze_nn = 0
-        var freeze_flip = false
 
         while (true) {
             val now = reader.readLong()
@@ -31,23 +28,24 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
             }
 
             if (old == now) {
-                if (!freeze_flip) {
-                    freeze_n++
-                }
-                freeze_flip = true
-                freeze_nn++
-                log("freeze [$self] $freeze_nn / $freeze_n")
-            } else {
-                freeze_flip = false
+                log("freeze [$self]")
+                continue
             }
             old = now
 
             val ms_per_frame = 1000/fps
-            // between 70% - 110%
-            //val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.4)).toLong()
+            // between 70% - 120%
+            val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.5)).toLong()
             //val x = (ms_per_frame*0.4 + Random.nextDouble(ms_per_frame*0.3)).toLong()
             //println(">>> $ms_per_frame // $x")
-            //Thread.sleep(x)
+            Thread.sleep(x)
+
+            /*
+            when (evt) {
+                0    -> println("now=$now")
+                else -> println("now=$now evt=$evt")
+            }
+             */
         }
     }
 
