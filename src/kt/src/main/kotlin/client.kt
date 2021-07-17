@@ -105,8 +105,8 @@ fun client (port: Int = PORT_10000) {
         }
     }
 
+    var cli_nxt = Instant.now().toEpochMilli()
     while (true) {
-        val cli_now = Instant.now().toEpochMilli()
         val app_cur = app_nxt
         var evt = 0
 
@@ -128,23 +128,18 @@ fun client (port: Int = PORT_10000) {
         writer0.writeLong(app_cur)
         writer0.writeInt(evt)
 
-        val cli_nxt = Instant.now().toEpochMilli()
-        val dt = cli_now + DT - cli_nxt
-        //if (dt < 0) { log("[client] late frame // now=$cli_now + DT=$DT - nxt=$cli_nxt = $dt > 0") }
-        if (dt < 0) { log("late [$self] ${-dt}") }
-        //assert(dt >= 0)
-        if (dt > 0) {
-            val x = min((dt-1).toInt(), min(DRIFT, DT / 5))  // if drift is over a full frame, recover 20% each frame
-            //val x = min(DRIFT,DT/2)
-            //if (DRIFT > 0) { println("drift [$self] $DRIFT") }
-            val drift = if (dt.toInt() == 0 || DRIFT == 0) 0 else {
-                DRIFT -= x; x
-            }
-            //if (port%2 == 0) {
-            //    Thread.sleep(((dt - drift)*0.8).toLong())
-            //} else {
-                Thread.sleep(dt - drift)
-            //}
+        cli_nxt += DT
+        val dt = cli_nxt - Instant.now().toEpochMilli()
+        assert(dt > 0)
+
+        val x = min((dt-1).toInt(), min(DRIFT, DT / 5))  // if drift is over a full frame, recover 20% each frame
+        val drift = if (dt.toInt() == 0 || DRIFT == 0) 0 else {
+            DRIFT -= x; x
         }
+        //if (port%2 == 0) {
+        //    Thread.sleep(((dt - drift)*0.8).toLong())
+        //} else {
+            Thread.sleep(dt - drift)
+        //}
     }
 }

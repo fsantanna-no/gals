@@ -30,7 +30,6 @@ class Tests {
                     0    -> println("[app] now=$now")
                     else -> println("[app] now=$now evt=$evt")
                 }
-
             }
         }
         thread {
