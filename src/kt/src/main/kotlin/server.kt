@@ -29,10 +29,12 @@ fun server (N: Int) { // number of app clients
         val writer2 = DataOutputStream(client2.getOutputStream()!!)
         clients2.add(Pair(reader2, writer2))
     }
+    log("[server] all connected")
 
     val lock = java.lang.Object()
     val queue: MutableList<Pair<Long, Int>> = mutableListOf()
     var RTT = 1L  // max RTT from previous cycle considering all clients
+    var DT: Int? = null
 
     // sends START and gets initial RTT from all clients
     val ms1 = Instant.now().toEpochMilli()
@@ -43,12 +45,14 @@ fun server (N: Int) { // number of app clients
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
             writer1.writeInt(1)      // sends start
-            val v = reader1.readInt()   // receives start ACK
-            assert(v == 1)
+            val dt = reader1.readInt()   // receives start ACK
+            assert(DT==null || DT==dt)
+            DT = dt
             val ms2 = Instant.now().toEpochMilli()
             RTT = max(RTT, ms2 - ms1)
         }
     }.map { it.join() }
+    log("[server] all started // RTT=$RTT")
 
     // handles new events
     for ((reader1,_) in clients1) {
@@ -95,7 +99,7 @@ fun server (N: Int) { // number of app clients
                     val rtt = ms2 - ms1
                     tms[it] = time+rtt/2
                     RTT_nxt = max(RTT_nxt, rtt)
-                    TIME = max(TIME, time+2*RTT)
+                    TIME = max(TIME, max(time+DT!!,time+2*RTT))
                 }
             }
         }.map { it!!.join() }

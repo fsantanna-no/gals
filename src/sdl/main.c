@@ -26,6 +26,12 @@ int main (int argc, char** argv) {
 
     uint32_t fps = htobe32(20);
     assert(SDLNet_TCP_Send(s, &fps, sizeof(fps)) == sizeof(fps));
+    uint32_t self;
+    int n = 0;
+    while (n < sizeof(self)) {
+        n += SDLNet_TCP_Recv(s, &((char*)&self)[n], sizeof(self)-n);
+    }
+    //printf(">>> %d\n", self);
 
     int x = 10;
     int y = 10;

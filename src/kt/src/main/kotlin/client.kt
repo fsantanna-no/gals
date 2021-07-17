@@ -12,6 +12,17 @@ fun client (port: Int = PORT_10000) {
     log("[client] started")
     val lock = java.lang.Object()
 
+    val socket0 = ServerSocket(port)
+    val client0 = socket0.accept()
+    val writer0 = DataOutputStream(client0.getOutputStream()!!)
+    val reader0 = DataInputStream(client0.getInputStream()!!)
+    log("[client] connected with local dapp")
+
+    val fps = reader0.readInt()
+    assert(1000%fps == 0)
+    val DT = 1000 / fps
+    log("[client] fps = $fps")
+
     val socket1 = Socket("localhost", PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)
@@ -26,22 +37,11 @@ fun client (port: Int = PORT_10000) {
     }
     log("[client] self = $self")
 
-    val socket0 = ServerSocket(port)
-    val client0 = socket0.accept()
-    val writer0 = DataOutputStream(client0.getOutputStream()!!)
-    val reader0 = DataInputStream(client0.getInputStream()!!)
-    log("[client] connected with local dapp")
-
-    val fps = reader0.readInt()
-    assert(1000%fps == 0)
-    val DT = 1000 / fps
-    log("[client] fps = $fps")
-
     val started = reader1.readInt()
     assert(started == 1)
-    writer1.writeInt(1)     // sends started ACK
-    writer0.writeInt(self)      // starts local dapp
-    log("[client] all started")
+    writer1.writeInt(DT)     // sends started ACK
+    writer0.writeInt(self)   // starts local dapp
+    log("[client] started")
 
     var app_nxt = 0.toLong()
 
@@ -49,7 +49,6 @@ fun client (port: Int = PORT_10000) {
     val queue_finals: MutableList<Pair<Long,Int>> = mutableListOf()
 
     // first client generates null event every 5s
-    /*
     if (self == 1) {
         thread {
             while (true) {
@@ -61,7 +60,6 @@ fun client (port: Int = PORT_10000) {
             }
         }
     }
-     */
 
     // receives async from local dapp and forwards to server
     thread {
@@ -70,10 +68,10 @@ fun client (port: Int = PORT_10000) {
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
-            //synchronized(lock) {
+            synchronized(lock) {
                 writer1.writeLong(app_nxt)
                 writer1.writeInt(evt)
-            //}
+            }
         }
     }
 
@@ -85,7 +83,9 @@ fun client (port: Int = PORT_10000) {
             val app_cur = app_nxt
             synchronized(lock) {
                 DRIFT = 0
-                val t1 = max(app_cur,wanted) + 2*rtt
+                // at least next frame (app_cur+DT)
+                val t1 = max(app_cur+DT, max(app_cur,wanted) + 2*rtt)
+                // maybe a previous event will already expire after this one
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
                 queue_expecteds.add(t2)   // possible time + 2*rtt
             }
