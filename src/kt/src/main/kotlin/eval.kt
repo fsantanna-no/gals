@@ -15,14 +15,25 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
     writer.writeInt(fps)
     val self = reader.readInt()
     var evt_ms: Long = 0
+    val ms_per_frame = 1000/fps
 
     // thread that receives the logical ticks from the client
     thread {
-        var old: Long = -1
-
+        var old: Long? = null
+        var ms0: Long? = null
         while (true) {
             val now = reader.readLong()
             val evt = reader.readInt()
+
+            if (ms0 != null) {
+                val ms1 = Instant.now().toEpochMilli()
+                val late = ms1 - (ms0 + ms_per_frame)
+                ms0 = ms1
+                if (late > 0) {
+                    log("late [$self] $late")
+                }
+            }
+
             if (evt == self) {
                 log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
             }
@@ -33,11 +44,8 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
             }
             old = now
 
-            val ms_per_frame = 1000/fps
-            // between 70% - 120%
-            val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.5)).toLong()
-            //val x = (ms_per_frame*0.4 + Random.nextDouble(ms_per_frame*0.3)).toLong()
-            //println(">>> $ms_per_frame // $x")
+            // between 50% - 110%
+            val x = (ms_per_frame*0.5 + Random.nextDouble(ms_per_frame*0.6)).toLong()
             Thread.sleep(x)
 
             /*

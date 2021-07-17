@@ -1,11 +1,11 @@
 #!/bin/sh
 
-TIME=60
+TIME=600
 N=16
 FPS=50
 MS_PER_EVT=$((1000*$N))
 MS=$(($TIME*$N*1000))
-echo "CPU=70-120% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
+echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
 
 DIR=/tmp/gals-`date +"%s"`/
 mkdir $DIR
