@@ -53,6 +53,7 @@ fun client (port: Int = PORT_10000) {
         thread {
             while (true) {
                 Thread.sleep(5000)
+                //Thread.sleep(1000) // uncomment to recover drift
                 synchronized(lock) {
                     writer1.writeLong(app_nxt)
                     writer1.writeInt(0)
@@ -85,11 +86,11 @@ fun client (port: Int = PORT_10000) {
             }
             synchronized(lock) {
                 DRIFT = 0
-                writer2.writeLong(app_nxt)          // returns current time for final value and drift compensation
-                val t1 = max(app_nxt, max(app_nxt,wanted) + 2*rtt)
+                writer2.writeLong(app_nxt)  // returns current time for final value and drift compensation
+                val t1 = max(app_nxt,wanted) + 2*rtt + DEADLINE_MS
                 // maybe a previous event will already expire after this one
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
-                queue_expecteds.add(t2)   // possible time + 2*rtt
+                queue_expecteds.add(t2)     // possible time + 2*rtt
             }
 
             val decided = reader2.readLong()
@@ -128,18 +129,23 @@ fun client (port: Int = PORT_10000) {
         writer0.writeLong(app_cur)
         writer0.writeInt(evt)
 
-        cli_nxt += DT
+        // uncomment to force large drift (see also emit above and DT/2 below)
+        //if (self == 1) {
+        //    cli_nxt += 8*DT/10
+        //} else {
+            cli_nxt += DT
+        //}
         val dt = cli_nxt - Instant.now().toEpochMilli()
         assert(dt > 0)
 
-        val x = min((dt-1).toInt(), min(DRIFT, DT / 5))  // if drift is over a full frame, recover 20% each frame
+        // if drift is over a full frame, recover 20% each frame
+        val x = min((dt-1).toInt(), min(DRIFT, DT / 5))
+        //val x = min((dt-1).toInt(), min(DRIFT, DT / 2)) // uncomment recover drift
+
         val drift = if (dt.toInt() == 0 || DRIFT == 0) 0 else {
             DRIFT -= x; x
         }
-        //if (port%2 == 0) {
-        //    Thread.sleep(((dt - drift)*0.8).toLong())
-        //} else {
-            Thread.sleep(dt - drift)
-        //}
+        cli_nxt -= drift
+        Thread.sleep(dt - drift)
     }
 }

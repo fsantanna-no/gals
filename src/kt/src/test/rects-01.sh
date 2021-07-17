@@ -1,7 +1,7 @@
 #!/bin/sh
 
 EXE=/x/gals/src/sdl/xmain
-N=100
+N=2
 
 pkill -f GALS.jar
 sleep 1

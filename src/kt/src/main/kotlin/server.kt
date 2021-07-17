@@ -97,7 +97,7 @@ fun server (N: Int) { // number of app clients
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
                     val rtt = ms2 - ms1
-                    tms[it] = time+rtt/2
+                    tms[it] = time + rtt/2 + DEADLINE_MS
                     RTT_nxt = max(RTT_nxt, rtt)
                     TIME = max(TIME, max(time,time+2*RTT))
                 }
@@ -119,9 +119,11 @@ fun server (N: Int) { // number of app clients
                     //Thread.sleep(RTT/2 + Random.nextLong(RTT))      // XXX: force delay
                     //Thread.sleep(Random.nextLong(5*RTT))    // XXX: force delay
                 }
+                // drift must be higher than DT, otherwise its just phase offset
+                val drift = max(0, (maxLocal - tms[it] - DT!!))
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
-                writer2.writeInt((maxLocal - tms[it]).toInt())  // clock drift
+                writer2.writeInt(drift.toInt())
             }
         }.map { it.join() }
 
