@@ -23,6 +23,7 @@ fun server (N: Int) { // number of app clients
         val writer1 = DataOutputStream(client1.getOutputStream()!!)
         clients1.add(Pair(reader1, writer1))
         writer1.writeInt(i) // sends self
+        writer1.writeInt(N)
 
         //val id2 = client2.inetAddress.hostAddress + ":" + client2.port
         val reader2 = DataInputStream(client2.getInputStream()!!)
@@ -97,7 +98,7 @@ fun server (N: Int) { // number of app clients
                 val ms2 = Instant.now().toEpochMilli()
                 synchronized(clients2) {
                     val rtt = ms2 - ms1
-                    tms[it] = time + rtt/2 + DEADLINE_MS
+                    tms[it] = time + rtt/2 + max(5,N/5)
                     RTT_nxt = max(RTT_nxt, rtt)
                     TIME = max(TIME, max(time,time+2*RTT))
                 }

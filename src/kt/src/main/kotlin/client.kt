@@ -1,10 +1,10 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
-import java.lang.Long.max
 import java.net.ServerSocket
 import java.net.Socket
 import java.time.Instant
 import kotlin.concurrent.thread
+import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -32,6 +32,7 @@ fun client (port: Int = PORT_10000) {
     log("[client] connected with server")
 
     val self = reader1.readInt()
+    val N    = reader1.readInt()
     if (DEBUG) {
         Thread.sleep(Random.nextLong(100))    // XXX: force delay
     }
@@ -70,7 +71,7 @@ fun client (port: Int = PORT_10000) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
             synchronized(lock) {
-                writer1.writeLong(app_nxt)
+                writer1.writeLong(app_nxt+DT)
                 writer1.writeInt(evt)
             }
         }
@@ -86,8 +87,8 @@ fun client (port: Int = PORT_10000) {
             }
             synchronized(lock) {
                 DRIFT = 0
-                writer2.writeLong(app_nxt)  // returns current time for final value and drift compensation
-                val t1 = max(app_nxt,wanted) + 2*rtt + DEADLINE_MS
+                writer2.writeLong(app_nxt+DT)  // returns current time for final value and drift compensation
+                val t1 = max(app_nxt+DT,wanted) + 2*rtt + max(5,N/5)
                 // maybe a previous event will already expire after this one
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
                 queue_expecteds.add(t2)     // possible time + 2*rtt

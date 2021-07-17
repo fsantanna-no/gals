@@ -70,8 +70,8 @@ class Tests {
     @Test  // see now=... and sporadic evt=... (but twice and synchronized)
     fun eval_01 () {
         val N = 10
-        val FPS = 50
-        val MS_PER_EVT = 1000*10
+        val FPS = 20
+        val MS_PER_EVT = 5000*N
 
         thread { server(N) }
         Thread.sleep(1000)
@@ -82,6 +82,6 @@ class Tests {
         for (i in 0..N-1) {
             thread { eval(PORT_10000 - i, FPS, MS_PER_EVT) }
         }
-        Thread.sleep(100000)
+        Thread.sleep(200000)
     }
 }
