@@ -132,6 +132,7 @@ that receipt is identically reproducible.
 As a result, not only distributed applications benefit from determinism but
 also development and testing can be done in a single instance with the same
 guarantees.
+% Specific contribs: 3 goals, scalability, async
 
 As the main limitations, the middleware relies on a central server and all
 instances must be known and responsive during the entire execution.
@@ -149,7 +150,10 @@ programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
 architecture of our middleware, and details the synchronization protocol for
 input reproducibility.
+Section~\ref{sec.async} ...
 Section~\ref{sec.eval} evaluates our middleware with...
+Section~\ref{sec.apps} ... % sym video player, asy rect editor
+Section~\ref{sec.discussion}...
 Section~\ref{sec.related}...
 Section~\ref{sec.conclusion}...
 
@@ -728,7 +732,14 @@ synchronization algorithm automatically%
     \url{https://youtu.be/BYNHGsHnMx8}
 }.
 
-\subsection{Asymmetric Distributed Applications}
+
+In the next section, we evaluate the scalability of the protocol%
+\footnote {
+    Video with 100 distributed instances running in the localhost:
+    \url{https://youtu.be/in5sdEEyGik}
+}.
+
+\section{Asymmetric Distributed Applications}
 
 - non-det as whole but still locally det
 - view
@@ -769,13 +780,15 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 
 - O que variar:
     - Rede: localhost, cable, wi-fi, internet
-    - Instâncias: 4, 10, 100
+    - Instâncias: 2, 5, 10, 50, 100
     - Taxa de async: 1/min (60s/1), 10/min (6s/1), 100/min (600ms/1), 1000/min (60ms/1)
+    - Tamanho de payload: 0b, 100b, 10kb, 1M
 
 % - asymmetric, different view, multiple inputs
 % - what ifs c/ videos
 % - revisitar limitacoes e propor alternativas na secao de avaliacao
 % - Every five seconds one client generate a tick To update rtt and keep pace
+% - Need total order in real time. Ok leader, raft, etc, not ok Blockchain
 
 \section{Related Work}
 \label{sec.related}
