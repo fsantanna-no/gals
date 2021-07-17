@@ -5,7 +5,7 @@ import java.time.Instant
 import kotlin.concurrent.thread
 import kotlin.random.Random
 
-fun eval (port: Int, fps: Int, evt_per_min: Int) {
+fun eval (port: Int, fps: Int, ms_per_evt: Int) {
     // connects with the client on the provided port
     val socket = Socket("localhost", port)
     val writer = DataOutputStream(socket.getOutputStream()!!)
@@ -26,7 +26,6 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
         while (true) {
             val now = reader.readLong()
             val evt = reader.readInt()
-            val ms_per_frame = 1000/fps
             if (evt == self) {
                 log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
             }
@@ -37,26 +36,26 @@ fun eval (port: Int, fps: Int, evt_per_min: Int) {
                 }
                 freeze_flip = true
                 freeze_nn++
-                log("freeze [$self] $freeze_nn/$freeze_n")
+                log("freeze [$self] $freeze_nn / $freeze_n")
             } else {
                 freeze_flip = false
             }
             old = now
 
+            val ms_per_frame = 1000/fps
             // between 70% - 110%
-            val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.4)).toLong()
+            //val x = (ms_per_frame*0.7 + Random.nextDouble(ms_per_frame*0.4)).toLong()
+            //val x = (ms_per_frame*0.4 + Random.nextDouble(ms_per_frame*0.3)).toLong()
             //println(">>> $ms_per_frame // $x")
-            Thread.sleep(x)
+            //Thread.sleep(x)
         }
     }
 
     // thread that emits random events back to the client
     thread {
-        // 1 evt/min = 60000 ms/evt
-        val ms_per_evt = 60000 / evt_per_min
         while (true) {
-            // between 90% - 110%
-            Thread.sleep((ms_per_evt*0.9 + Random.nextDouble(ms_per_evt*0.2)).toLong())
+            // between 50% - 150%
+            Thread.sleep((ms_per_evt*0.5 + Random.nextDouble(ms_per_evt*1.0)).toLong())
             writer.writeInt(self)
             evt_ms = Instant.now().toEpochMilli()
         }
