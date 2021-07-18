@@ -3,7 +3,7 @@
 TIME=60
 N=16
 FPS=50
-MS_PER_EVT=$((1000*$N))
+MS_PER_EVT=$((250*$N))
 MS=$(($TIME*$N*1000))
 echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
 
@@ -43,7 +43,7 @@ FRAMES=$val
 echo -n "Events   (n): "
 val=`cat $DIR/eval-*.log | grep evt | wc -l`
 fmt=`printf "%7d" $val`
-echo "$fmt  ($(($TIME*1000/$MS_PER_EVENT)) expected)"
+echo "$fmt  ($(($TIME*1000*$N/$MS_PER_EVT)) expected)"
 EVENTS=$val
 
 echo -n "RTT     (ms): "
@@ -68,7 +68,7 @@ fmt=`printf "%7d" $val`
 pct=`echo "$val/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
 echo "$fmt  $pct%"
 
-echo -n "Freeze   (n): "
+echo -n "Freeze  (fr): "
 val=`cat $DIR/eval-* | grep freeze | wc -l`
 fmt=`printf "%7d" $val`
 pct=`echo "$val/$FRAMES" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
@@ -80,3 +80,15 @@ val="${val:-0}"
 fmt=`printf "%7d" $val`
 pct=`echo "$val/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
 echo "$fmt  $pct%"
+
+for i in $(seq 1 $N)
+do
+    cat $DIR/eval-$i.log | grep frame | cut -d' ' --complement -f2 | uniq | head -n $(($FRAMES/$N*7/10)) > $DIR/frames-$i.txt
+done
+
+for i in $(seq 1 $N)
+do
+    diff -q $DIR/frames-1.txt $DIR/frames-$i.txt || exit 1
+done
+
+#verificar todos os frames, remover repetidos, remover [1]
