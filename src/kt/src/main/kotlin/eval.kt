@@ -16,7 +16,6 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
     // sends the desired FPS and receives client id
     writer.writeInt(fps)
     val self = reader.readInt()
-    var evt_ms: Long = 0
     val ms_per_frame = 1000/fps
 
     // thread that receives the logical ticks from the client
@@ -41,10 +40,6 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
                 ms0 = Instant.now().toEpochMilli()
             }
 
-            if (evt == self) {
-                log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
-            }
-
             if (old == now) {
                 log("freeze [$self]")
                 continue
@@ -63,7 +58,6 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
             // between 0% - 200%
             Thread.sleep(Random.nextInt(2*ms_per_evt).toLong())
             writer.writeInt(self)
-            evt_ms = Instant.now().toEpochMilli()
         }
     }
 }

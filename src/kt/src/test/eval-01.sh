@@ -1,9 +1,9 @@
 #!/bin/sh
 
 TIME=60
-N=16
-FPS=50
-MS_PER_EVT=$((250*$N))
+N=25
+FPS=40
+MS_PER_EVT=$((500*$N))
 MS=$(($TIME*$N*1000))
 
 DIR=/tmp/gals-`date +"%s"`/
@@ -43,7 +43,7 @@ echo "$fmt  ($(($val/$N)) vs $(($FPS*$TIME)) expected per machine)"
 FRAMES=$val
 
 echo -n "Events   (n): "
-val=`cat $DIR/eval-*.log | grep evt | wc -l`
+val=`cat $DIR/client-*.log | grep evt | wc -l`
 fmt=`printf "%7d" $val`
 echo "$fmt  ($(($TIME*1000*$N/$MS_PER_EVT)) expected)"
 EVENTS=$val
@@ -57,7 +57,7 @@ echo "$val"
 
 echo -n "Latency (ms): "
 nnn=$val
-sum=`cat $DIR/eval-*.log | grep evt | cut -d' ' -f3 | paste -s -d+ - | bc`
+sum=`cat $DIR/client-*.log | grep evt | cut -d' ' -f3 | paste -s -d+ - | bc`
 sum="${sum:-0}"
 val=$(($sum/$EVENTS))
 fmt=`printf "%7d" $val`

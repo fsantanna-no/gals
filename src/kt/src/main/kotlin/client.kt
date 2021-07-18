@@ -64,9 +64,11 @@ fun client (port: Int = PORT_10000) {
     }
 
     // receives async from local dapp and forwards to server
+    var evt_ms: Long = 0
     thread {
         while (true) {
             val evt = reader0.readInt()
+            evt_ms = Instant.now().toEpochMilli()
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
@@ -127,6 +129,9 @@ fun client (port: Int = PORT_10000) {
                 val (now_,evt_) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
                 evt = evt_
+                if (evt == self) {
+                    log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
+                }
             }
         }
 
