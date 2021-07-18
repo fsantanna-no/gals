@@ -37,13 +37,13 @@ sleep 1
 echo -n "Frames   (n): "
 val=`cat $DIR/eval-*.log | grep frame | wc -l`
 fmt=`printf "%7d" $val`
-echo "$fmt"
+echo "$fmt  ($(($val/$N)) vs $(($FPS*$TIME)) expected per machine)"
 FRAMES=$val
 
 echo -n "Events   (n): "
 val=`cat $DIR/eval-*.log | grep evt | wc -l`
 fmt=`printf "%7d" $val`
-echo "$fmt"
+echo "$fmt  ($(($TIME*1000/$MS_PER_EVENT)) expected)"
 EVENTS=$val
 
 echo -n "RTT     (ms): "
