@@ -108,8 +108,9 @@ fun client (port: Int = PORT_10000) {
     }
 
     var cli_nxt = Instant.now().toEpochMilli()
+    var old = 0
     while (true) {
-        val app_cur = app_nxt
+        var app_cur = app_nxt
         var evt = 0
 
         synchronized(lock) {
@@ -119,6 +120,8 @@ fun client (port: Int = PORT_10000) {
                     // cannot advance time to prevent missing expected event
                     //println("[WRN] freeze")
                     app_nxt -= DT
+                    app_cur -= DT
+                    evt = old
                 }
             } else if (app_cur>=queue_finals[0].first) {
                 val (now_,evt_) = queue_finals.removeAt(0)
@@ -129,6 +132,7 @@ fun client (port: Int = PORT_10000) {
 
         writer0.writeLong(app_cur)
         writer0.writeInt(evt)
+        old = evt
 
         // uncomment to force large drift (see also emit above and DT/2 below)
         //if (self == 1) {

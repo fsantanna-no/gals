@@ -5,10 +5,12 @@ N=16
 FPS=50
 MS_PER_EVT=$((250*$N))
 MS=$(($TIME*$N*1000))
-echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
 
 DIR=/tmp/gals-`date +"%s"`/
 mkdir $DIR
+
+echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
+echo $DIR
 
 pkill -f GALS.jar
 sleep 1
@@ -65,30 +67,29 @@ echo -n "Drift   (ms): "
 val=`cat $DIR/client-*.log | grep drift | cut -d' ' -f3 | paste -s -d+ - | bc`
 val="${val:-0}"
 fmt=`printf "%7d" $val`
-pct=`echo "$val/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
+pct=`echo "$val*100/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.2f" | sed 's/,/./'`
 echo "$fmt  $pct%"
 
 echo -n "Freeze  (fr): "
 val=`cat $DIR/eval-* | grep freeze | wc -l`
 fmt=`printf "%7d" $val`
-pct=`echo "$val/$FRAMES" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
+pct=`echo "$val*100/$FRAMES" | bc -l | sed 's/\./,/' | xargs printf "%.2f" | sed 's/,/./'`
 echo "$fmt  $pct%"
 
 echo -n "Late    (ms): "
 val=`cat $DIR/eval-*.log | grep late | cut -d' ' -f3 | paste -s -d+ - | bc`
 val="${val:-0}"
 fmt=`printf "%7d" $val`
-pct=`echo "$val/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.4f" | sed 's/,/./'`
+pct=`echo "$val*100/$MS" | bc -l | sed 's/\./,/' | xargs printf "%.2f" | sed 's/,/./'`
 echo "$fmt  $pct%"
 
 for i in $(seq 1 $N)
 do
-    cat $DIR/eval-$i.log | grep frame | cut -d' ' --complement -f2 | uniq | head -n $(($FRAMES/$N*7/10)) > $DIR/frames-$i.txt
+    cat $DIR/eval-$i.log | grep frame | cut -d' ' --complement -f2 | uniq | head -n $(($FRAMES*8/$N/10)) > $DIR/frames-$i.txt
 done
 
 for i in $(seq 1 $N)
 do
-    diff -q $DIR/frames-1.txt $DIR/frames-$i.txt || exit 1
+    diff -q $DIR/frames-1.txt $DIR/frames-$i.txt
+    diff $DIR/frames-1.txt $DIR/frames-$i.txt || exit 1
 done
-
-#verificar todos os frames, remover repetidos, remover [1]

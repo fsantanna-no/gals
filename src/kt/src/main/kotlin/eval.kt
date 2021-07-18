@@ -27,6 +27,8 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
             val now = reader.readLong()
             val evt = reader.readInt()
 
+            log("frame [$self] $now $evt")
+
             if (ms0 != null) {
                 val ms1 = Instant.now().toEpochMilli()
                 val dt = ms1 - ms0
@@ -52,8 +54,6 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
             // between 50% - 110%
             val x = (ms_per_frame*0.5 + Random.nextDouble(ms_per_frame*0.6)).toLong()
             //Thread.sleep(x)
-
-            log("frame [$self] $now $evt")
         }
     }
 
