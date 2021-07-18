@@ -1,5 +1,7 @@
 import java.io.DataInputStream
 import java.io.DataOutputStream
+import java.lang.Long.max
+import java.lang.Long.min
 import java.net.Socket
 import java.time.Instant
 import kotlin.concurrent.thread
@@ -27,11 +29,14 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
 
             if (ms0 != null) {
                 val ms1 = Instant.now().toEpochMilli()
-                val late = ms1 - (ms0 + ms_per_frame)
-                ms0 = ms1
+                val dt = ms1 - ms0
+                ms0 += min(dt,ms_per_evt.toLong())
+                val late = max(0, dt - ms_per_frame)
                 if (late > 0) {
                     log("late [$self] $late")
                 }
+            } else {
+                ms0 = Instant.now().toEpochMilli()
             }
 
             if (evt == self) {
@@ -46,22 +51,17 @@ fun eval (port: Int, fps: Int, ms_per_evt: Int) {
 
             // between 50% - 110%
             val x = (ms_per_frame*0.5 + Random.nextDouble(ms_per_frame*0.6)).toLong()
-            Thread.sleep(x)
+            //Thread.sleep(x)
 
-            /*
-            when (evt) {
-                0    -> println("now=$now")
-                else -> println("now=$now evt=$evt")
-            }
-             */
+            log("frame [$self] $now $evt")
         }
     }
 
     // thread that emits random events back to the client
     thread {
         while (true) {
-            // between 50% - 150%
-            Thread.sleep((ms_per_evt*0.5 + Random.nextDouble(ms_per_evt*1.0)).toLong())
+            // between 0% - 200%
+            Thread.sleep(Random.nextInt(2*ms_per_evt).toLong())
             writer.writeInt(self)
             evt_ms = Instant.now().toEpochMilli()
         }

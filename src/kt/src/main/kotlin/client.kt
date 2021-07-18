@@ -137,7 +137,8 @@ fun client (port: Int = PORT_10000) {
             cli_nxt += DT
         //}
         val dt = cli_nxt - Instant.now().toEpochMilli()
-        assert(dt > 0)
+        //assert(dt > 0)  // falha quando testo no shell c/ processos em vez de threads
+        if (dt <= 0) { continue }
 
         // if drift is over a full frame, recover 20% each frame
         val x = min((dt-1).toInt(), min(DRIFT, DT / 5))
