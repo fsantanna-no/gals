@@ -648,23 +648,26 @@ everything goes wrong.
 First, the server broadcasts the intention to emit an event
 (\emph{propose(750,45)}), passing the source instance offset time
 (\emph{750ms}) and current overall network RTT (\emph{RTT1=45ms}).
-The final synchronous event (\emph{sync(890,1)}) is yet to come after all
+The final synchronous event (\emph{sync(895,1)}) is yet to come after all
 clients acknowledge the server.
 Before that, each client calculates its own deadline as follows:
-    (i) take the maximum time between the source and local offset,
-    (ii) add twice the received RTT to this maximum, and
-    (iii) set this sum as the local event deadline.
+    (i)   take the maximum time between the source and local offset,
+    (ii)  add twice the received RTT,
+    (iii) add a small constant time (\emph{5ms}),
+    (iv)  set this sum as the local event deadline.
 As examples, the sum for
-    \emph{Client 1} is $max(750,700)+2x45=840$, and for
-    \emph{Client N} is $max(750,800)+2x45=890$.
+    \emph{Client 1} is $max(750,700)+2x45+5=845$, and for
+    \emph{Client N} is $max(750,800)+2x45+5=895$.
 %
 This sum is reasonable because it considers
     the instance most ahead in time, and also
     the worst RTT with an extra margin.
 For instance, \emph{Client N} with the worst RTT (\emph{45ms}) is also ahead of
 time (\emph{800ms}) and the final event will arrive after another round trip to
-the server (\emph{event(890,1)}), thus making \emph{890ms} a reasonable
-deadline.
+the server, thus making \emph{895ms} a reasonable deadline.
+%
+The small constant depends on the number of instances in the application and is
+currently set to 200us per instance (e.g., \emph{5ms} for \emph{25} instances).
 %
 During this process, the server also recalculates the RTT to use in the next
 event emission (\emph{RTT2=50ms}).
@@ -679,7 +682,7 @@ instances of the \dapp, ensuring \emph{goal 3}.
 The server then waits for all client \emph{acks} carrying their local offsets
 (\emph{ack(700)} and \emph{ack(800)}), recalculates each deadline (in the same
 way each client did), and takes the largest as the final event timestamp to
-broadcast to all clients (\emph{sync(890,1)}).
+broadcast to all clients (\emph{sync(895,1)}).
 The server also sends drift compensations (\emph{dt(100)} and \emph{dt(0)})
 based on offset differences between clients, which is discussed further.
 At this point, all clients are expecting a timestamp that is greater than or
@@ -688,15 +691,15 @@ Therefore, even if the network deteriorates, no instances will miss the
 synchronized event because they will be paused before its deadline.
 
 Finally, the expected synchronous event is received by the clients
-(\emph{sync(890,1)}).
+(\emph{sync(895,1)}).
 \emph{Client N} receives it before the deadline, at local time \emph{870ms},
-which requires to postpone local emission for another \emph{20ms} to match the
-event timestamp with perfect accuracy (\emph{890ms}).
+which requires to postpone local emission for another \emph{25ms} to match the
+event timestamp with perfect accuracy (\emph{895ms}).
 However, \emph{Client 1} expires its timer before receipt and needs to pause
 the \dapp for a while (red area).
 Then, the synchronous event is received at local time \emph{860ms}, but still
-requires another \emph{30ms} to match its timestamp.
-In the end, both clients emit the event exactly at local time \emph{890ms} as
+requires another \emph{35ms} to match its timestamp.
+In the end, both clients emit the event exactly at local time \emph{895ms} as
 expected (white circles).
 
 Note that \emph{Client 1} was harmed in the process mainly because its maximum
@@ -739,12 +742,13 @@ In the next section, we evaluate the scalability of the protocol%
     \url{https://youtu.be/in5sdEEyGik}
 }.
 
-\section{Asymmetric Distributed Applications}
+%\section{Asymmetric Distributed Applications}
 
-- non-det as whole but still locally det
-- view
-- event gen, other can't generate same inputs
-- best practices, gals_self_nondet()
+% asymmetric, different view, multiple inputs
+% non-det as whole but still locally det
+% view
+% event gen, other can't generate same inputs
+% best practices, gals_self_nondet()
 
 \begin{comment}
 With distribution, communication timing is asynchronous because communication
@@ -768,28 +772,11 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 \section{Evaluation}
 \label{sec.eval}
 
-- com qual FPS? (50 FPS)
-- quanto tempo de simulação? (10 minutos)
-- qual o peso de processamento? (70-110\%)
-
-- O que avaliar:
-    - RTT (para ver se bate com estilo da rede)
-    - Delay (entre async/sync)
-    - Freeze: ocorrências e tempo total
-    - Drift: ocorrências e tempo total
-    - Late: late frame
-
-- O que variar:
-    - Rede: localhost, cable, wi-fi, internet
-    - Instâncias: 2, 5, 10, 50, 100
-    - Taxa de async: 1/min (60s/1), 10/min (6s/1), 100/min (600ms/1), 1000/min (60ms/1)
-    - Tamanho de payload: 0b, 100b, 10kb, 1M
-
-% - asymmetric, different view, multiple inputs
+\begin{comment}
 % - what ifs c/ videos
 % - revisitar limitacoes e propor alternativas na secao de avaliacao
-% - Every five seconds one client generate a tick To update rtt and keep pace
 % - Need total order in real time. Ok leader, raft, etc, not ok Blockchain
+\end{comment}
 
 \section{Related Work}
 \label{sec.related}
