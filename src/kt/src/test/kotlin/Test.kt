@@ -69,9 +69,9 @@ class Tests {
 
     @Test  // see now=... and sporadic evt=... (but twice and synchronized)
     fun eval_01 () {
-        val N = 100
-        val FPS = 50
-        val MS_PER_EVT = 5000*N
+        val N = 2
+        val FPS = 10
+        val MS_PER_EVT = 100*N
 
         thread { server(N) }
         Thread.sleep(1000)

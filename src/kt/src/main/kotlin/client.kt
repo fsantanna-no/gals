@@ -64,11 +64,11 @@ fun client (port: Int = PORT_10000) {
     }
 
     // receives async from local dapp and forwards to server
-    var evt_fr: Long = 0
+    val evt_fr = mutableListOf<Long>()
     thread {
         while (true) {
             val evt = reader0.readInt()
-            evt_fr = app_nxt
+            evt_fr.add(app_nxt)
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
@@ -131,7 +131,10 @@ fun client (port: Int = PORT_10000) {
                 queue_expecteds.removeAt(0)
                 evt = evt_
                 if (evt == self) {
-                    log("event [$self] ${(app_cur-evt_fr)/DT}")
+                    val v = evt_fr.removeAt(0)
+                    assert((app_cur-v).toInt() % DT == 0)
+                    //println(">>> $app_cur - $v")
+                    log("event [$self] ${(app_cur-v)/DT}")
                 }
             }
         }
