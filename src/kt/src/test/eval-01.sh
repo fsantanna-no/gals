@@ -1,9 +1,21 @@
 #!/bin/sh
 
-TIME=60
-N=25
-FPS=40
-MS_PER_EVT=$((500*$N))
+# descobri pq latency tá tao alto (>80ms)
+#   - estamos com +5ms constante
+#   - testamos 16/25/100 clientes
+#   - mudamos pra 4 agora
+#       - continua >70ms
+#   - mudamos pra 2 agora
+#       - continua >65ms
+#   - agora mudei: N/5 que vai ser +0ms p/ 1,2,3,4
+#   - O minimo seria 2RTT+DT/2 por conta do protocolo
+#   - O minimo teorico seria RTT/2 em media, que é o tempo de bcast de um evento
+
+TIME=600
+N=100
+FPS=50
+MSPF=$((1000/$FPS))
+MS_PER_EVT=$((2000*$N))
 MS=$(($TIME*$N*1000))
 
 DIR=/tmp/gals-`date +"%s"`/
@@ -43,7 +55,7 @@ echo "$fmt  ($(($val/$N)) vs $(($FPS*$TIME)) expected per machine)"
 FRAMES=$val
 
 echo -n "Events   (n): "
-val=`cat $DIR/client-*.log | grep evt | wc -l`
+val=`cat $DIR/client-*.log | grep event | wc -l`
 fmt=`printf "%7d" $val`
 echo "$fmt  ($(($TIME*1000*$N/$MS_PER_EVT)) expected)"
 EVENTS=$val
@@ -55,9 +67,9 @@ sum="${sum:-0}"
 val=`echo "$sum/$nnn" | bc -l | sed 's/\./,/' | xargs printf "%7.2f" | sed 's/,/./'`
 echo "$val"
 
-echo -n "Latency (ms): "
+echo -n "Latency (fr): "
 nnn=$val
-sum=`cat $DIR/client-*.log | grep evt | cut -d' ' -f3 | paste -s -d+ - | bc`
+sum=`cat $DIR/client-*.log | grep event | cut -d' ' -f3 | paste -s -d+ - | bc`
 sum="${sum:-0}"
 val=$(($sum/$EVENTS))
 fmt=`printf "%7d" $val`

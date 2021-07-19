@@ -65,7 +65,6 @@ fun server (N: Int) { // number of app clients
                     queue.add(Pair(now, evt))
                     lock.notify()
                 }
-                //println("[server] 2 want = $now")
             }
         }
     }

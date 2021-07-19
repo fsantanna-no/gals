@@ -64,11 +64,11 @@ fun client (port: Int = PORT_10000) {
     }
 
     // receives async from local dapp and forwards to server
-    var evt_ms: Long = 0
+    var evt_fr: Long = 0
     thread {
         while (true) {
             val evt = reader0.readInt()
-            evt_ms = Instant.now().toEpochMilli()
+            evt_fr = app_nxt
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
@@ -90,6 +90,7 @@ fun client (port: Int = PORT_10000) {
             synchronized(lock) {
                 DRIFT = 0
                 writer2.writeLong(app_nxt+DT)  // returns current time for final value and drift compensation
+                // +DT because maybe I'm about to turn to it
                 val t1 = max(app_nxt+DT,wanted) + 2*rtt + max(5,N/5)
                 // maybe a previous event will already expire after this one
                 val t2 = if (queue_expecteds.isEmpty()) t1 else max(t1, queue_expecteds.maxOrNull()!!)
@@ -130,7 +131,7 @@ fun client (port: Int = PORT_10000) {
                 queue_expecteds.removeAt(0)
                 evt = evt_
                 if (evt == self) {
-                    log("evt [$self] ${Instant.now().toEpochMilli()-evt_ms}")
+                    log("event [$self] ${(app_cur-evt_fr)/DT}")
                 }
             }
         }
