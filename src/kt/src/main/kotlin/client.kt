@@ -8,7 +8,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-fun client (port: Int = PORT_10000) {
+fun client (server: String, port: Int = PORT_10000) {
     log("[client] started")
     val lock = java.lang.Object()
 
@@ -23,10 +23,10 @@ fun client (port: Int = PORT_10000) {
     val DT = 1000 / fps
     log("[client] fps = $fps")
 
-    val socket1 = Socket("localhost", PORT_10001)
+    val socket1 = Socket(server, PORT_10001)
     val writer1 = DataOutputStream(socket1.getOutputStream()!!)
     val reader1 = DataInputStream(socket1.getInputStream()!!)
-    val socket2 = Socket("localhost", PORT_10002)
+    val socket2 = Socket(server, PORT_10002)
     val writer2 = DataOutputStream(socket2.getOutputStream()!!)
     val reader2 = DataInputStream(socket2.getInputStream()!!)
     log("[client] connected with server")
