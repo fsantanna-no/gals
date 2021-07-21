@@ -2,7 +2,7 @@
 
 I7=192.168.0.22
 USER=chico
-PASS=adgjlL1
+PASS=password
 
 sshpass -p $PASS ssh "$USER@$I7" -f "mkdir gals/"
 sshpass -p $PASS scp install-test.sh gals-test.zip eval-wifi.sh eval-one.sh "$USER@$I7:gals/"

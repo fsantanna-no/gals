@@ -3,7 +3,7 @@
 SRV=192.168.0.17
 I7=192.168.0.22
 USER=chico
-PASS=adgjlL1
+PASS=password
 
 for N in 2 5 10 100
 do
