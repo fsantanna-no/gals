@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TIME=600
+TIME=300
 #N=100
 #FPS=50
 #EVT=1000
