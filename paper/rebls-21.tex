@@ -672,7 +672,7 @@ currently set to 200us per instance (e.g., \emph{5ms} for \emph{25} instances).
 During this process, the server also recalculates the RTT to use in the next
 event emission (\emph{RTT2=50ms}).
 
-Each client also starts a timer to pause the instance if the (now expected)
+Each client also starts a timer to freeze the instance if the (now expected)
 synchronous event is not received until the deadline.
 In this case, the client pauses the instance by repeating the same clock tick
 over and over, until it receives the event.
@@ -688,14 +688,14 @@ based on offset differences between clients, which is discussed further.
 At this point, all clients are expecting a timestamp that is greater than or
 equal to their own timer deadlines.
 Therefore, even if the network deteriorates, no instances will miss the
-synchronized event because they will be paused before its deadline.
+synchronized event because they will be frozen before its deadline.
 
 Finally, the expected synchronous event is received by the clients
 (\emph{sync(895,1)}).
 \emph{Client N} receives it before the deadline, at local time \emph{870ms},
 which requires to postpone local emission for another \emph{25ms} to match the
 event timestamp with perfect accuracy (\emph{895ms}).
-However, \emph{Client 1} expires its timer before receipt and needs to pause
+However, \emph{Client 1} expires its timer before receipt and needs to freeze
 the \dapp for a while (red area).
 Then, the synchronous event is received at local time \emph{860ms}, but still
 requires another \emph{35ms} to match its timestamp.
@@ -735,7 +735,6 @@ synchronization algorithm automatically%
     \url{https://youtu.be/BYNHGsHnMx8}
 }.
 
-
 In the next section, we evaluate the scalability of the protocol%
 \footnote {
     Video with 100 distributed instances running in the localhost:
@@ -771,6 +770,94 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 
 \section{Evaluation}
 \label{sec.eval}
+
+We planned the protocol evaluation experiments taking into consideration its
+main goals:
+%
+\begin{enumerate}
+\item Keep clock offsets in instances close to each other.
+\item Generate synchronous inputs to instances with a minimum delay.
+\item Ensure that instances read inputs with perfect time accuracy.
+\end{enumerate}
+%
+In order to verify if these goals are met, we measure 4 properties as follows:
+%
+\begin{enumerate}
+\item Clock drift:   the percentage of drift compensation in milliseconds
+                     relative to the total simulation time.
+\item Event latency: the average number of frames elapsed from asynchronous
+                     emits to their corresponding synchronous receipts.
+\item Frame freeze:  the percentage of frames that are repeated relative to the
+                     total simulation frames.
+\item Frame late:    the percentage of delay in milliseconds due to CPU load
+                     relative to the total simulation time.
+\end{enumerate}
+%
+Clock drift compensation ensures that the offsets are kept closer, but a high
+percentage may indicate that the protocol is distorting them.
+%
+A high event latency may compromise \emph{goal 2}, but a low latency may
+increase the amount of frame freezes, which is even less desirable.
+%
+As an implicit goal, the applications preserve their original frame rates when
+going distributed.
+The protocol should not affect this property (and vice versa).
+%
+Note that \emph{goal 3} is a strict requirement in our design, which the
+protocol ensures with 100\% accuracy.
+In this sense, our experiments logs the timelines of all instance and just
+asserts that they are identical in all simulations, since this is the only
+possible result.
+
+Our experiments simulates a variety of scenarios by parameterizing the
+following variables:
+%
+\begin{enumerate}
+\item Number of instances in the network (\emph{N}):
+        affects network traffic and server CPU load.
+\item Network type (\emph{NET}):
+        affects round-trip time (RTT).
+\item The application frame rate (\emph{FPS}):
+        affects clients CPU load.
+\item The application rate of input generation (\emph{EVT}):
+        affects network traffic and server CPU load.
+\end{enumerate}
+%
+For instance, for a video game with a few friends over Wi-Fi, the parameters
+would be
+    \emph{3--5} instances,
+    an RTT of \emph{5--10ms},       (TODO)
+    FPS around \emph{50},
+    and a new interaction around every \emph{500ms}.
+An interactive remote class over the internet could reach
+    \emph{100} instances,
+    an RTT of \emph{200ms},         (TODO)
+    a lower FPS of \emph{25},
+    and an interaction around every \emph{5s} (e.g., a slide advance).
+%
+For each of these four dimensions (\emph{N}, \emph{NET}, \emph{FPS}, and
+\emph{EVT}), we tested the following values:
+%
+\begin{itemize}
+\item \emph{N}: $2$, $5$, $10$, and $100$ instances.
+\item \emph{NET}: \emph{localhost}, \emph{local/Wi-Fi}, and
+                  \emph{external/Internet} types of network (with RTTs in the
+                  range of \emph{1--100ms}.  (TODO)
+\item \emph{FPS}: $10$, $20$, $40$, $50$, $100$ frames per second.
+\item \emph{EVT}: $10s$, $5s$, $1s$, and $100ms$ period between each event.
+\end{itemize}
+%
+This values combined result in $240$ combinations.
+Each combination executes for $10$ minutes and is repeated $5$ times.
+The experiments take $200$ hours to complete.
+
+Overall, the results show...
+
+- RTT (para ver se bate com estilo da rede)
+- Latencia/Delay (entre async/sync)
+    - O minimo seria 2RTT+DT/2 por conta do protocolo
+    - O minimo teorico seria RTT/2 em media, que é o tempo de bcast de um evento
+- Relacao entre RTT e latencia
 
 \begin{comment}
 % - what ifs c/ videos
