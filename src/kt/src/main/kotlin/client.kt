@@ -75,6 +75,8 @@ fun client (server: String, port: Int = PORT_10000) {
             synchronized(lock) {
                 writer1.writeLong(app_nxt+DT)
                 writer1.writeInt(evt)
+                writer1.writeInt(111)       // payload 1
+                writer1.writeInt(222)       // payload 2
             }
         }
     }
@@ -99,6 +101,9 @@ fun client (server: String, port: Int = PORT_10000) {
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
+            val xxx = reader2.readInt()     // payload 1
+            val yyy = reader2.readInt()     // payload 2
+            assert(xxx==111 && yyy==222)
             val drift = reader2.readInt()
             synchronized(lock) {
                 //if (decided+DT < app_nxt) { log("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }

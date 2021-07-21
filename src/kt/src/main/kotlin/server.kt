@@ -59,8 +59,11 @@ fun server (N: Int) { // number of app clients
     for ((reader1,_) in clients1) {
         thread {
             while (true) {
-                val now = reader1.readLong()  // desired event timestamp
+                val now = reader1.readLong()    // desired event timestamp
                 val evt = reader1.readInt()
+                val xxx = reader1.readInt()     // payload 1
+                val yyy = reader1.readInt()     // payload 2
+                assert(xxx==111 && yyy==222)
                 synchronized(lock) {
                     queue.add(Pair(now, evt))
                     lock.notify()
@@ -123,6 +126,8 @@ fun server (N: Int) { // number of app clients
                 val drift = max(0, (maxLocal - tms[it] - DT!!))
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
+                writer2.writeInt(111)   // payload 1
+                writer2.writeInt(222)   // payload 2
                 writer2.writeInt(drift.toInt())
             }
         }.map { it.join() }
