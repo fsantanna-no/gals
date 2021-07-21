@@ -13,7 +13,7 @@ class Tests {
     fun test_01 () {
         thread { server(1) }
         Thread.sleep(1000)
-        thread { client(PORT_10000) }
+        thread { client("localhost", PORT_10000) }
         Thread.sleep(1000)
 
         val socket = Socket("localhost", PORT_10000)
@@ -45,8 +45,8 @@ class Tests {
     fun test_02 () {
         thread { server(2) }
         Thread.sleep(1000)
-        thread { client(PORT_10000-0) }
-        thread { client(PORT_10000-1) }
+        thread { client("localhost", PORT_10000-0) }
+        thread { client("localhost", PORT_10000-1) }
         Thread.sleep(1000)
         thread { app(PORT_10000-0, 1) }
         thread { app(PORT_10000-1, 1) }
@@ -58,7 +58,7 @@ class Tests {
         thread { server(2) }
         Thread.sleep(1000)
         for (i in 0..9) {
-            thread { client(PORT_10000 - i) }
+            thread { client("localhost", PORT_10000 - i) }
         }
         Thread.sleep(1000)
         for (i in 0..9) {
@@ -76,7 +76,7 @@ class Tests {
         thread { server(N) }
         Thread.sleep(1000)
         for (i in 0..N-1) {
-            thread { client(PORT_10000 - i) }
+            thread { client("localhost", PORT_10000 - i) }
         }
         Thread.sleep(1000)
         for (i in 0..N-1) {
