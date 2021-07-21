@@ -8,11 +8,8 @@ do
         do
             for FPS in 10 20 40 50 100
             do
-                    # Tamanho de payload: 0b, 100b, 10kb, 1M
-                    export N
-                    export EVT
-                    export FPS
-                    ./eval-01.sh
+                    echo "$N - $EVT - $FPS - [$i]"
+                    ./eval-01.sh $N $EVT $FPS
                     echo
                     echo
             done

@@ -58,6 +58,8 @@ fun client (server: String, port: Int = PORT_10000) {
                 synchronized(lock) {
                     writer1.writeLong(app_nxt)
                     writer1.writeInt(0)
+                    writer1.writeInt(111)       // payload 1
+                    writer1.writeInt(222)       // payload 2
                 }
             }
         }

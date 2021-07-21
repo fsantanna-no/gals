@@ -1,9 +1,10 @@
 #!/bin/sh
 
+N=$1
+EVT=$2
+FPS=$3
+
 TIME=300
-#N=100
-#FPS=50
-#EVT=1000
 MSPF=$((1000/$FPS))
 MS_PER_EVT=$(($EVT*$N))
 MS=$(($TIME*$N*1000))
@@ -22,12 +23,13 @@ sleep 1
 
 for i in $(seq 1 $N)
 do
-    gals client $((10000-$i)) >> $DIR/client-$i.log &
+    gals client localhost $((10000-$i)) >> $DIR/client-$i.log &
 done
 sleep 1
 
 for i in $(seq 1 $N)
 do
+    #echo "gals eval $((10000-$i)) $FPS $MS_PER_EVT > $DIR/eval-$i.log"
     gals eval $((10000-$i)) $FPS $MS_PER_EVT > $DIR/eval-$i.log &
 done
 
