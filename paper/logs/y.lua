@@ -9,7 +9,7 @@ end
 
 local f = assert(io.open(...))
 local l = f:read'*l'
-print(l)
+print('N-FPS-RATE', 'REPS', 'FRAMES', 'EVT', 'RTT', 'LAT', 'DRIFT', 'FREEZE', 'LATE')
 l = f:read'*l'
 t = {}
 while l do
@@ -48,5 +48,5 @@ table.sort(x)
 
 for _,k in ipairs(x) do
     local T = t[k]
-    print(T.lbl, T.frames/T.n, T.evt/T.n, T.rtt/T.n, T.lat/T.n, T.drift/T.n, T.freeze/T.n, T.late/T.n)
+    print(T.lbl, T.n, T.frames/T.n, T.evt/T.n, T.rtt/T.n, T.lat/T.n, T.drift/T.n, T.freeze/T.n, T.late/T.n)
 end
