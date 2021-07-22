@@ -92,10 +92,10 @@ Deterministic programs are easier to understand, test, and verify~\cite{det}.
 Considering unpredictable user interactions, a program is deterministic if
 re-execution with the same order and timing of inputs always leads to the same
 state.
-With such reproducibility property, multiple re-executions are
+With such timeline reproducibility property, multiple re-executions are
 indistinguishable from one another.
 Considering now distribution, it should even be possible to provide the same
-set of inputs to concurrent instances of a deterministic program and observe
+timeline to concurrent instances of a deterministic program and observe
 identical behavior \emph{in real time}.
 
 In this work, our goal is to guarantee the real-time reproducibility property
@@ -105,6 +105,10 @@ broadcast asynchronous inputs to each other and yet conform to
 identical behavior.
 Hence, our focus is on \emph{symmetric distributed applications}, instead of
 machines playing different roles in the network.
+A programmer writes the intended distributed application as if it would execute
+in a single machine.
+The underlying system we propose supports distribution and guarantees a
+consistent timeline to all instances.
 
 Collaborative networked applications fall in the class of symmetric
 distribution and can benefit from transparent determinism and reproducibility.
@@ -122,20 +126,19 @@ In addition to make distributed applications \emph{behave} like local
 applications, we also intend to make distributed programs \emph{be coded} like
 local programs.
 In this sense, we provide a standard event-driven API with two main commands
-to wait and emit events.
-Programmers write the intended distributed application as if it would execute
-in a single machine.
-We also provide the middleware to connect multiple application instances
+to wait and emit events locally.
+We also provide the middleware that connects multiple application instances
 transparently in the network.
-The middleware intercepts event generation and synchronizes all instances so
-that receipt is identically reproducible.
+The middleware intercepts local event generation and synchronizes all instances
+so that receipt is identically reproducible.
 As a result, not only distributed applications benefit from determinism but
 also development and testing can be done in a single instance with the same
 guarantees.
 % Specific contribs: 3 goals, scalability, async
 
-As the main limitations, the middleware relies on a central server and all
-instances must be known and responsive during the entire execution.
+As the main limitations, the middleware relies on a central server to determine
+a total order of events, and all instances must be known and responsive during
+the entire execution.
 In addition, since the latency of events is proportional to the maximum
 round-trip time (RTT) in the network, low-latency applications might become
 impractical.
@@ -741,33 +744,6 @@ In the next section, we evaluate the scalability of the protocol%
     \url{https://youtu.be/in5sdEEyGik}
 }.
 
-%\section{Asymmetric Distributed Applications}
-
-% asymmetric, different view, multiple inputs
-% non-det as whole but still locally det
-% view
-% event gen, other can't generate same inputs
-% best practices, gals_self_nondet()
-
-\begin{comment}
-With distribution, communication timing is asynchronous because communication
-latency takes a non-negligible time and breaks the synchronous hypothesis.
-
-Test locally in one instance is the same as N instances in M machines
-What about in realtime
-- a perfect mirror, cannot distinguish
-- high-level vs low-leve events, semantic events
-    - more abstract solves both problems (delay and rate)
-- clear/sound properties to reason
-- Events: single application, multiple views, may restrict events per node
-    - gals\_self()
-
-Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
-\end{comment}
-
-\section{Applications}
-\label{sec.apps}
-
 \section{Evaluation}
 \label{sec.eval}
 
@@ -826,12 +802,12 @@ following variables:
 For instance, for a video game with a few friends over Wi-Fi, the parameters
 would be
     \emph{3--5} instances,
-    an RTT of \emph{5--10ms},       (TODO)
+    an RTT of \emph{10--100ms},
     FPS around \emph{50},
     and a new interaction around every \emph{500ms}.
 An interactive remote class over the internet could reach
     \emph{100} instances,
-    an RTT of \emph{200ms},         (TODO)
+    an RTT of \emph{200ms},
     a lower FPS of \emph{25},
     and an interaction around every \emph{5s} (e.g., a slide advance).
 %
@@ -839,31 +815,73 @@ For each of these four dimensions (\emph{N}, \emph{NET}, \emph{FPS}, and
 \emph{EVT}), we tested the following values:
 %
 \begin{itemize}
-\item \emph{N}: $2$, $5$, $10$, and $100$ instances.
+\item \emph{N}: $2$, $5$, $10$, $50$, and $100$ instances.          % 5
 \item \emph{NET}: \emph{localhost}, \emph{local/Wi-Fi}, and
                   \emph{external/Internet} types of network (with RTTs in the
-                  range of \emph{1--100ms}.  (TODO)
-\item \emph{FPS}: $10$, $20$, $40$, $50$, $100$ frames per second.
-\item \emph{EVT}: $10s$, $5s$, $1s$, and $100ms$ period between each event.
-\end{itemize}
+                  range of \emph{0--200ms}.                         % 3
+\item \emph{FPS}: $10$, $25$, $50$, $100$ frames per second.        % 4
+\item \emph{EVT}: $5s$, $1s$, $500ms$, and $250ms$ period between each event.
+\end{itemize}                                                       % 4
 %
 This values combined result in $240$ combinations.
-Each combination executes for $10$ minutes and is repeated $5$ times.
-The experiments take $200$ hours to complete.
+Each combination executes for $5$ minutes and is repeated $3$ times.
+The experiments take $60$ hours to complete.
 
 Overall, the results show...
 
+\begin{comment}
 - RTT (para ver se bate com estilo da rede)
 - Latencia/Delay (entre async/sync)
     - O minimo seria 2RTT+DT/2 por conta do protocolo
     - O minimo teorico seria RTT/2 em media, que é o tempo de bcast de um evento
 - Relacao entre RTT e latencia
 
-\begin{comment}
 % - what ifs c/ videos
 % - revisitar limitacoes e propor alternativas na secao de avaliacao
 % - Need total order in real time. Ok leader, raft, etc, not ok Blockchain
 \end{comment}
+
+\section{Asymmetric Distributed Applications}
+
+\begin{itemize}
+\item precisa de nao determinismo para mudar comportamento
+\item nao determinismo se resuma a uma unica nova API: gals-self-nondet()  <-- retorna ID local
+\item assimetria se reduz em "if (gals-self-nondet() == xxx) ..."
+\item cuidados para os ifs apenas serem para geração de eventos (controle 1, controle 2, etc) e view local (TV, controle, etc)
+\end{itemize}
+
+\begin{comment}
+With distribution, communication timing is asynchronous because communication
+latency takes a non-negligible time and breaks the synchronous hypothesis.
+What about in realtime
+- a perfect mirror, cannot distinguish
+- high-level vs low-leve events, semantic events
+    - more abstract solves both problems (delay and rate)
+- clear/sound properties to reason
+- Events: single application, multiple views, may restrict events per node
+    - gals\_self()
+
+Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
+\end{comment}
+
+\section{Applications}
+\label{sec.apps}
+
+\subsection{Symmetric Video Playback}
+
+\begin{itemize}
+\item mesmo video e interface em todas as instancias
+\item clique de "pause" tem efeito no mesmo frame de todas as instancias
+\item stub do gstreamer controlado frame a frame
+\end{itemize}
+
+\subsection{Asymmetric Graphics Editor}
+
+\begin{itemize}
+\item editor retangulos (cria, redimensiona, move)
+\item dois cursores "assimétricos"
+\item precisa de eventos de alto nivel (provavelmente nao dá pra manter a posicao dos mouses em tempo real)
+\end{itemize}
 
 \section{Related Work}
 \label{sec.related}
