@@ -1,13 +1,13 @@
 #!/bin/sh
 
-SRV=$1
-N=$2
-N1=$3
-N2=$4
-EVT=$5
-FPS=$6
+TIME=$1
+SRV=$2
+N=$3
+N1=$4
+N2=$5
+EVT=$6
+FPS=$7
 
-TIME=600
 #N=100
 #FPS=50
 #EVT=1000
