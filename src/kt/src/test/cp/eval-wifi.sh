@@ -8,13 +8,13 @@ DL=192.168.0.28
 USER=chico
 PASS=password
 
-for N in 2 5 10 100
+for i in 1 2 3
 do
-    for EVT in 10000 5000 1000 100  # 10s 5s 1s 100ms
+    for N in 2 5 10 50 100
     do
-        for FPS in 10 20 40 50 100
+        for EVT in 5000 1000 500 250
         do
-            for i in 1 2 3 4 5
+            for FPS in 10 25 50 100
             do
                 DIR=gals-`date +"%s"`/
                 echo "$N - $EVT - $FPS - $i"
