@@ -15,8 +15,9 @@ local f = assert(io.open(...))
 local l = f:read'*l'
 print('  N-FPS-RATE', 'FRAMES', 'EVT', 'RTT', 'LAT', 'DRIFT', 'FREEZE', 'LATE')
 while l do
-    local dir,n,fps,evt,time,frames,evts,rtt,lat,_,drift,_,freeze,_,late = string.match(l, "XXX ; ([^ ]*) ; 50.110. ; 600 ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; %s*([^ ]*) ; %s*([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*)")
+    local dir,n,fps,evt,time,frames,evts,rtt,lat,_,drift,_,freeze,_,late = string.match(l, "XXX ; ([^ ]*) ; 50.110. ; 300 ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; %s*([^ ]*) ; %s*([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*)")
     --print(l)
+    --print(n,fps,evt,frames,time,evts,rtt,lat,drift,freeze,late)
     print(string.format('%03d',n)..'-'..string.format('%03d',fps)..'-'..string.format('%05d',evt/n),
           frames/(time/(1000/fps)), evts/(time/evt),
           rtt, lat, drift, freeze, late)
