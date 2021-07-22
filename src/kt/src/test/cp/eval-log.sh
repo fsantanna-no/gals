@@ -1,9 +1,9 @@
 #!/bin/sh
 
 TIME=$1
-N=$N
-EVT=$2
-FPS=$3
+N=$2
+EVT=$3
+FPS=$4
 
 MS_PER_EVT=$(($EVT*$N))
 MS=$(($TIME*$N*1000))

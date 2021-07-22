@@ -33,10 +33,11 @@ do
                 sshpass -p $PASS ssh "$USER@$I7" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*1+1)) $(($N3*2)) $EVT $FPS" &
                 sshpass -p $PASS ssh "$USER@$DL" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*2+1)) $N $EVT $FPS" &
                 sleep $TIME
-                pkill -f GALS.jar
                 sshpass -p $PASS scp "$USER@$I5:gals/*.log" $DIR
                 sshpass -p $PASS scp "$USER@$I7:gals/*.log" $DIR
                 sshpass -p $PASS scp "$USER@$DL:gals/*.log" $DIR
+                sleep 0.5
+                pkill -f GALS.jar
                 ./eval-log.sh $DIR $TIME $N $EVT $FPS
                 echo
                 echo
