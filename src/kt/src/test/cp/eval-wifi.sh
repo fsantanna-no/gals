@@ -1,10 +1,10 @@
 #!/bin/sh
 
 TIME=300
-SRV=192.168.0.17
-I5=192.168.0.27
-I7=192.168.0.22
-DL=192.168.0.28
+SRV=192.168.0.13
+I5=192.168.0.11
+I7=192.168.0.10
+#DL=192.168.0.28
 USER=chico
 PASS=password
 
@@ -24,20 +24,24 @@ do
                 sleep 2
                 gals server $N > $DIR/server.log &
                 sleep 2
-                N3=$((N/3))
-                echo "$N // $(($N3*0+1))-$(($N3*1)) // $(($N3*1+1))-$(($N3*2)) // $(($N3*2+1))-$N"
+                N2=$((N/2))
+                echo "$N // $(($N2*0+1))-$(($N2*1)) // $(($N2*1+1))-$N"
+                #N3=$((N/3))
+                #echo "$N // $(($N3*0+1))-$(($N3*1)) // $(($N3*1+1))-$(($N3*2)) // $(($N3*2+1))-$N"
                 #echo "cd gals/ && ./eval-one.sh $TIME $SRV $N $(($N3*0+1)) $(($N3*1)) $EVT $FPS"
                 #echo "cd gals/ && ./eval-one.sh $TIME $SRV $N $(($N3*1+1)) $(($N3*2)) $EVT $FPS" &
                 #echo "cd gals/ && ./eval-one.sh $TIME $SRV $N $(($N3*2+1)) $N $EVT $FPS" &
-                sshpass -p $PASS ssh "$USER@$I5" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*0+1)) $(($N3*1)) $EVT $FPS" &
-                sshpass -p $PASS ssh "$USER@$I7" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*1+1)) $(($N3*2)) $EVT $FPS" &
-                sshpass -p $PASS ssh "$USER@$DL" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*2+1)) $N $EVT $FPS" &
+                sshpass -p $PASS ssh "$USER@$I5" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N2*0+1)) $(($N2*1)) $EVT $FPS" &
+                sshpass -p $PASS ssh "$USER@$I7" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N2*1+1)) $N $EVT $FPS" &
+                #sshpass -p $PASS ssh "$USER@$I5" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*0+1)) $(($N3*1)) $EVT $FPS" &
+                #sshpass -p $PASS ssh "$USER@$I7" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*1+1)) $(($N3*2)) $EVT $FPS" &
+                #sshpass -p $PASS ssh "$USER@$DL" -f "cd gals/ && rm -f *.log && ./eval-one.sh $TIME $SRV $N $(($N3*2+1)) $N $EVT $FPS" &
                 sleep $TIME
                 echo "-=-=-=-=-=-=-"
                 ./eval-kill.sh
                 sshpass -p $PASS scp "$USER@$I5:gals/*.log" $DIR
                 sshpass -p $PASS scp "$USER@$I7:gals/*.log" $DIR
-                sshpass -p $PASS scp "$USER@$DL:gals/*.log" $DIR
+                #sshpass -p $PASS scp "$USER@$DL:gals/*.log" $DIR
                 ./eval-log.sh $DIR $TIME $N $EVT $FPS
                 echo
                 echo
