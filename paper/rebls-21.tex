@@ -799,10 +799,10 @@ following variables:
         affects network traffic and server CPU load.
 \end{enumerate}
 %
-For instance, for a video game with a few friends over Wi-Fi, the parameters
+For instance, for a video game with a few friends over Ethernet, the parameters
 would be
     \emph{3--5} instances,
-    an RTT of \emph{10--100ms},
+    an RTT of \emph{5--10ms},
     FPS around \emph{50},
     and a new interaction around every \emph{500ms}.
 An interactive remote class over the internet could reach
@@ -815,13 +815,12 @@ For each of these four dimensions (\emph{N}, \emph{NET}, \emph{FPS}, and
 \emph{EVT}), we tested the following values:
 %
 \begin{itemize}
-\item \emph{N}: $2$, $5$, $10$, $50$, and $100$ instances.          % 5
-\item \emph{NET}: \emph{localhost}, \emph{local/Wi-Fi}, and
-                  \emph{external/Internet} types of network (with RTTs in the
-                  range of \emph{0--200ms}.                         % 3
-\item \emph{FPS}: $10$, $25$, $50$, $100$ frames per second.        % 4
+\item \emph{N}: $2$, $5$, $10$, $50$, and $100$ instances.                  % 5
+\item \emph{NET}: \emph{Localhost}, \emph{Ethernet}, and \emph{Internet} types
+                  of network (with RTTs in the range of \emph{0--200ms}).   % 3
+\item \emph{FPS}: $10$, $25$, $50$, $100$ frames per second.                % 4
 \item \emph{EVT}: $5s$, $1s$, $500ms$, and $250ms$ period between each event.
-\end{itemize}                                                       % 4
+\end{itemize}                                                               % 4
 %
 This values combined result in $240$ combinations.
 Each combination executes for $5$ minutes and is repeated $3$ times.
@@ -885,6 +884,28 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 
 \section{Related Work}
 \label{sec.related}
+
+electronic circuits design
+
+\cite{gals.taxonomy}
+
+In GALS
+systems, computations within individual synchronous nodes are deterministic,
+with the communication latency as the only source of non-determinism.
+
+GALS is an alternative for developing systems in which individual
+modules take advantage of the synchronous approach and the communication
+latency is usually the only source of non-determinism. The GALS architectural
+design was originally proposed for programming multi-clock digital circuits, in
+which each synchronous block has its own clock running in its own frequency
+and they are interconnected through an asynchronous bus [1]
+
+Multiclock Esterel [61], CRP [62] and CRSM [63] are
+examples of Esterel-like languages that follow this concept. On the one hand,
+the asynchronous communication may be modelled using regular events with-
+out modifying the semantics of the languages, on the other hand, properties
+like liveness and fairness cannot be properly checked exactly because their
+semantics do not consider the distributed aspect of the system [64].
 
 \begin{comment}
 Asynchronous languages and models:
