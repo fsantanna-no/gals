@@ -70,12 +70,13 @@ fun client (server: String, port: Int = PORT_10000) {
     thread {
         while (true) {
             val evt = reader0.readInt()
-            evt_fr.add(app_nxt)
+            val nxt = app_nxt
+            evt_fr.add(nxt)
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
             synchronized(lock) {
-                writer1.writeLong(app_nxt+DT)
+                writer1.writeLong(nxt+DT)
                 writer1.writeInt(evt)
                 writer1.writeInt(111)       // payload 1
                 writer1.writeInt(222)       // payload 2
@@ -120,33 +121,34 @@ fun client (server: String, port: Int = PORT_10000) {
     var cli_nxt = Instant.now().toEpochMilli()
     var old = 0
     while (true) {
-        var app_cur = app_nxt
+        var app_cur: Long? = null
         var evt = 0
 
         synchronized(lock) {
+            app_cur = app_nxt
             app_nxt += DT
             if (queue_finals.isEmpty()) {
                 if (queue_expecteds.isNotEmpty() && app_nxt>=queue_expecteds[0]) {
                     // cannot advance time to prevent missing expected event
                     //println("[WRN] freeze")
                     app_nxt -= DT
-                    app_cur -= DT
+                    app_cur = app_cur!! - DT
                     evt = old
                 }
-            } else if (app_cur>=queue_finals[0].first) {
+            } else if (app_cur!!>=queue_finals[0].first) {
                 val (now_,evt_) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
                 evt = evt_
                 if (evt == self) {
                     val v = evt_fr.removeAt(0)
-                    assert((app_cur-v).toInt() % DT == 0)
+                    assert((app_cur!!-v).toInt() % DT == 0)
                     //println(">>> $app_cur - $v")
-                    log("event [$self] ${(app_cur-v)/DT}")
+                    log("event [$self] ${(app_cur!!-v)/DT}")
                 }
             }
         }
 
-        writer0.writeLong(app_cur)
+        writer0.writeLong(app_cur!!)
         writer0.writeInt(evt)
         old = evt
 

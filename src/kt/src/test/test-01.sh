@@ -6,8 +6,8 @@ sleep 1
 gals server 2 &
 sleep 1
 
-gals client 9999 &
-gals client 9998 &
+gals client localhost 9999 &
+gals client localhost 9998 &
 sleep 1
 
 gals app 9999 20 | uniq | head -n 450 > /tmp/gals-01.txt &

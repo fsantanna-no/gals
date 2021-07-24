@@ -6,16 +6,16 @@ sleep 1
 gals server 10 &
 sleep 1
 
-gals client 9999 &
-gals client 9998 &
-gals client 9997 &
-gals client 9996 &
-gals client 9995 &
-gals client 9994 &
-gals client 9993 &
-gals client 9992 &
-gals client 9991 &
-gals client 9990 &
+gals client localhost 9999 &
+gals client localhost 9998 &
+gals client localhost 9997 &
+gals client localhost 9996 &
+gals client localhost 9995 &
+gals client localhost 9994 &
+gals client localhost 9993 &
+gals client localhost 9992 &
+gals client localhost 9991 &
+gals client localhost 9990 &
 sleep 1
 
 gals app 9999 20 | uniq | head -n 1200 > /tmp/gals-01.txt &
