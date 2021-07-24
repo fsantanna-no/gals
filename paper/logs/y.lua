@@ -28,8 +28,8 @@ while l do
     local T = t[lbl]
 
     T.n      = T.n + 1
-    T.frames = T.frames + frames --; assert(1.1>=frames and frames>=0.9)
-    T.evt    = T.evt    + evt    --; assert(a2*1.1>=evt    and evt   *1.1>=a2)
+    T.frames = T.frames + frames ; assert(1.1>=frames and frames>=0.9)
+    T.evt    = T.evt    + evt    ; assert(a2*1.1>=evt and evt*1.1>=a2)
     T.rtt    = T.rtt    + rtt    --; assert(a3*1.5>rtt    and rtt   *1.5>=a3)
     T.lat    = T.lat    + lat    --; assert(a4*1.2>=lat    and lat   *1.2>=a4)
     T.drift  = T.drift  + drift  --; assert(a5*1.2>=drift  and drift *1.2>=a5)
