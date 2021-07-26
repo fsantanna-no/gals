@@ -164,7 +164,7 @@ Section~\ref{sec.conclusion}...
 \label{sec.arch}
 
 Figure~\ref{fig.middleware} describes the client-server architecture of our
-middleware entitled \emph{gals}.
+middleware.
 A distributed application (\dapp, at the top left of the Figure), is a set of
 mirrored instances running in different machines (also \dapp, at the edges of
 the figure, to emphasize that they are symmetric and represent a single
@@ -187,7 +187,7 @@ received events at the appropriate timestamps (both synchronized, in green).
   \includegraphics[width=\linewidth]{middleware}
   \caption{
     \label{fig.middleware}
-    The architecture of the middleware \emph{gals}.
+    The architecture of the middleware.
     A single server synchronizes multiple clients, each connected to a mirrored
     instance of the distributed application.
   }
@@ -269,10 +269,10 @@ The code for an actual \dapp is the same for all instances and uses a standard
 event-driven API with only four commands:
 %
 \begin{itemize}
-\item \texttt{connect(port,fps)}:        \\Connects with the local client in the given port and desired FPS.
-\item \texttt{disconnect()}:             \\Disconnects with the local client.
-\item \texttt{(now,evt) = gals\_wait()}: \\Waits for the next input carrying a timestamp and event id.
-\item \texttt{gals\_emit(evt)}:          \\Emits the given asynchronous input.
+\item \texttt{mid\_connect(port,fps)}:   \\Connects with the local client in the given port and desired FPS.
+\item \texttt{mid\_disconnect()}:        \\Disconnects with the local client.
+\item \texttt{(now,evt) = mid\_wait()}:  \\Waits for the next input carrying a timestamp and event id.
+\item \texttt{mid\_emit(evt)}:           \\Emits the given asynchronous input.
 \end{itemize}
 %
 Figure~\ref{fig.skel} shows the skeleton of a distributed application.
@@ -283,15 +283,15 @@ enclose the application logic.
 {\scriptsize
 \begin{verbatim}
 01  fun dapp (port: Int) {
-02     gals_connect(port,40)          // connects to client at 40 FPS
+02     mid_connect(port,40)           // connects to client at 40 FPS
 03     while (true) {                 // main event loop
-04        val (now,evt) = gals_wait() // awaits input (every 25ms)
+04        val (now,evt) = mid_wait()  // awaits input (every 25ms)
 05        switch (evt) {              // reacts to input
 06           ...break loop...         //   possibly terminates
 07        }
-08        ...gals_emit(nxt)...        // possibly generates inputs
+08        ...mid_emit(nxt)...         // possibly generates inputs
 09     }
-10     gals_disconnect()              // disconnects with the client
+10     mid_disconnect()               // disconnects with the client
 11  }
 \end{verbatim}
 }
@@ -367,9 +367,9 @@ They typically represent external actuators as opposed to input sensors.
 
 The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
 \dapp skeleton of Figure~\ref{fig.skel}:
-    \texttt{gals\_connect} specifies the sampling period \lin{2},
-    \texttt{gals\_wait} reads inputs \lin{4},
-    \texttt{gals\_emit} signals the environment back \lin{8}, and
+    \texttt{mid\_connect} specifies the sampling period \lin{2},
+    \texttt{mid\_wait} reads inputs \lin{4},
+    \texttt{mid\_emit} signals the environment back \lin{8}, and
     the \texttt{switch} statement processes the inputs to update memory \lin{5--7}.
 As required by the synchronous hypothesis, the sampling period, and
 consequently the rate of inputs, must be compatible with the processing speed.
@@ -417,7 +417,7 @@ event, which ensures that the application is deterministic.
 {\scriptsize
 \begin{verbatim}
 01  int main (void) {
-02    gals_connect(port, 40); // 25ms ticks
+02    mid_connect(port, 40); // 25ms ticks
 03
 04    SDL_Init(SDL_INIT_VIDEO);                 ---\
 05    SDL_Window*   win = SDL_CreateWindow();      |
@@ -428,7 +428,7 @@ event, which ensures that the application is deterministic.
 10    while (1) {
 11      uint64_t now;                           ---\
 12      uint32_t evt;                              |> Read Inputs
-13      gals_read(&now, &evt);                  ---/
+13      mid_read(&now, &evt);                   ---/
 14
 15      SDL_SetRenderDrawColor(ren, WHITE);     ---\
 16      SDL_RenderClear(ren); // clear screen      |
@@ -446,10 +446,10 @@ event, which ensures that the application is deterministic.
 28      SDL_RenderPresent(ren);                 ---/
 29
 30      // emit asynchronous inputs             ---\  Compute Outputs
-31      ... gals_emit(evt) ...                  ---/
+31      ... mid_emit(evt) ...                   ---/
 32    }
 33
-34    gals_disconnect();
+34    mid_disconnect();
 35    return 0;
 36  }
 \end{verbatim}
@@ -461,7 +461,7 @@ event, which ensures that the application is deterministic.
 \end{figure}
 
 Figure~\ref{fig.input} expands the output region with the calls to
-\texttt{gals\_emit} that generate asynchronous inputs.
+\texttt{mid\_emit} that generate asynchronous inputs.
 In this application, the code simply calls the SDL library to check if a key is
 pressed to forward it to the middleware.
 Note that in a local-only application this region of code would replace the
@@ -480,11 +480,11 @@ SDL_Event inp;
 if (SDL_PollEvent(&inp)) {
    if (inp.type == SDL_KEYDOWN) {
       switch (inp.key.keysym.sym) {
-         case SDLK_LEFT:  { gals_emit(LEFT);  break; }
-         case SDLK_RIGHT: { gals_emit(RIGHT); break; }
-         case SDLK_UP:    { gals_emit(UP);    break; }
-         case SDLK_DOWN:  { gals_emit(DOWN);  break; }
-         case SDLK_SPACE: { gals_emit(SPACE); break; }
+         case SDLK_LEFT:  { mid_emit(LEFT);  break; }
+         case SDLK_RIGHT: { mid_emit(RIGHT); break; }
+         case SDLK_UP:    { mid_emit(UP);    break; }
+         case SDLK_DOWN:  { mid_emit(DOWN);  break; }
+         case SDLK_SPACE: { mid_emit(SPACE); break; }
       }
    }
 }
@@ -492,7 +492,7 @@ if (SDL_PollEvent(&inp)) {
 }
   \caption{
     \label{fig.input}
-    Asynchronous input generation with \texttt{gals\_emit}.
+    Asynchronous input generation with \texttt{mid\_emit}.
     The library polls for key presses and forwards them to the middleware.
   }
 \end{figure}
@@ -525,26 +525,30 @@ Towards symmetric distributed applications with identical behavior, we need to
 read inputs synchronized and in real time in all instances.
 For instance, in the rectangle example of Figure~\ref{fig.sdl}, the challenge
 is
-    to awake calls to \texttt{gals\_read} at the same time in all instances \lin{13}, and
-    to broadcast and then resynchronize all asynchronous calls to \texttt{gals\_emit} \lin{31}.
+    to awake calls to \texttt{mid\_read} at the same time in all instances \lin{13}, and
+    to broadcast and then resynchronize all asynchronous calls to \texttt{mid\_emit} \lin{31}.
 
 The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
 integrates multiple independent synchronous processes as a single distributed
-application~\cite{TODO}.
+application~\cite{gals.taxonomy}.
 %
-By adopting this architecture, we can keep the simplicity and guarantees of the
-synchronous model to program local instances, and transfer the responsibility
-to deal with asynchrony to a middleware at the global level.
+Inspired by the GALS architecture, we can keep the simplicity and guarantees of
+the synchronous model to program local instances, and transfer the
+responsibility to deal with asynchrony to a middleware at the global level.
 %
-In Figure~\ref{fig.middleware}, we propose this architecture.
+In Figure~\ref{fig.middleware}, we propose a GALS-like architecture.
 We can see that \dapp local instances depend on synchronous inputs only (green
-arrows), and are allowed to output asynchronous events (red arrows), whose
-responsibility to resynchronize is left to the middleware.
+arrows), and are allowed to output asynchronous events (red arrows).
+%
+Unlike traditional GALS, the middleware automatically resynchronizes the
+inputs in a single global timeline such that all instances observe them
+identically.
 
 As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay
 to the original event proportional to the maximum network round-trip time
 considering all clients.
-The middleware synchronization algorithm needs to consider two main problems:
+The reason is because the synchronization algorithm needs to consider two main
+issues:
 %
 \begin{itemize}
 \item \textbf{Clock differences:}
