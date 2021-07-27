@@ -27,14 +27,20 @@ while l do
     t[lbl] = t[lbl] or { n=0, lbl=lbl, frames=0, evt=0, rtt=0, lat=0, drift=0, freeze=0, late=0 }
     local T = t[lbl]
 
+    local ok = true
+
     T.n      = T.n + 1
-    T.frames = T.frames + frames ; assert(1.1>=frames and frames>=0.9)
-    T.evt    = T.evt    + evt    ; assert(a2*1.1>=evt and evt*1.1>=a2)
+    T.frames = T.frames + frames ; ok = ok and (1.1>=frames and frames>=0.9)
+    T.evt    = T.evt    + evt    ; ok = ok and (1.1>=evt    and evt   >=0.9)
     T.rtt    = T.rtt    + rtt    --; assert(a3*1.5>rtt    and rtt   *1.5>=a3)
     T.lat    = T.lat    + lat    --; assert(a4*1.2>=lat    and lat   *1.2>=a4)
     T.drift  = T.drift  + drift  --; assert(a5*1.2>=drift  and drift *1.2>=a5)
     T.freeze = T.freeze + freeze --; assert(a6*1.2>=freeze and freeze*1.2>=a6)
     T.late   = T.late   + late   --; assert(a7*1.2>=late   and late  *1.2>=a7)
+
+    if not ok then
+        io.stderr:write(l..'\n')
+    end
 
     l = f:read'*l'
 end
