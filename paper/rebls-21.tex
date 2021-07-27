@@ -153,10 +153,10 @@ programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
 architecture of our middleware, and details the synchronization protocol for
 input reproducibility.
-Section~\ref{sec.async} ...
+%Section~\ref{sec.async} ...
 Section~\ref{sec.eval} evaluates our middleware with...
-Section~\ref{sec.apps} ... % sym video player, asy rect editor
-Section~\ref{sec.discussion}...
+%Section~\ref{sec.apps} ... % sym video player, asy rect editor
+%Section~\ref{sec.discussion}...
 Section~\ref{sec.related}...
 Section~\ref{sec.conclusion}...
 
@@ -578,9 +578,9 @@ Overall, the synchronization algorithm performed by the middleware has the
 following goals:
 %
 \begin{enumerate}
-\item Keep clock offsets in instances close to each other.
-\item Generate synchronous inputs to instances with a minimum delay.
-\item Ensure that instances read inputs with perfect time accuracy.
+\item Keeping instances clock offsets close to each other.
+\item Generating synchronous inputs back to instances with minimum delays.
+\item Ensuring that instances read inputs with perfect time accuracy.
 \end{enumerate}
 %
 Regarding \emph{goal 1}, offset differences are inevitable but should be under
@@ -751,37 +751,48 @@ In the next section, we evaluate the scalability of the protocol%
 \section{Evaluation}
 \label{sec.eval}
 
-We planned the protocol evaluation experiments taking into consideration its
+We present the protocol evaluation experiments taking into consideration its
 main goals:
 %
 \begin{enumerate}
-\item Keep clock offsets in instances close to each other.
-\item Generate synchronous inputs to instances with a minimum delay.
-\item Ensure that instances read inputs with perfect time accuracy.
+\item Keeping instances clock offsets close to each other.
+\item Generating synchronous inputs back to instances with minimum delays.
+\item Ensuring that instances read inputs with perfect time accuracy.
 \end{enumerate}
 %
 In order to verify if these goals are met, we measure 4 properties as follows:
 %
 \begin{enumerate}
-\item Clock drift:   the percentage of drift compensation in milliseconds
-                     relative to the total simulation time.
-\item Event latency: the average number of frames elapsed from asynchronous
-                     emits to their corresponding synchronous receipts.
-\item Frame freeze:  the percentage of frames that are repeated relative to the
-                     total simulation frames.
-\item Frame late:    the percentage of delay in milliseconds due to CPU load
-                     relative to the total simulation time.
+\item \textbf{Clock drift}:
+    the percentage of drift compensation relative to the total simulation time
+    (e.g., $1\%$, if drifts accumulate $1s$ in $100s$).
+\item \textbf{Event latency}:
+    the average number of frames elapsed from asynchronous emits to their
+    corresponding synchronous receipts (e.g., $3$, if an emit occurs at frame
+    $58$ and receipt at $61$).
+\item \textbf{Frame freeze}:
+    the percentage of repeated frames relative to the total simulation frames
+    (e.g., $1\%$, if $1$ frame freezes every $100$ frames).
+\item \textbf{Frame late}:
+    the percentage of frame delays due to CPU load relative to the total
+    simulation time (e.g., $1\%$, if delays accumulate $1s$ in $100s$).
 \end{enumerate}
 %
-Clock drift compensation ensures that the offsets are kept closer, but a high
-percentage may indicate that the protocol is distorting them.
+Drift compensation ensures that the offsets are kept closer, but a high
+percentage of clock drift may indicate that the protocol is troublesome.
+Ideally, clock drift rate should be $0\%$.
 %
 A high event latency may compromise \emph{goal 2}, but a low latency may
 increase the amount of frame freezes, which is even less desirable.
+Ideally, event latency should be $1$ frame, and freeze rate, $0\%$.
 %
 As an implicit goal, the applications preserve their original frame rates when
 going distributed.
 The protocol should not affect this property (and vice versa).
+Ideally, frame late rate should be $0\%$.
+However, in our experiments, we simulate a CPU load between $50--110\%$ to
+stress the protocol.
+Hence, ideally, late rate should be around $TODO\%$.
 %
 Note that \emph{goal 3} is a strict requirement in our design, which the
 protocol ensures with 100\% accuracy.
@@ -867,6 +878,7 @@ What about in realtime
 Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
 \end{comment}
 
+\begin{comment}
 \section{Applications}
 \label{sec.apps}
 
@@ -885,31 +897,76 @@ Concurrent programs in non-deterministic languages are notoriously hard to prove
 \item dois cursores "assimétricos"
 \item precisa de eventos de alto nivel (provavelmente nao dá pra manter a posicao dos mouses em tempo real)
 \end{itemize}
+\end{comment}
 
 \section{Related Work}
 \label{sec.related}
 
-electronic circuits design
+Synchronous languages~\cite{langs} target real-time reactive systems and focus
+on static guarantees for critical control systems.
+They are based on a well-behaved lockstep execution that simplifies reasoning
+and verification of programs.
+They also restrict control and data primitives to enforce determinism and
+static bounds on memory usage and execution time.
+On the one hand, these guarantees are important to preserve identical behavior
+to local instances in symmetric distributed application.
+On the other hand, the restrictive semantics of synchronous languages hinders
+the development of rich collaborative applications.
+We chose a pragmatic approach and provide a standard event-driven API with no
+restrictions.
+Nonetheless, this API may be used as host environments in synchronous
+languages.
 
-\cite{gals.taxonomy}
+In GALS architectures~\cite{gals.taxonomy}, computations within individual
+synchronous nodes are deterministic, with the communication latency as the only
+source of non-determinism.
+Some programming languages and systems~\cite{gals.crp,gals.crsm,gals.systemj}
+expose this architecture to programmers, which remain with the responsibility
+to coordinate interprocess communication.
+%
+Concurrent Reactive Processes (CRP)~\cite{gals.crp} extend the synchronous
+programming language Esterel~\cite{esterel} with asynchronous communication
+channels resembling CSP~\cite{csp}.
+%
+Esterel enforces determinism and bounded reactions to local instances, which
+are linked by asynchronous non-deterministic communication channels.
+Instances are asymmetric in the sense that they may execute different
+applications.
+Also, there is no central coordination towards a global timeline, and each
+instance advances its clock independently.
+%
+CRSM~\cite{gals.crsm} and SystemJ~\cite{gals.systemj} are similar systems, with
+CSP-like asynchronous communication and Esterel-like synchronous lockstep
+execution.
+The main difference to CRP is that they use Argos~\cite{argos} (CRSM) and Java
+(SystemJ) as their local programming languages.
 
-In GALS
-systems, computations within individual synchronous nodes are deterministic,
-with the communication latency as the only source of non-determinism.
+``Physically Asynchronous Logically Synchronous Systems (PALS)''~\cite{pals} is
+a synchronization protocol to support strict real time distributed
+applications.
+PALS provides a perfectly synchronized global clock shared by all instances,
+which leads to identical state transitions in all instances.
+On the one hand, it provides stronger synchronicity in comparison to our
+protocol, in which local clocks advance independently and events need to be
+delayed to fit all instances timelines, possibly resulting in application
+freezes.
+On the other hand, PALS also needs to rely on stronger assumptions, namely
+bounded limits for clock skews, network transmission, and local computation
+time.
+In our protocol, allowing unbounded limits only affects the viability of
+applications in certain scenarios.
+Our protocol also keeps the instances clocks close to each other, but not as a
+strict real-time constraint.
+This keeps the instances indistinguishable for the human eyes and prevents the
+clock distances to degrade input delay predictions.
+%
+Regarding the protocol implementation, PALS also relies on a central server to
+serialize the timeline.
+However, since the bounds are fixed and known in advance and all instances are
+at the same logical tick, PALS can skip the ``proposal round'' required by our
+protocol, which decreases the latency of inputs.
 
-GALS is an alternative for developing systems in which individual
-modules take advantage of the synchronous approach and the communication
-latency is usually the only source of non-determinism. The GALS architectural
-design was originally proposed for programming multi-clock digital circuits, in
-which each synchronous block has its own clock running in its own frequency
-and they are interconnected through an asynchronous bus [1]
-
-Multiclock Esterel [61], CRP [62] and CRSM [63] are
-examples of Esterel-like languages that follow this concept. On the one hand,
-the asynchronous communication may be modelled using regular events with-
-out modifying the semantics of the languages, on the other hand, properties
-like liveness and fairness cannot be properly checked exactly because their
-semantics do not consider the distributed aspect of the system [64].
+%- even 100fps under some circs, event inet
 
 \begin{comment}
 Asynchronous languages and models:
