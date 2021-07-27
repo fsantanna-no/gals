@@ -4,12 +4,12 @@ I5=192.168.0.13
 I7=192.168.0.12
 P2=192.168.0.5
 LC=152.92.236.9
-USER1=chico
-USER2=francisco
+USER1=user
+USER2=user
 PASS1=password
 PASS2=password
 
-for host in $I5 $I7
+for host in $I5 $I7 $P2
 do
     echo ">>> $host"
     #sshpass -p $PASS1 ssh "$USER1@$host" -f "mkdir gals/"
