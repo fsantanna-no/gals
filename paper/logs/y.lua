@@ -9,7 +9,7 @@ end
 
 local f = assert(io.open(...))
 local l = f:read'*l'
-print('N-FPS-RATE', 'REPS', 'FRAMES', 'EVT', 'RTT', 'LAT', 'DRIFT', 'FREEZE', 'LATE')
+print('N-RATE-FPS', 'REPS', 'FRAMES', 'EVT', 'RTT', 'LAT', 'DRIFT', 'FREEZE', 'LATE')
 l = f:read'*l'
 t = {}
 while l do
