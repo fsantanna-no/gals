@@ -1,0 +1,624 @@
+25 - 5000 - 10 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627423242/
+Frames   (n):   74926  (2997 vs 3000 expected per machine)
+Events   (n):      45  (60 expected)
+RTT     (ms):    5.53
+Latency (fr):    2.40
+Drift   (ms):     341  0.00%
+Freeze  (fr):       3  0.00%
+Late    (ms):   14088  0.19%
+XXX ; /tmp/gals-1627423242/ ; 50-110% ; 300 ; 25 ; 10 ; 125000 ; 7500000 ; 74926 ; 45 ;    5.53 ;    2.40 ; 341;0.00 ; 3;0.00 ; 14088;0.19 
+
+
+25 - 5000 - 25 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627423546/
+Frames   (n):  187437  (7497 vs 7500 expected per machine)
+Events   (n):      50  (60 expected)
+RTT     (ms):    4.19
+Latency (fr):    2.90
+Drift   (ms):    8238  0.11%
+Freeze  (fr):     210  0.11%
+Late    (ms):   35580  0.47%
+XXX ; /tmp/gals-1627423546/ ; 50-110% ; 300 ; 25 ; 25 ; 125000 ; 7500000 ; 187437 ; 50 ;    4.19 ;    2.90 ; 8238;0.11 ; 210;0.11 ; 35580;0.47 
+
+
+25 - 5000 - 50 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627423850/
+Frames   (n):  374857  (14994 vs 15000 expected per machine)
+Events   (n):      52  (60 expected)
+RTT     (ms):    4.20
+Latency (fr):    3.06
+Drift   (ms):    6771  0.09%
+Freeze  (fr):    1116  0.30%
+Late    (ms):   59480  0.79%
+XXX ; /tmp/gals-1627423850/ ; 50-110% ; 300 ; 25 ; 50 ; 125000 ; 7500000 ; 374857 ; 52 ;    4.20 ;    3.06 ; 6771;0.09 ; 1116;0.30 ; 59480;0.79 
+
+
+25 - 5000 - 100 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627424155/
+Frames   (n):  749732  (29989 vs 30000 expected per machine)
+Events   (n):      57  (60 expected)
+RTT     (ms):    3.85
+Latency (fr):    3.68
+Drift   (ms):    7240  0.10%
+Freeze  (fr):    2772  0.37%
+Late    (ms):  113874  1.52%
+XXX ; /tmp/gals-1627424155/ ; 50-110% ; 300 ; 25 ; 100 ; 125000 ; 7500000 ; 749732 ; 57 ;    3.85 ;    3.68 ; 7240;0.10 ; 2772;0.37 ; 113874;1.52 
+
+
+25 - 1000 - 10 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627424459/
+Frames   (n):   74932  (2997 vs 3000 expected per machine)
+Events   (n):     298  (300 expected)
+RTT     (ms):    3.90
+Latency (fr):    2.27
+Drift   (ms):    2083  0.03%
+Freeze  (fr):       0  0.00%
+Late    (ms):   16331  0.22%
+XXX ; /tmp/gals-1627424459/ ; 50-110% ; 300 ; 25 ; 10 ; 25000 ; 7500000 ; 74932 ; 298 ;    3.90 ;    2.27 ; 2083;0.03 ; 0;0.00 ; 16331;0.22 
+
+
+25 - 1000 - 25 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627424763/
+Frames   (n):  187441  (7497 vs 7500 expected per machine)
+Events   (n):     281  (300 expected)
+RTT     (ms):    5.14
+Latency (fr):    2.26
+Drift   (ms):    7700  0.10%
+Freeze  (fr):     166  0.09%
+Late    (ms):   37825  0.50%
+XXX ; /tmp/gals-1627424763/ ; 50-110% ; 300 ; 25 ; 25 ; 25000 ; 7500000 ; 187441 ; 281 ;    5.14 ;    2.26 ; 7700;0.10 ; 166;0.09 ; 37825;0.50 
+
+
+25 - 1000 - 50 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627425067/
+Frames   (n):  375671  (15026 vs 15000 expected per machine)
+Events   (n):     288  (300 expected)
+RTT     (ms):    4.61
+Latency (fr):    2.66
+Drift   (ms):   23887  0.32%
+Freeze  (fr):    2983  0.79%
+Late    (ms):   67511  0.90%
+XXX ; /tmp/gals-1627425067/ ; 50-110% ; 300 ; 25 ; 50 ; 25000 ; 7500000 ; 375671 ; 288 ;    4.61 ;    2.66 ; 23887;0.32 ; 2983;0.79 ; 67511;0.90 
+
+
+25 - 1000 - 100 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627425371/
+Frames   (n):  752614  (30104 vs 30000 expected per machine)
+Events   (n):     303  (300 expected)
+RTT     (ms):    3.58
+Latency (fr):    3.39
+Drift   (ms):   41475  0.55%
+Freeze  (fr):    8399  1.12%
+Late    (ms):  104533  1.39%
+XXX ; /tmp/gals-1627425371/ ; 50-110% ; 300 ; 25 ; 100 ; 25000 ; 7500000 ; 752614 ; 303 ;    3.58 ;    3.39 ; 41475;0.55 ; 8399;1.12 ; 104533;1.39 
+
+
+25 - 500 - 10 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627425676/
+Frames   (n):   74925  (2997 vs 3000 expected per machine)
+Events   (n):     605  (600 expected)
+RTT     (ms):    3.98
+Latency (fr):    2.39
+Drift   (ms):    1443  0.02%
+Freeze  (fr):       0  0.00%
+Late    (ms):   18491  0.25%
+XXX ; /tmp/gals-1627425676/ ; 50-110% ; 300 ; 25 ; 10 ; 12500 ; 7500000 ; 74925 ; 605 ;    3.98 ;    2.39 ; 1443;0.02 ; 0;0.00 ; 18491;0.25 
+
+
+25 - 500 - 25 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627425980/
+Frames   (n):  187548  (7501 vs 7500 expected per machine)
+Events   (n):     587  (600 expected)
+RTT     (ms):    5.32
+Latency (fr):    2.21
+Drift   (ms):   12555  0.17%
+Freeze  (fr):     148  0.08%
+Late    (ms):   47468  0.63%
+XXX ; /tmp/gals-1627425980/ ; 50-110% ; 300 ; 25 ; 25 ; 12500 ; 7500000 ; 187548 ; 587 ;    5.32 ;    2.21 ; 12555;0.17 ; 148;0.08 ; 47468;0.63 
+
+
+25 - 500 - 50 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627426284/
+Frames   (n):  375720  (15028 vs 15000 expected per machine)
+Events   (n):     625  (600 expected)
+RTT     (ms):    5.19
+Latency (fr):    2.44
+Drift   (ms):   27055  0.36%
+Freeze  (fr):    4973  1.32%
+Late    (ms):   77644  1.04%
+XXX ; /tmp/gals-1627426284/ ; 50-110% ; 300 ; 25 ; 50 ; 12500 ; 7500000 ; 375720 ; 625 ;    5.19 ;    2.44 ; 27055;0.36 ; 4973;1.32 ; 77644;1.04 
+
+
+25 - 500 - 100 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627426588/
+Frames   (n):  758032  (30321 vs 30000 expected per machine)
+Events   (n):     607  (600 expected)
+RTT     (ms):    4.17
+Latency (fr):    3.49
+Drift   (ms):  103908  1.39%
+Freeze  (fr):   14273  1.88%
+Late    (ms):  118643  1.58%
+XXX ; /tmp/gals-1627426588/ ; 50-110% ; 300 ; 25 ; 100 ; 12500 ; 7500000 ; 758032 ; 607 ;    4.17 ;    3.49 ; 103908;1.39 ; 14273;1.88 ; 118643;1.58 
+
+
+25 - 250 - 10 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627426892/
+Frames   (n):   74939  (2997 vs 3000 expected per machine)
+Events   (n):    1169  (1200 expected)
+RTT     (ms):    6.66
+Latency (fr):    2.59
+Drift   (ms):    1121  0.01%
+Freeze  (fr):       0  0.00%
+Late    (ms):   26112  0.35%
+XXX ; /tmp/gals-1627426892/ ; 50-110% ; 300 ; 25 ; 10 ; 6250 ; 7500000 ; 74939 ; 1169 ;    6.66 ;    2.59 ; 1121;0.01 ; 0;0.00 ; 26112;0.35 
+
+
+25 - 250 - 25 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627427196/
+Frames   (n):  187618  (7504 vs 7500 expected per machine)
+Events   (n):    1166  (1200 expected)
+RTT     (ms):    7.88
+Latency (fr):    2.25
+Drift   (ms):   16923  0.23%
+Freeze  (fr):      67  0.04%
+Late    (ms):   61215  0.82%
+XXX ; /tmp/gals-1627427196/ ; 50-110% ; 300 ; 25 ; 25 ; 6250 ; 7500000 ; 187618 ; 1166 ;    7.88 ;    2.25 ; 16923;0.23 ; 67;0.04 ; 61215;0.82 
+
+
+25 - 250 - 50 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627427500/
+Frames   (n):  376303  (15052 vs 15000 expected per machine)
+Events   (n):    1166  (1200 expected)
+RTT     (ms):    9.59
+Latency (fr):    2.60
+Drift   (ms):   49302  0.66%
+Freeze  (fr):    7835  2.08%
+Late    (ms):   88893  1.19%
+XXX ; /tmp/gals-1627427500/ ; 50-110% ; 300 ; 25 ; 50 ; 6250 ; 7500000 ; 376303 ; 1166 ;    9.59 ;    2.60 ; 49302;0.66 ; 7835;2.08 ; 88893;1.19 
+
+
+25 - 250 - 100 - [1]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627427805/
+Frames   (n):  765848  (30633 vs 30000 expected per machine)
+Events   (n):    1190  (1200 expected)
+RTT     (ms):    6.46
+Latency (fr):    4.00
+Drift   (ms):  218163  2.91%
+Freeze  (fr):   25650  3.35%
+Late    (ms):  123067  1.64%
+XXX ; /tmp/gals-1627427805/ ; 50-110% ; 300 ; 25 ; 100 ; 6250 ; 7500000 ; 765848 ; 1190 ;    6.46 ;    4.00 ; 218163;2.91 ; 25650;3.35 ; 123067;1.64 
+
+
+25 - 5000 - 10 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627428109/
+Frames   (n):   74932  (2997 vs 3000 expected per machine)
+Events   (n):      48  (60 expected)
+RTT     (ms):    5.07
+Latency (fr):    2.40
+Drift   (ms):      46  0.00%
+Freeze  (fr):       0  0.00%
+Late    (ms):   19535  0.26%
+XXX ; /tmp/gals-1627428109/ ; 50-110% ; 300 ; 25 ; 10 ; 125000 ; 7500000 ; 74932 ; 48 ;    5.07 ;    2.40 ; 46;0.00 ; 0;0.00 ; 19535;0.26 
+
+
+25 - 5000 - 25 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627428413/
+Frames   (n):  187434  (7497 vs 7500 expected per machine)
+Events   (n):      45  (60 expected)
+RTT     (ms):    4.61
+Latency (fr):    2.82
+Drift   (ms):    5268  0.07%
+Freeze  (fr):     161  0.09%
+Late    (ms):   40093  0.53%
+XXX ; /tmp/gals-1627428413/ ; 50-110% ; 300 ; 25 ; 25 ; 125000 ; 7500000 ; 187434 ; 45 ;    4.61 ;    2.82 ; 5268;0.07 ; 161;0.09 ; 40093;0.53 
+
+
+25 - 5000 - 50 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627428717/
+Frames   (n):  374901  (14996 vs 15000 expected per machine)
+Events   (n):      54  (60 expected)
+RTT     (ms):    4.19
+Latency (fr):    2.89
+Drift   (ms):    6047  0.08%
+Freeze  (fr):    1192  0.32%
+Late    (ms):   73035  0.97%
+XXX ; /tmp/gals-1627428717/ ; 50-110% ; 300 ; 25 ; 50 ; 125000 ; 7500000 ; 374901 ; 54 ;    4.19 ;    2.89 ; 6047;0.08 ; 1192;0.32 ; 73035;0.97 
+
+
+25 - 5000 - 100 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627429021/
+Frames   (n):  749659  (29986 vs 30000 expected per machine)
+Events   (n):      46  (60 expected)
+RTT     (ms):    3.97
+Latency (fr):    3.74
+Drift   (ms):    4762  0.06%
+Freeze  (fr):    2257  0.30%
+Late    (ms):  111474  1.49%
+XXX ; /tmp/gals-1627429021/ ; 50-110% ; 300 ; 25 ; 100 ; 125000 ; 7500000 ; 749659 ; 46 ;    3.97 ;    3.74 ; 4762;0.06 ; 2257;0.30 ; 111474;1.49 
+
+
+25 - 1000 - 10 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627429326/
+Frames   (n):   74936  (2997 vs 3000 expected per machine)
+Events   (n):     288  (300 expected)
+RTT     (ms):    4.98
+Latency (fr):    2.51
+Drift   (ms):     232  0.00%
+Freeze  (fr):       0  0.00%
+Late    (ms):   19003  0.25%
+XXX ; /tmp/gals-1627429326/ ; 50-110% ; 300 ; 25 ; 10 ; 25000 ; 7500000 ; 74936 ; 288 ;    4.98 ;    2.51 ; 232;0.00 ; 0;0.00 ; 19003;0.25 
+
+
+25 - 1000 - 25 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627429630/
+Frames   (n):  187467  (7498 vs 7500 expected per machine)
+Events   (n):     282  (300 expected)
+RTT     (ms):    4.15
+Latency (fr):    2.24
+Drift   (ms):    6996  0.09%
+Freeze  (fr):     143  0.08%
+Late    (ms):   39067  0.52%
+XXX ; /tmp/gals-1627429630/ ; 50-110% ; 300 ; 25 ; 25 ; 25000 ; 7500000 ; 187467 ; 282 ;    4.15 ;    2.24 ; 6996;0.09 ; 143;0.08 ; 39067;0.52 
+
+
+25 - 1000 - 50 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627429934/
+Frames   (n):  374992  (14999 vs 15000 expected per machine)
+Events   (n):     290  (300 expected)
+RTT     (ms):    4.90
+Latency (fr):    2.45
+Drift   (ms):    8887  0.12%
+Freeze  (fr):    2891  0.77%
+Late    (ms):   69761  0.93%
+XXX ; /tmp/gals-1627429934/ ; 50-110% ; 300 ; 25 ; 50 ; 25000 ; 7500000 ; 374992 ; 290 ;    4.90 ;    2.45 ; 8887;0.12 ; 2891;0.77 ; 69761;0.93 
+
+
+25 - 1000 - 100 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627430238/
+Frames   (n):  750235  (30009 vs 30000 expected per machine)
+Events   (n):     280  (300 expected)
+RTT     (ms):    3.85
+Latency (fr):    2.84
+Drift   (ms):   11205  0.15%
+Freeze  (fr):    7253  0.97%
+Late    (ms):  115215  1.54%
+XXX ; /tmp/gals-1627430238/ ; 50-110% ; 300 ; 25 ; 100 ; 25000 ; 7500000 ; 750235 ; 280 ;    3.85 ;    2.84 ; 11205;0.15 ; 7253;0.97 ; 115215;1.54 
+
+
+25 - 500 - 10 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627430542/
+Frames   (n):   74935  (2997 vs 3000 expected per machine)
+Events   (n):     557  (600 expected)
+RTT     (ms):    4.63
+Latency (fr):    2.57
+Drift   (ms):     311  0.00%
+Freeze  (fr):       0  0.00%
+Late    (ms):   21831  0.29%
+XXX ; /tmp/gals-1627430542/ ; 50-110% ; 300 ; 25 ; 10 ; 12500 ; 7500000 ; 74935 ; 557 ;    4.63 ;    2.57 ; 311;0.00 ; 0;0.00 ; 21831;0.29 
+
+
+25 - 500 - 25 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627430846/
+Frames   (n):  187481  (7499 vs 7500 expected per machine)
+Events   (n):     589  (600 expected)
+RTT     (ms):    5.24
+Latency (fr):    2.18
+Drift   (ms):    8028  0.11%
+Freeze  (fr):     194  0.10%
+Late    (ms):   50167  0.67%
+XXX ; /tmp/gals-1627430846/ ; 50-110% ; 300 ; 25 ; 25 ; 12500 ; 7500000 ; 187481 ; 589 ;    5.24 ;    2.18 ; 8028;0.11 ; 194;0.10 ; 50167;0.67 
+
+
+25 - 500 - 50 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627431151/
+Frames   (n):  375217  (15008 vs 15000 expected per machine)
+Events   (n):     576  (600 expected)
+RTT     (ms):    4.44
+Latency (fr):    2.37
+Drift   (ms):   13975  0.19%
+Freeze  (fr):    4865  1.30%
+Late    (ms):   77317  1.03%
+XXX ; /tmp/gals-1627431151/ ; 50-110% ; 300 ; 25 ; 50 ; 12500 ; 7500000 ; 375217 ; 576 ;    4.44 ;    2.37 ; 13975;0.19 ; 4865;1.30 ; 77317;1.03 
+
+
+25 - 500 - 100 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627431455/
+Frames   (n):  751686  (30067 vs 30000 expected per machine)
+Events   (n):     580  (600 expected)
+RTT     (ms):    3.63
+Latency (fr):    2.93
+Drift   (ms):   27143  0.36%
+Freeze  (fr):   13206  1.76%
+Late    (ms):  117556  1.57%
+XXX ; /tmp/gals-1627431455/ ; 50-110% ; 300 ; 25 ; 100 ; 12500 ; 7500000 ; 751686 ; 580 ;    3.63 ;    2.93 ; 27143;0.36 ; 13206;1.76 ; 117556;1.57 
+
+
+25 - 250 - 10 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627431759/
+Frames   (n):   74950  (2998 vs 3000 expected per machine)
+Events   (n):    1189  (1200 expected)
+RTT     (ms):    7.81
+Latency (fr):    2.49
+Drift   (ms):    6216  0.08%
+Freeze  (fr):       0  0.00%
+Late    (ms):   22497  0.30%
+XXX ; /tmp/gals-1627431759/ ; 50-110% ; 300 ; 25 ; 10 ; 6250 ; 7500000 ; 74950 ; 1189 ;    7.81 ;    2.49 ; 6216;0.08 ; 0;0.00 ; 22497;0.30 
+
+
+25 - 250 - 25 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627432063/
+Frames   (n):  188626  (7545 vs 7500 expected per machine)
+Events   (n):    1176  (1200 expected)
+RTT     (ms):    8.73
+Latency (fr):    2.47
+Drift   (ms):   80892  1.08%
+Freeze  (fr):     208  0.11%
+Late    (ms):   58651  0.78%
+XXX ; /tmp/gals-1627432063/ ; 50-110% ; 300 ; 25 ; 25 ; 6250 ; 7500000 ; 188626 ; 1176 ;    8.73 ;    2.47 ; 80892;1.08 ; 208;0.11 ; 58651;0.78 
+
+
+25 - 250 - 50 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627432367/
+Frames   (n):  376061  (15042 vs 15000 expected per machine)
+Events   (n):    1183  (1200 expected)
+RTT     (ms):    5.73
+Latency (fr):    2.48
+Drift   (ms):   35527  0.47%
+Freeze  (fr):    8402  2.23%
+Late    (ms):   91797  1.22%
+XXX ; /tmp/gals-1627432367/ ; 50-110% ; 300 ; 25 ; 50 ; 6250 ; 7500000 ; 376061 ; 1183 ;    5.73 ;    2.48 ; 35527;0.47 ; 8402;2.23 ; 91797;1.22 
+
+
+25 - 250 - 100 - [2]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627432671/
+Frames   (n):  754855  (30194 vs 30000 expected per machine)
+Events   (n):    1206  (1200 expected)
+RTT     (ms):    5.98
+Latency (fr):    3.08
+Drift   (ms):   72300  0.96%
+Freeze  (fr):   23795  3.15%
+Late    (ms):  127713  1.70%
+XXX ; /tmp/gals-1627432671/ ; 50-110% ; 300 ; 25 ; 100 ; 6250 ; 7500000 ; 754855 ; 1206 ;    5.98 ;    3.08 ; 72300;0.96 ; 23795;3.15 ; 127713;1.70 
+
+
+25 - 5000 - 10 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627432976/
+Frames   (n):   74931  (2997 vs 3000 expected per machine)
+Events   (n):      57  (60 expected)
+RTT     (ms):    4.66
+Latency (fr):    2.44
+Drift   (ms):      41  0.00%
+Freeze  (fr):       0  0.00%
+Late    (ms):   18217  0.24%
+XXX ; /tmp/gals-1627432976/ ; 50-110% ; 300 ; 25 ; 10 ; 125000 ; 7500000 ; 74931 ; 57 ;    4.66 ;    2.44 ; 41;0.00 ; 0;0.00 ; 18217;0.24 
+
+
+25 - 5000 - 25 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627433280/
+Frames   (n):  187440  (7497 vs 7500 expected per machine)
+Events   (n):      46  (60 expected)
+RTT     (ms):    4.78
+Latency (fr):    2.70
+Drift   (ms):    5093  0.07%
+Freeze  (fr):      97  0.05%
+Late    (ms):   39144  0.52%
+XXX ; /tmp/gals-1627433280/ ; 50-110% ; 300 ; 25 ; 25 ; 125000 ; 7500000 ; 187440 ; 46 ;    4.78 ;    2.70 ; 5093;0.07 ; 97;0.05 ; 39144;0.52 
+
+
+25 - 5000 - 50 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627433584/
+Frames   (n):  374951  (14998 vs 15000 expected per machine)
+Events   (n):      54  (60 expected)
+RTT     (ms):    4.08
+Latency (fr):    3.46
+Drift   (ms):   11913  0.16%
+Freeze  (fr):    1283  0.34%
+Late    (ms):   72898  0.97%
+XXX ; /tmp/gals-1627433584/ ; 50-110% ; 300 ; 25 ; 50 ; 125000 ; 7500000 ; 374951 ; 54 ;    4.08 ;    3.46 ; 11913;0.16 ; 1283;0.34 ; 72898;0.97 
+
+
+25 - 5000 - 100 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=125000 - MS=7500000
+/tmp/gals-1627433888/
+Frames   (n):  749933  (29997 vs 30000 expected per machine)
+Events   (n):      55  (60 expected)
+RTT     (ms):    4.36
+Latency (fr):    3.25
+Drift   (ms):    8417  0.11%
+Freeze  (fr):    2755  0.37%
+Late    (ms):  115044  1.53%
+XXX ; /tmp/gals-1627433888/ ; 50-110% ; 300 ; 25 ; 100 ; 125000 ; 7500000 ; 749933 ; 55 ;    4.36 ;    3.25 ; 8417;0.11 ; 2755;0.37 ; 115044;1.53 
+
+
+25 - 1000 - 10 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627434192/
+Frames   (n):   74933  (2997 vs 3000 expected per machine)
+Events   (n):     289  (300 expected)
+RTT     (ms):    4.85
+Latency (fr):    2.47
+Drift   (ms):     160  0.00%
+Freeze  (fr):       0  0.00%
+Late    (ms):   20280  0.27%
+XXX ; /tmp/gals-1627434192/ ; 50-110% ; 300 ; 25 ; 10 ; 25000 ; 7500000 ; 74933 ; 289 ;    4.85 ;    2.47 ; 160;0.00 ; 0;0.00 ; 20280;0.27 
+
+
+25 - 1000 - 25 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627434496/
+Frames   (n):  187507  (7500 vs 7500 expected per machine)
+Events   (n):     296  (300 expected)
+RTT     (ms):    4.05
+Latency (fr):    2.25
+Drift   (ms):    8713  0.12%
+Freeze  (fr):     206  0.11%
+Late    (ms):   43347  0.58%
+XXX ; /tmp/gals-1627434496/ ; 50-110% ; 300 ; 25 ; 25 ; 25000 ; 7500000 ; 187507 ; 296 ;    4.05 ;    2.25 ; 8713;0.12 ; 206;0.11 ; 43347;0.58 
+
+
+25 - 1000 - 50 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627434801/
+Frames   (n):  375057  (15002 vs 15000 expected per machine)
+Events   (n):     289  (300 expected)
+RTT     (ms):    5.73
+Latency (fr):    2.47
+Drift   (ms):    9823  0.13%
+Freeze  (fr):    2863  0.76%
+Late    (ms):   72399  0.97%
+XXX ; /tmp/gals-1627434801/ ; 50-110% ; 300 ; 25 ; 50 ; 25000 ; 7500000 ; 375057 ; 289 ;    5.73 ;    2.47 ; 9823;0.13 ; 2863;0.76 ; 72399;0.97 
+
+
+25 - 1000 - 100 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=25000 - MS=7500000
+/tmp/gals-1627435105/
+Frames   (n):  750413  (30016 vs 30000 expected per machine)
+Events   (n):     293  (300 expected)
+RTT     (ms):    3.66
+Latency (fr):    3.12
+Drift   (ms):   13696  0.18%
+Freeze  (fr):    7218  0.96%
+Late    (ms):  115687  1.54%
+XXX ; /tmp/gals-1627435105/ ; 50-110% ; 300 ; 25 ; 100 ; 25000 ; 7500000 ; 750413 ; 293 ;    3.66 ;    3.12 ; 13696;0.18 ; 7218;0.96 ; 115687;1.54 
+
+
+25 - 500 - 10 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627435409/
+Frames   (n):   74934  (2997 vs 3000 expected per machine)
+Events   (n):     618  (600 expected)
+RTT     (ms):    4.80
+Latency (fr):    2.60
+Drift   (ms):     445  0.01%
+Freeze  (fr):       0  0.00%
+Late    (ms):   22390  0.30%
+XXX ; /tmp/gals-1627435409/ ; 50-110% ; 300 ; 25 ; 10 ; 12500 ; 7500000 ; 74934 ; 618 ;    4.80 ;    2.60 ; 445;0.01 ; 0;0.00 ; 22390;0.30 
+
+
+25 - 500 - 25 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627435713/
+Frames   (n):  187500  (7500 vs 7500 expected per machine)
+Events   (n):     579  (600 expected)
+RTT     (ms):    4.66
+Latency (fr):    2.17
+Drift   (ms):    7904  0.11%
+Freeze  (fr):     127  0.07%
+Late    (ms):   52830  0.70%
+XXX ; /tmp/gals-1627435713/ ; 50-110% ; 300 ; 25 ; 25 ; 12500 ; 7500000 ; 187500 ; 579 ;    4.66 ;    2.17 ; 7904;0.11 ; 127;0.07 ; 52830;0.70 
+
+
+25 - 500 - 50 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627436017/
+Frames   (n):  375369  (15014 vs 15000 expected per machine)
+Events   (n):     570  (600 expected)
+RTT     (ms):    4.68
+Latency (fr):    2.42
+Drift   (ms):   18671  0.25%
+Freeze  (fr):    4642  1.24%
+Late    (ms):   79581  1.06%
+XXX ; /tmp/gals-1627436017/ ; 50-110% ; 300 ; 25 ; 50 ; 12500 ; 7500000 ; 375369 ; 570 ;    4.68 ;    2.42 ; 18671;0.25 ; 4642;1.24 ; 79581;1.06 
+
+
+25 - 500 - 100 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=12500 - MS=7500000
+/tmp/gals-1627436321/
+Frames   (n):  752363  (30094 vs 30000 expected per machine)
+Events   (n):     589  (600 expected)
+RTT     (ms):    3.27
+Latency (fr):    2.95
+Drift   (ms):   33813  0.45%
+Freeze  (fr):   13112  1.74%
+Late    (ms):  119895  1.60%
+XXX ; /tmp/gals-1627436321/ ; 50-110% ; 300 ; 25 ; 100 ; 12500 ; 7500000 ; 752363 ; 589 ;    3.27 ;    2.95 ; 33813;0.45 ; 13112;1.74 ; 119895;1.60 
+
+
+25 - 250 - 10 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=10 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627436626/
+Frames   (n):   75025  (3001 vs 3000 expected per machine)
+Events   (n):    1200  (1200 expected)
+RTT     (ms):    5.05
+Latency (fr):    2.51
+Drift   (ms):   14694  0.20%
+Freeze  (fr):       0  0.00%
+Late    (ms):   23794  0.32%
+XXX ; /tmp/gals-1627436626/ ; 50-110% ; 300 ; 25 ; 10 ; 6250 ; 7500000 ; 75025 ; 1200 ;    5.05 ;    2.51 ; 14694;0.20 ; 0;0.00 ; 23794;0.32 
+
+
+25 - 250 - 25 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=25 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627436930/
+Frames   (n):  187789  (7511 vs 7500 expected per machine)
+Events   (n):    1164  (1200 expected)
+RTT     (ms):    5.53
+Latency (fr):    2.32
+Drift   (ms):   32565  0.43%
+Freeze  (fr):     240  0.13%
+Late    (ms):   60993  0.81%
+XXX ; /tmp/gals-1627436930/ ; 50-110% ; 300 ; 25 ; 25 ; 6250 ; 7500000 ; 187789 ; 1164 ;    5.53 ;    2.32 ; 32565;0.43 ; 240;0.13 ; 60993;0.81 
+
+
+25 - 250 - 50 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=50 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627437234/
+Frames   (n):  377299  (15091 vs 15000 expected per machine)
+Events   (n):    1180  (1200 expected)
+RTT     (ms):    6.54
+Latency (fr):    2.59
+Drift   (ms):   71438  0.95%
+Freeze  (fr):    8719  2.31%
+Late    (ms):   92720  1.24%
+XXX ; /tmp/gals-1627437234/ ; 50-110% ; 300 ; 25 ; 50 ; 6250 ; 7500000 ; 377299 ; 1180 ;    6.54 ;    2.59 ; 71438;0.95 ; 8719;2.31 ; 92720;1.24 
+
+
+25 - 250 - 100 - [3]
+CPU=50-110% - TIME=300 - N=25 - FPS=100 - MS_PER_EVT=6250 - MS=7500000
+/tmp/gals-1627437538/
+Frames   (n):  767480  (30699 vs 30000 expected per machine)
+Events   (n):    1211  (1200 expected)
+RTT     (ms):    5.93
+Latency (fr):    4.38
+Drift   (ms):  262652  3.50%
+Freeze  (fr):   24817  3.23%
+Late    (ms):  125292  1.67%
+XXX ; /tmp/gals-1627437538/ ; 50-110% ; 300 ; 25 ; 100 ; 6250 ; 7500000 ; 767480 ; 1211 ;    5.93 ;    4.38 ; 262652;3.50 ; 24817;3.23 ; 125292;1.67 
+
+

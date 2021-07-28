@@ -22,7 +22,7 @@ a1=$FRAMES
 echo -n "Events   (n): "
 val=`cat $DIR/client-*.log | grep event | wc -l`
 fmt=`printf "%7d" $val`
-echo "$fmt  ($(($TIME*1000*$N/$MS_PER_EVT)) expected)"
+echo "$fmt  ($(($MS/$MS_PER_EVT)) expected)"
 EVENTS=$val
 b1=$EVENTS
 

@@ -13,13 +13,17 @@ end
 
 local f = assert(io.open(...))
 local l = f:read'*l'
-print('N-RATE-FPS', 'FRAMES', 'EVT', 'RTT', 'LAT', 'DRIFT', 'FREEZE', 'LATE')
+print('FPS-RATE-N', 'FRAMES', 'EVT', 'RTT', 'LCY', 'DRIFT', 'FREEZE', 'LATE')
 while l do
-    local dir,n,fps,evt,time,frames,evts,rtt,lat,_,drift,_,freeze,_,late = string.match(l, "XXX ; ([^ ]*) ; 50.110. ; 300 ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; %s*([^ ]*) ; %s*([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*)")
+    local dir,n,fps,evt,time,frames,evts,rtt,lcy,_,drift,_,freeze,_,late = string.match(l, "XXX ; ([^ ]*) ; 50.110. ; 300 ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; (%d+) ; %s*([^ ]*) ; %s*([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*) ; (%d+);([^ ]*)")
     --print(l)
-    --print(n,fps,evt,frames,time,evts,rtt,lat,drift,freeze,late)
-    print(string.format('%03d',n)..'-'..string.format('%03d',60000/(evt/n))..'-'..string.format('%03d',fps),
+    --print(n,fps,evt,frames,time,evts,rtt,lcy,drift,freeze,late)
+    --lcy = lcy*(1000/fps)
+    local s1 = string.format('%03d', fps)
+    local s2 = string.format('%03d', 60000/(evt/n))
+    local s3 = string.format('%03d', n)
+    print(s1..'-'..s2..'-'..s3,
           frames/(time/(1000/fps)), evts/(time/evt),
-          rtt, lat, drift, freeze, late)
+          rtt, lcy, drift, freeze, late)
     l = f:read'*l'
 end

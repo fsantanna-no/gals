@@ -1,5 +1,7 @@
 \documentclass[sigplan,screen]{acmart}
 
+%\hyphenation{globally-asyn-chronous}
+
 %\usepackage{listings}
 \usepackage{xspace}
 \newcommand{\lin}[1]{(\emph{ln. #1}\xspace)}
@@ -53,7 +55,7 @@ always lead to the same state.
 Even concurrent instances of a deterministic program should observe identical
 behavior---in real time---if assigned the same set of inputs.
 %
-In this work, we guarantee real-time reproducibility for distributed programs.
+In this work, we propose real-time reproducibility for distributed programs.
 Multiple instances of the same interactive application can broadcast
 asynchronous inputs and yet conform to identical behavior.
 Collaborative networked applications, such as watch parties, document editing,
@@ -93,13 +95,13 @@ Considering unpredictable user interactions, a program is deterministic if
 re-execution with the same order and timing of inputs always leads to the same
 state.
 With such timeline reproducibility property, multiple re-executions are
-indistinguishable from one another.
+indistinguishable from each other.
 Considering now distribution, it should even be possible to provide the same
 timeline to concurrent instances of a deterministic program and observe
 identical behavior \emph{in real time}.
 
-In this work, our goal is to guarantee the real-time reproducibility property
-in a distributed setting.
+In this work, our goal is to support the real-time reproducibility property in
+a distributed setting.
 Mirrored instances of the same application running in different machines can
 broadcast asynchronous inputs to each other and yet conform to
 identical behavior.
@@ -134,7 +136,7 @@ so that receipt is identically reproducible.
 As a result, not only distributed applications benefit from determinism but
 also development and testing can be done in a single instance with the same
 guarantees.
-% Specific contribs: 3 goals, scalability, async
+TODO: results
 
 As the main limitations, the middleware relies on a central server to determine
 a total order of events, and all instances must be known and responsive during
@@ -150,15 +152,16 @@ applications.
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, which
 programs must comply to preserve determinism.
-Section~\ref{sec.gals} discusses the globally-asynchronous locally-synchronous
-architecture of our middleware, and details the synchronization protocol for
-input reproducibility.
+Section~\ref{sec.gals} discusses how we adapted the globally-asynchronous
+locally-synchronous architecture with a synchronization protocol for input
+reproducibility.
 %Section~\ref{sec.async} ...
-Section~\ref{sec.eval} evaluates our middleware with...
+Section~\ref{sec.eval} evaluates the performance and scalability of our
+middleware in multiple network and application scenarios.
 %Section~\ref{sec.apps} ... % sym video player, asy rect editor
 %Section~\ref{sec.discussion}...
-Section~\ref{sec.related}...
-Section~\ref{sec.conclusion}...
+Section~\ref{sec.related} compares our proposal with related work.
+Section~\ref{sec.conclusion} concludes this paper.
 
 \section{Overall Middleware Architecture}
 \label{sec.arch}
@@ -169,18 +172,27 @@ A distributed application (\dapp, at the top left of the Figure), is a set of
 mirrored instances running in different machines (also \dapp, at the edges of
 the figure, to emphasize that they are symmetric and represent a single
 application).
-The clients, which are part of the middleware but co-located with each
-instance, intermediate all communication with the server and enable that \dapp
-instances are specified as a local application.
+The clients are part of the middleware, but are co-located with each running
+\dapp instance with very low communication latency.
+They intermediate all communication with the server and enable that instances
+are specified as local applications.
+As the figure illustrates, the latency between the instances and respective
+clients is in the order of microseconds, while the latency between clients and
+the server is in the order of milliseconds.
 The server receives asynchronous events (in red) from instances and redirects
-them to all clients as synchronous events with an appropriate delta delay (in
-green).
-The delay is necessary because network communication takes non-negligible time
-(i.e., in the order of milliseconds), but instances need to advance together
-to preserve reproducibility.
-Hence, delaying the events is the only possibility to achieve reproducibility.
-The clients control the local clock ticks in the instances and issue the
+them to all clients as synchronous events with an appropriate delta delay on
+their timestamps (in green).
+The clients also control the local clock ticks in the instances and issue the
 received events at the appropriate timestamps (both synchronized, in green).
+Note that the clock ticks are not transmitted, nor synchronized by the server.
+%
+The timestamps represent the exact times in which all instances must apply the
+events to their identical local timelines.
+The delays in the events are necessary because of latency in network
+communications.
+Without delays, instances would inevitably receive events too late to apply,
+with local times already ahead of event timestamps.
+
 
 \begin{figure}[t]
   \centering
@@ -830,16 +842,16 @@ For each of these four dimensions (\emph{N}, \emph{NET}, \emph{FPS}, and
 \emph{EVT}), we tested the following values:
 %
 \begin{itemize}
-\item \emph{N}: $2$, $5$, $10$, $50$, and $100$ instances.                  % 5
+\item \emph{N}: $2$, $5$, $10$, $25$, $50$, and $100$ instances.            % 6
 \item \emph{NET}: \emph{Localhost}, \emph{Ethernet}, and \emph{Internet} types
                   of network (with RTTs in the range of \emph{0--200ms}).   % 3
 \item \emph{FPS}: $10$, $25$, $50$, $100$ frames per second.                % 4
 \item \emph{EVT}: $5s$, $1s$, $500ms$, and $250ms$ period between each event.
 \end{itemize}                                                               % 4
 %
-This values combined result in $240$ combinations.
+This values combined result in $288$ combinations.
 Each combination executes for $5$ minutes and is repeated $3$ times.
-The experiments take $60$ hours to complete.
+The experiments take $72$ hours to complete.
 
 Overall, the results show...
 
@@ -855,6 +867,7 @@ Overall, the results show...
 % - Need total order in real time. Ok leader, raft, etc, not ok Blockchain
 \end{comment}
 
+\begin{comment}
 \section{Asymmetric Distributed Applications}
 
 \begin{itemize}
@@ -864,7 +877,6 @@ Overall, the results show...
 \item cuidados para os ifs apenas serem para geração de eventos (controle 1, controle 2, etc) e view local (TV, controle, etc)
 \end{itemize}
 
-\begin{comment}
 With distribution, communication timing is asynchronous because communication
 latency takes a non-negligible time and breaks the synchronous hypothesis.
 What about in realtime
@@ -876,9 +888,7 @@ What about in realtime
     - gals\_self()
 
 Concurrent programs in non-deterministic languages are notoriously hard to prove correct and have led to well-known disasters.
-\end{comment}
 
-\begin{comment}
 \section{Applications}
 \label{sec.apps}
 
@@ -941,8 +951,8 @@ execution.
 The main difference to CRP is that they use Argos~\cite{argos} (CRSM) and Java
 (SystemJ) as their local programming languages.
 
-``Physically Asynchronous Logically Synchronous Systems (PALS)''~\cite{pals} is
-a synchronization protocol to support strict real time distributed
+``Physically Asynchronous Logically Synchronous Systems (PALS)''~\cite{gals.pals}
+is a synchronization protocol to support strict real time distributed
 applications.
 PALS provides a perfectly synchronized global clock shared by all instances,
 which leads to identical state transitions in all instances.
