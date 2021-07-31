@@ -208,29 +208,30 @@ with local times already ahead of event timestamps.
 
 Events represent user interactions, such as key presses, which are
 unpredictable and need to be communicated with the other instances.
-Since instances should be indistinguishable from each other, event sources are
-irrelevant.
+Since instances must be indistinguishable from each other by design, event
+sources are irrelevant and are ignored.
 For instance, if a user presses a key in one instance, the \dapp behaves as if
 all users pressed the same key in all instances simultaneously.
 %
-Clock ticks represent the rate in which applications are updated, and are
+Clock ticks represent the rate in which applications advance, and are
 equivalent to frame rates in video playback and games.
-We assume periods in the order of tens of milliseconds (e.g., 25 milliseconds
-or 40 frames per second).
+%We assume periods in the order of tens of milliseconds (e.g., 25 milliseconds
+%or 40 frames per second).
 An important insight is that clock ticks are predictable inputs and need not to
 go through the server.
-This results in no delay between the client and the \dapp since interprocess
-communication takes negligible time (i.e., in the order of a few microseconds).
-Unlike for sporadic mechanical user inputs, users would notice and condemn
-delays in clock ticks.
+This results in no delay between the client and the \dapp since local
+interprocess communication takes negligible time.
+% (i.e., in the order of a few microseconds).
+Otherwise, unlike delays in sporadic mechanical user inputs, users would notice
+and condemn delays in clock ticks.
 %
 Clock ticks and delayed events constitute the unique synchronous timeline
 shared by all instances of the \dapp, making them manifest identical behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
-Except for event id \emph{0}, which represent clock ticks, applications
-determine their own ids.
-The middleware just forwards events with no further interpretation.
+Except for id \emph{0}, which represents clock ticks, applications determine
+their event ids, which the middleware just forward with no further
+interpretation.
 As detailed in Section~\ref{sec.gals}, the middleware ensures that all
 instances receive the same timeline.
 
@@ -265,13 +266,13 @@ Tick    Event    Async
 \end{figure}
 
 %As detailed in Section~\ref{sec.gals}, the delta delay for user input is the
-The delta delay for user input is proportional to the maximum network
-round-trip time considering all clients.
+The delta delay for user input is proportional to the maximum RTT considering
+all clients.
 We deliberately assume unbounded network delay to augment the possible
 application scenarios.
 Another concern is the rate of input generation in the instances.
 As an example, tracking the mouse position will inevitably flood the network
-with packets and make the application unresponsive.
+with packets and make applications unresponsive.
 For these reasons, the viability of applications depends on
     (i) the acceptable delay in the user input,
     (ii) the nature and rate of inputs, and
@@ -314,7 +315,7 @@ enclose the application logic.
   }
 \end{figure}
 
-Figure~\ref{fig.timeline}~and~\ref{fig.skel} with the timeline and the program
+Figure~\ref{fig.timeline} with the timeline and \ref{fig.skel} with the program
 relate as follows:
 The application initially blocks waiting for an input \lin{4}.
 According to the timeline, the first input happens at \emph{tick 0} with
@@ -863,10 +864,22 @@ The experiments take $72$ hours to complete.
   \includegraphics[width=\linewidth]{table2}
   \caption{
     \label{fig.table}
-    The \emph{Loopback}, \emph{LAN}, and \emph{WAN} regions each contains $36$
-    measures for multiple configurations of $FPS$, $N$, and $Rate$.
-    The rate of inputs appears in \emph{seconds per events}, e.g., $0.50$ means
-    two events per second.
+The \emph{Loopback}, \emph{LAN}, and \emph{WAN} regions each contains $36$
+measures for multiple configurations of $FPS$, $N$, and $Rate$.
+The rate of inputs appears in \emph{seconds per events}, e.g., $0.50$ means two
+events per second.
+%
+The \emph{Loopback} experiments used a single machine with $1$ process for the
+server, $N$ processes for the clients, and $N$ processes for the \dapp
+instances.
+The \emph{LAN} and \emph{WAN} experiments used a machine dedicated for the
+server, and $3$ other machines each with $N/3$ processes for the clients and
+instances.
+%
+All experiments use \emph{Linux} with the machine configurations as follows:
+    \emph{Loopback} (\emph{i7/8GB});
+    \emph{LAN} (server \emph{i7/8GB}; clients \emph{i7/16GB}, \emph{i7/8GB}, \emph{i5/4GB});
+    \emph{WAN} (server \emph{Xeon-VM/1GB}; clients \emph{2x i7/8GB}, \emph{i5/4GB}).
   }
   %\Description{A woman and a girl in white dresses sit in an open car.}
 \end{figure*}
@@ -934,26 +947,6 @@ reasonable delay for many applications.
 A drift of $9.8$ means that the server will be constantly, but smoothly,
 compensating the instances clocks.
 A freeze below $2\%$ over the Internet is also a reasonable value.
-
-For the \emph{Loopback} experiments, we use a single machine with $1$ process
-for the server, $N$ processes for the clients, and $N$ processes for the \dapp
-instances.
-For the \emph{LAN} and \emph{WAN} experiments, we use a machine
-dedicated for the server, and $3$ other machines each with $N/3$ processes for
-the clients and instances.
-%
-We use \emph{Linux} in all experiments with the machine configurations as
-follows:
-%
-\begin{itemize}
-    \item \emph{Loopback}: \emph{i7/8GB}
-    \item \emph{LAN}:
-            server \emph{i7/8GB};
-            clients \emph{i7/16GB}, \emph{i7/8GB}, \emph{i5/4GB}
-    \item \emph{WAN}:
-            server \emph{Xeon-VM/1GB};
-            clients \emph{2x i7/8GB}, \emph{i5/4GB}
-\end{itemize}
 
 \begin{comment}
 - RTT (para ver se bate com estilo da rede)
