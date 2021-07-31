@@ -9,10 +9,10 @@ MSPF=$((1000/$FPS))
 MS_PER_EVT=$(($EVT*$N))
 MS=$(($TIME*$N*1000))
 
-DIR=/tmp/gals-`date +"%s"`/
+DIR=gals-`date +"%s"`/
 mkdir $DIR
 
-echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS"
+echo "CPU=50-110% - TIME=$TIME - N=$N - FPS=$FPS - MS_PER_EVT=$MS_PER_EVT - MS=$MS" | tee $DIR/conf.txt
 echo $DIR
 
 pkill -f GALS.jar
