@@ -68,6 +68,8 @@ Our middleware intercepts event generation and synchronizes all instances so
 that receipt is identically reproducible.
 Not only distributed applications benefit from determinism but also development
 and testing can be done in a single instance with the same guarantees.
+The middleware can handle applications with 25 FPS, distributed in 25 nodes
+over the Internet, with an event latency below $350ms$.
 \end{abstract}
 
 \begin{comment}
@@ -136,7 +138,8 @@ so that receipt is identically reproducible.
 As a result, not only distributed applications benefit from determinism but
 also development and testing can be done in a single instance with the same
 guarantees.
-TODO: results
+The middleware can handle applications with 25 FPS, distributed in 25 nodes
+over the Internet, with an event latency below $350ms$.
 
 As the main limitations, the middleware relies on a central server to determine
 a total order of events, and all instances must be known and responsive during
@@ -558,13 +561,13 @@ synchronous inputs only (green arrows), and are allowed to output asynchronous
 events (red arrows).
 %
 However, unlike traditional GALS, the middleware automatically resynchronizes
-the inputs in a single global timeline such that all instances observe them
+inputs in a single global timeline such that all instances observe them
 identically.
 
 As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay
 to the original event that is proportional to the maximum RTT considering all
 clients.
-The reason is because the synchronization algorithm needs to consider two main
+The reason is because the synchronization protocol needs to consider two main
 issues:
 %
 \begin{itemize}
@@ -588,11 +591,11 @@ issues:
     time.
 \end{itemize}
 %
-In our synchronization algorithm, we do not assume any strict bounds in clock
+In our synchronization protocol, we do not assume any strict bounds in clock
 differences and network delays, which may of course affect the viability of
 some applications.
 %
-The algorithm has the following goals:
+The protocol has the following goals:
 %
 \begin{enumerate}
 \item Keeping instances clock offsets close to each other.
@@ -751,14 +754,14 @@ will instead generate \emph{25ms} ticks every \emph{20ms}.
 In order to maintain the overall network RTT updated and the clock offsets
 close to each other, the first client to connect with the server sends a
 periodic null event (\emph{id=0}) every \emph{5 seconds} to kick off the
-synchronization algorithm automatically%
+synchronization protocol automatically%
 \footnote {
     Video with two distributed instances, now with random RTTs, clock drifts,
     and periodic synchronization:
     \url{https://youtu.be/BYNHGsHnMx8}
 }.
 
-In the next section, we evaluate the scalability of the protocol%
+In the next section, we evaluate the performance of the protocol%
 \footnote {
     Video with 100 distributed instances running in the Localhost:
     \url{https://youtu.be/in5sdEEyGik}
@@ -1032,7 +1035,7 @@ Nonetheless, this API can support host environments in synchronous languages.
 
 In GALS architectures~\cite{gals.taxonomy}, computations within local
 synchronous nodes are deterministic, with communication latency being the only
-global source of non determinism.
+global source of nondeterminism.
 Some programming languages and systems~\cite{gals.crp,gals.crsm,gals.systemj}
 expose this architecture to programmers, which remain with the responsibility
 to coordinate interprocess communication over the network.
@@ -1107,6 +1110,46 @@ Our technique relies on having a distributed common notion of time, known to som
 
 \section{Conclusion}
 \label{sec.conclusion}
+
+In this work, we propose \emph{Symmetric Distributed Applications} as mirrored
+instances running in multiple machines that can broadcast inputs to each other
+and yet conform to identical behavior.
+%
+Using a standard event-driven API, programmers write code as if the application
+executes in a single machine.
+Our middleware intercepts event generation and synchronizes all instances with
+a delay such that receipt is identically reproducible.
+%
+Not only distributed applications benefit from determinism but also development
+and testing can be done in a single instance with the same guarantees.
+
+The middleware is based on a GALS architecture, in which nodes are locally
+deterministic, but subject to a global source of nondeterminism due to network
+latency.
+However, unlike traditional GALS, our middleware automatically resynchronizes
+inputs in a single global timeline such that all instances observe them
+identically.
+%The middleware needs to handle clock differences between instances as well as
+%latency variations in the network.
+%The middleware keeps the instance clocks close to each other, generates
+The synchronization protocol works in two phases when receiving an asynchronous
+input:
+First, it asks the clients for a reasonable deadline, which also prepare them
+for the exact incoming timestamp.
+Second, the middleware collects all client responses and sends the synchronized
+event back to clients.
+
+We evaluate the performance of the protocol with a series of experiments
+varying the network latency and size, and the application frame and event rate.
+%
+We highlighted a reliable and high-performant region of parameters of up to
+$10$ FPS and $10$ instances for WANs, and of up to $25$ FPS and $50$ instances
+for LANs.
+We also identified a region of interest for WANs of up to $50$ FPS and $10$
+nodes, but with an event latency in the order of $500ms$.
+%
+The protocol evaluation helps identifying the scenarios in which the middleware
+can handle hypothetical distributed applications.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{rebls-21}
