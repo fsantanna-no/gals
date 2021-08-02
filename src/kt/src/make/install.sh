@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VER=v0.2.0
+VER=v0.3.0
 DIR=gals-build/
 
 if [ -z "$1" ]

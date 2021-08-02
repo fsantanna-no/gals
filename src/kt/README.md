@@ -63,23 +63,23 @@ $ sudo apt install default-jre
 Then, you are ready to install `gals`:
 
 ```
-$ wget https://github.com/fsantanna-no/gals/releases/download/v0.2.0/install-v0.2.0.sh
+$ wget https://github.com/fsantanna-no/gals/releases/download/v0.3.0/install-v0.3.0.sh
 
 # choose one:
-$ sh install-v0.2.0.sh .                    # either unzip to current directory (must be in the PATH)
-$ sudo sh install-v0.2.0.sh /usr/local/bin  # or     unzip to system  directory
+$ sh install-v0.3.0.sh .                    # either unzip to current directory (must be in the PATH)
+$ sudo sh install-v0.3.0.sh /usr/local/bin  # or     unzip to system  directory
 ```
 
 ## Execute
 
 - Execute a `server` that expects `2` clients.
-- Execute each `client` to generate ticks every `50ms` and communicate with
-  the `dapp` through ports `9999` and `9998`.
+- Execute each `client` to generate ticks every `50ms` and communicate with the
+  server at `localhost` and the `dapp` through ports `9999` and `9998`.
 
 ```
 $ gals server 2 &
-$ gals client 9999 &
-$ gals client 9998 &
+$ gals client localhost 9999 &
+$ gals client localhost 9998 &
 ```
 
 - Open two other terminals to execute the default `dapp` and connect with the

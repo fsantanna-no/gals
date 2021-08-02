@@ -66,12 +66,12 @@ fun client (server: String, port: Int = PORT_10000) {
     }
 
     // receives async from local dapp and forwards to server
-    val evt_fr = mutableListOf<Long>()
+    ///val evt_fr = mutableListOf<Long>()
     thread {
         while (true) {
             val evt = reader0.readInt()
             val nxt = app_nxt
-            evt_fr.add(nxt)
+            ///evt_fr.add(nxt)
             if (DEBUG) {
                 Thread.sleep(Random.nextLong(100))    // XXX: force delay
             }
@@ -138,6 +138,7 @@ fun client (server: String, port: Int = PORT_10000) {
             } else if (app_cur!!>=queue_finals[0].first) {
                 val (now_,evt_) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
+                /*
                 evt = evt_
                 if (evt == self) {
                     val v = evt_fr.removeAt(0)
@@ -145,6 +146,7 @@ fun client (server: String, port: Int = PORT_10000) {
                     //println(">>> $app_cur - $v")
                     log("event [$self] ${(app_cur!!-v)/DT}")
                 }
+                 */
             }
         }
 
