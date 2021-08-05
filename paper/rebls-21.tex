@@ -68,8 +68,9 @@ Our middleware intercepts event generation and synchronizes all instances so
 that receipt is identically reproducible.
 Not only distributed applications benefit from determinism but also development
 and testing can be done in a single instance with the same guarantees.
-The middleware can handle applications with 25 FPS, distributed in 25 nodes
-over the Internet, with an event latency below $350ms$.
+In our experiments, the middleware can handle applications with 25 FPS,
+distributed in up to 25 nodes over the Internet, with an event latency below
+$350ms$.
 \end{abstract}
 
 \begin{comment}
@@ -97,15 +98,15 @@ re-execution with the same order and timing of inputs always leads to the same
 state.
 With such timeline reproducibility property, multiple re-executions are
 indistinguishable from each other.
-Considering now distribution, it should even be possible to provide the same
+Considering now distribution, it should be possible to provide the same
 timeline to concurrent instances of a deterministic program and observe
 identical behavior \emph{in real time}.
 
 In this work, our goal is to support the real-time reproducibility property in
 a distributed setting.
-Mirrored instances of the same application running in different machines can
-broadcast asynchronous inputs to each other and yet conform to
-identical behavior.
+We propose that mirrored instances of the same application running in different
+machines should be able to broadcast asynchronous inputs to each other and yet
+conform to identical behavior.
 Hence, our focus is on \emph{symmetric distributed applications}, instead of
 machines playing different roles in the network.
 A programmer writes the intended distributed application as if it would execute
@@ -117,15 +118,15 @@ Collaborative networked applications fall in the class of symmetric
 distribution and can benefit from transparent determinism and reproducibility.
 As an example, \emph{watch parties} are social gatherings to watch movies and
 TV shows.
-Users expect to be perfectly synchronized such that pressing the pause button
-in any machine should stop all others exactly in the same video frame.
+Users expect to be perfectly synchronized so that pressing the pause button in
+any machine should stop all others exactly in the same video frame.
 In this context, the delay imposed by the network is just an inconvenience that
 should not degrade the experience in comparison to users sitting in front of
 the same TV.
 Other examples that fall in this category are single-screen multiplayer games
 and collaborative document editing.
 
-In addition to make distributed applications \emph{behave} like local
+In addition to making distributed applications \emph{behave} like local
 applications, we also intend to make distributed programs \emph{be coded} like
 local programs.
 In this sense, we provide a standard event-driven API with two main commands
@@ -140,7 +141,7 @@ guarantees.
 The middleware can handle applications with 25 FPS, distributed in 25 nodes
 over the Internet, with an event latency below $350ms$.
 
-As the main limitations, the middleware relies on a central server to determine
+As the main limitations, our middleware relies on a central server to determine
 a total order of events, and all instances must be known and responsive during
 the entire execution.
 In addition, since the latency of events is proportional to the maximum
@@ -152,7 +153,7 @@ For these reasons, the proposed middleware targets soft real-time collaborative
 applications.
 
 Section~\ref{sec.arch} describes the overall architecture of our middleware.
-Section~\ref{sec.sync} discusses the synchronous programming model, which
+Section~\ref{sec.sync} discusses the synchronous programming model, to which
 programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses how we adapted the globally-asynchronous
 locally-synchronous architecture with a synchronization protocol for input
@@ -176,8 +177,8 @@ the figure, to emphasize that they are symmetric and represent a single
 application).
 The clients are part of the middleware, but are co-located with each running
 \dapp instance with very low communication latency.
-They intermediate all communication with the server and enable that instances
-are specified as local applications.
+They intermediate all communication with the server and enable instances to be
+specified as local applications.
 As the figure illustrates, the latency between the instances and respective
 clients is in the order of microseconds, while the latency between clients and
 the server is in the order of milliseconds.
@@ -186,14 +187,14 @@ them to all clients as synchronous events with an appropriate delta delay on
 their timestamps (in green).
 The clients also control the local clock ticks in the instances and issue the
 received events at the appropriate timestamps (both synchronized, in green).
-Note that the clock ticks are not transmitted, nor synchronized by the server.
+Note that the clock ticks are not transmitted, nor synchronized, by the server.
 %
-The timestamps represent the exact times in which all instances must apply the
+The timestamps represent the exact times at which all instances must apply the
 events to their identical local timelines.
 The delays in the events are necessary because of latency in network
 communications.
-Without delays, instances would inevitably receive events too late to apply,
-with local times already ahead of event timestamps.
+Without delays, instances would inevitably receive events too late to apply
+them, with local times already ahead of event timestamps.
 
 
 \begin{figure}[t]
@@ -215,24 +216,24 @@ sources are irrelevant and are ignored.
 For instance, if a user presses a key in one instance, the \dapp behaves as if
 all users pressed the same key in all instances simultaneously.
 %
-Clock ticks represent the rate in which applications advance, and are
+Clock ticks represent the rate at which applications advance, and are
 equivalent to frame rates in video playback and games.
 %We assume periods in the order of tens of milliseconds (e.g., 25 milliseconds
 %or 40 frames per second).
-An important insight is that clock ticks are predictable inputs and need not to
-go through the server.
+An important insight is that clock ticks are predictable inputs and need not go
+through the server.
 This results in no delay between the client and the \dapp since local
 interprocess communication takes negligible time.
 % (i.e., in the order of a few microseconds).
 Otherwise, unlike delays in sporadic mechanical user inputs, users would notice
 and condemn delays in clock ticks.
 %
-Clock ticks and delayed events constitute the unique synchronous timeline
-shared by all instances of the \dapp, making them manifest identical behavior.
+Clock ticks and delayed events create a unique synchronous timeline shared by
+all instances of the \dapp, making them manifest identical behavior.
 Figure~\ref{fig.timeline} is an example of a timeline with asynchronous events
 that are synchronized with a delay.
 Except for id \emph{0}, which represents clock ticks, applications determine
-their event ids, which the middleware just forward with no further
+their event ids, which the middleware just forwards with no further
 interpretation.
 As detailed in Section~\ref{sec.gals}, the middleware ensures that all
 instances receive the same timeline.
@@ -275,7 +276,7 @@ application scenarios.
 Another concern is the rate of input generation in the instances.
 As an example, tracking the mouse position will inevitably flood the network
 with packets and make applications unresponsive.
-For these reasons, the viability of applications depends on
+For these reasons, the feasibility of applications depends on
     (i) the acceptable delay in the user input,
     (ii) the nature and rate of inputs, and
     (iii) the maximum network latency.
@@ -287,7 +288,7 @@ event-driven API with only four commands:
 \item \texttt{mid\_connect(port,fps)}:   \\Connects with the local client in the given port and desired FPS.
 \item \texttt{mid\_disconnect()}:        \\Disconnects with the local client.
 \item \texttt{(now,evt) = mid\_wait()}:  \\Waits for the next input carrying a timestamp and event id.
-\item \texttt{mid\_emit(evt)}:           \\Emits the given asynchronous input.
+\item \texttt{mid\_emit(evt)}:           \\Emits an event corresponding to an asynchronous input.
 \end{itemize}
 %
 Figure~\ref{fig.skel} shows the skeleton of a distributed application.
@@ -343,8 +344,8 @@ model is that it is possible to record a sequence of inputs and reproduce the
 behavior of a program multiple times for reasoning and testing purposes.
 A fundamental requirement of synchronous programming, known as the
 \emph{synchronous hypothesis}~\cite{hypo}, is to isolate logical ticks from
-each other to preserve locksteps and prevent concurrent reactions to inputs,
-which would break determinism.
+each other to preserve locksteps and prevent concurrent reactions to multiple
+inputs, which would break determinism.
 This hypothesis can be satisfied if computing reactions is faster than the rate
 of external inputs.
 
@@ -355,8 +356,8 @@ primitives and/or perform static analysis to ensure these properties.
 However, since we propose a standard event-driven API targeting generic
 programming languages, we assume informally that the programmers themselves
 ensure these properties.
-This may involve coding best practices, such as avoiding stateful system calls
-and time-consuming loops in programs.
+This may involve coding best practices, such as avoiding preemptive
+multithreading, stateful system calls, and time-consuming loops in programs.
 
 \begin{figure}[t]
   \centering
@@ -389,9 +390,9 @@ The ``Sampling'' scheme of Figure~\ref{fig.schemes} is very similar to the
 As required by the synchronous hypothesis, the sampling period, and
 consequently the rate of inputs, must be compatible with the processing speed
 of the loop body.
-A particularity of our design is that \dapps outputs are actually asynchronous
-inputs retrofitted back later synchronized with a delay, as described in
-Figure~\ref{fig.middleware}.
+A particularity of our design is that \texttt{mid\_emit} is an output that
+corresponds to an asynchronous input that is later synchronized with a delay,
+as illustrated in Figure~\ref{fig.middleware}.
 %
 The sampling scheme of Figure~\ref{fig.schemes} is also adopted by popular
 event-driven libraries, such as \emph{SDL} for computer graphics, and
@@ -409,10 +410,9 @@ animated rectangle on the screen with the keyboard.%
 The code structure follows the synchronous scheme with well delimited regions
 to initialize memory \lin{4--8}, read inputs in a loop \lin{11--13}, update
 memory \lin{15--28}, and compute outputs \lin{30--31}.
-As mentioned above, the outputs are actually asynchronous inputs that are later
-retrofitted into the \dapp.
-The output region is expanded in Figure~\ref{fig.input} and is discussed in
-sequence.
+As highlighted in the previous paragraph, outputs are actually asynchronous
+inputs that are later retrofitted into the \dapp.
+The output region is expanded in Figure~\ref{fig.input} and is discussed next.
 The application first initializes the SDL library to create a window and
 renderer handle \lin{4--6}.
 The rectangle starts at position \texttt{(10,10)} with no movement in the axes:
@@ -540,20 +540,22 @@ assume a single clock source, which compromises the synchronous hypothesis.
 % we introduce a delay due to communication, and
 %
 Nevertheless, towards our goal of symmetric distributed applications with
-identical behavior, we need to read inputs perfectly synchronized and in real
-time in all instances.
+identical behavior, we need to read perfectly synchronized inputs in real time
+in all instances.
 For instance, in the rectangle example of Figure~\ref{fig.sdl}, the challenge
 is
     to awake calls to \texttt{mid\_read} at the same time in all instances \lin{13}, and
     to broadcast and then resynchronize all asynchronous calls to \texttt{mid\_emit} \lin{31}.
 
-The ``Globally-Asynchronous Locally-Synchronous Architecture (GALS)''
-integrates multiple independent synchronous processes as a single distributed
-application~\cite{gals.taxonomy}.
+In the ``Globally-Asynchronous Locally-Synchronous (GALS)'' architecture,
+independent synchronous processes communicate asynchronously through the
+network~\cite{gals.taxonomy}.
+Since processes are locally synchronous, asynchronous communication is the only
+source of nondeterminism.
 %
-Inspired by GALS, we not only want to keep the simplicity and guarantees of the
-synchronous model locally, but also transfer the responsibility to deal with
-asynchrony to the middleware globally.
+Inspired by the simplicity of GALS, we want not only to keep the local
+guarantees of synchrony, but also extend them globally, by transferring the
+responsibility of dealing with asynchrony to the middleware.
 %
 As illustrated in Figure~\ref{fig.middleware}, \dapp local instances depend on
 synchronous inputs only (green arrows), and are allowed to output asynchronous
@@ -563,11 +565,10 @@ However, unlike traditional GALS, the middleware automatically resynchronizes
 inputs in a single global timeline such that all instances observe them
 identically.
 
-As introduced in Section~\ref{sec.arch}, resynchronization adds a delta delay
-to the original event that is proportional to the maximum RTT considering all
-clients.
-The reason is because the synchronization protocol needs to consider two main
-issues:
+Resynchronization adds a delta delay to the original event that is proportional
+to the maximum RTT considering all clients.
+The reason for this is that the synchronization protocol needs to consider two
+main issues:
 %
 \begin{itemize}
 \item \textbf{Clock differences:}
@@ -580,36 +581,53 @@ issues:
     slightly differ between machines.
     As an example, suppose one instance misses \emph{25ms} every hour in
     comparison to others.
-    This difference, aka \emph{clock drift}, may affect the time offset
-    considerably over time.
+    This difference, aka clock drift, may affect the \emph{offset} considerably
+    over time.
 \item \textbf{Network delay:}
-    Instances are subject to communication delays with the server, which
-    varies between clients and also over time.
+    Instances are subject to communication delays with the server, which vary
+    between clients and also over time.
     As an example, suppose a client next to the server has a consistent RTT of
-    \emph{10ms}, while a distant one may vary between \emph{50--100ms} over
-    time.
+    \emph{10ms}, while for a distant one, RTT may vary between \emph{50--100ms}
+    over time.
 \end{itemize}
 %
 In our synchronization protocol, we do not assume any strict bounds in clock
-differences and network delays, which may of course affect the viability of
+differences and network delays, which may of course affect the feasibility of
 some applications.
 %
 The protocol has the following goals:
 %
 \begin{enumerate}
-\item Keeping instances clock offsets close to each other.
-\item Generating synchronous inputs back to instances with minimum delays.
 \item Ensuring that instances read inputs with perfect time accuracy.
+\item Generating synchronous inputs back to instances with minimum delays.
+\item Keeping clock offsets at instances close to each other.
 \end{enumerate}
 %
-Regarding \emph{goal 1}, offset differences are inevitable but should be under
+Regarding \emph{goal~3}, offset differences are inevitable but should be under
 a few milliseconds to be unnoticed by users.
-Regarding \emph{goal 2}, the smaller is the input delay, the better is the user
+Regarding \emph{goal~2}, the smaller the input delay, the better is the user
 experience regarding interactivity.
-However, if too small, a distant instance may nevertheless receive the delayed
-input after its local time, which is unacceptable considering \emph{goal 3}.
+However, if too small, a distant instance may receive the delayed input after
+its local time, which is unacceptable considering \emph{goal~1}.
 In this case, the middleware may freeze the instance and pause its local time
 to ensure time accuracy.
+
+It is important to recognize that an instance cannot by itself determine a
+reasonable timestamp for an event and broadcast it directly to others.
+%
+First, the client has no idea about the network RTT to guarantee that all
+clients would receive the event in time to fulfill \emph{goal~1}.
+%
+Second, even if known, there is no guarantee that the RTT will not slightly
+increase momentarily, causing an instance to miss the event deadline.
+%
+Third, even if the RTT was known and bounded, local instances might still
+diverge on local time offsets, again making an instance ahead in time to miss
+the deadline.
+%
+Hence, our protocol relies on the server to determine a reasonable timestamp
+for all clients, and to ensure that instances do not miss deadlines even if
+everything goes wrong.
 
 Figure~\ref{fig.protocol} describes the synchronization protocol performed by
 the middleware.%
@@ -634,11 +652,11 @@ The next paragraphs explains the protocol in detail.
 
 The server starts first and needs to know in advance how many instances will
 participate in the \dapp (\emph{Server (N)}).
-Each instance connects through its client (\emph{Client 1 ... Client N}) with
-the server, which in turn waits for all connections to succeed
+Each instance connects through its client (\emph{Client~1 ... Client~N}) to the
+server, which in turn waits for all connections to succeed
 (\emph{all connected}).
 Then, the server broadcasts a \emph{start} message to all clients, which on
-receipt, starts sending clock ticks to their instances (\emph{started}).
+receipt, start sending clock ticks to their instances (\emph{started}).
 Note that clients will inevitably start at different absolute times due to
 network latency.
 The clients also send back an \emph{ack} so that the server can calculate the
@@ -648,31 +666,18 @@ After the startup process, each \dapp instance executes at the same pace
 (except for drifts) with similar offset differences (at most \emph{RTT1}).
 At this point, we consider instances to be indistinguishable from each other.
 
-Now, let's consider an asynchronous event (in red): \emph{Client N} emits event
-\emph{1} at local time \emph{750ms} (\emph{async(750,1)}).
+Now, let's consider an asynchronous event (in red):
+%
+Since clients cannot determine a reasonable timestamp, \emph{Client~N} emits
+event \emph{1} towards the server at local time \emph{750ms}
+(\emph{async(750,1)}).
+%
 The server enqueues all requests and handles each event atomically, in
-sequence, as described further.
+sequence, as follows:
 %
-It is important to recognize that a client cannot by itself determine a
-reasonable timestamp for an event and broadcast it directly to others.
-First, the client has no idea about the network RTT to guarantee that all
-clients would receive the event in time to fulfill \emph{goal 3}
-(e.g, \emph{750+RTT}).
-Second, even if known, there is no guarantee that the RTT will not slightly
-increase momentarily, making an instance to miss the event deadline.
-Third, even if the RTT was known and bounded, local instances might still
-diverge on local time offsets (e.g., \emph{750ms} vs \emph{800ms}), again
-making an instance ahead to miss the deadline.
-%
-As mentioned above, we do not assume any bounds in RTT and offset variance.
-
-Hence, our protocol relies on the server to determine a reasonable timestamp
-for all clients, and to ensure that instances do not miss deadlines even if
-everything goes wrong.
-%
-First, the server broadcasts the intention to emit an event
-(\emph{propose(750,45)}), passing the source instance offset time
-(\emph{750ms}) and current overall RTT (\emph{RTT1=45ms}).
+First, it broadcasts the intention to emit an event (\emph{propose(750,45)}),
+passing the source instance offset time (\emph{750ms}) and current overall RTT
+(\emph{RTT1=45ms}).
 The final synchronous event (\emph{sync(895,1)}) is yet to come after all
 clients acknowledge the server.
 Before that, each client calculates its own deadline as follows:
@@ -681,13 +686,13 @@ Before that, each client calculates its own deadline as follows:
     (iii) add a small constant time (\emph{5ms}),
     (iv)  set this sum as the local event deadline.
 As examples, the sum for
-    \emph{Client 1} is $max(750,700)+2x45+5=845$, and for
-    \emph{Client N} is $max(750,800)+2x45+5=895$.
+    \emph{Client~1} is $max(750,700)+2x45+5=845$, and for
+    \emph{Client~N} is $max(750,800)+2x45+5=895$.
 %
 This sum is reasonable because it takes into account
     the instance most ahead in time, and also
     the worst RTT with an extra margin.
-For instance, \emph{Client N} with the worst RTT (\emph{45ms}) is also ahead of
+For instance, \emph{Client~N} with the worst RTT (\emph{45ms}) is also ahead of
 time (\emph{800ms}) and the final event will arrive after another round trip to
 the server, thus making \emph{895ms} a reasonable deadline.
 %
@@ -702,14 +707,14 @@ synchronous event is not received until the deadline.
 In this case, the client pauses the instance by repeating the same clock tick
 over and over, until it receives the event.
 Although unfortunate, this at least ensures identical timelines in all
-instances to comply with \emph{goal 3}.
+instances to comply with \emph{goal~1}.
 %
 The server then waits for all client \emph{acks} carrying their local offsets
 (\emph{ack(700)} and \emph{ack(800)}), recalculates each deadline (in the same
 way each client did), and takes the largest as the final event timestamp to
 broadcast to all clients (\emph{sync(895,1)}).
 The server also sends drift compensations (\emph{dt(100)} and \emph{dt(0)})
-based on offset differences between clients, which is discussed further.
+based on offset differences between clients (we will discuss this later).
 At this point, all clients are expecting a timestamp that is greater than or
 equal to their own timer deadlines.
 Therefore, even if the network deteriorates, no instances will miss the
@@ -717,23 +722,22 @@ synchronized event because they will be frozen before their deadlines.
 
 Finally, the expected synchronous event is received by the clients
 (\emph{sync(895,1)}).
-\emph{Client N} receives it before the deadline, at local time \emph{870ms},
-which requires to postpone local emission for another \emph{25ms} to match the
+\emph{Client~N} receives it before the deadline, at local time \emph{870ms},
+requiring it to postpone local emission for another \emph{25ms} to match the
 event timestamp with perfect accuracy (\emph{895ms}).
-However, \emph{Client 1} expires its timer before receipt and needs to freeze
-the \dapp for a while (red area).
+However, the timer at \emph{Client~1} expires before receipt, requiring it to
+freeze the \dapp for a while (red area).
 Then, the synchronous event is received at local time \emph{860ms}, but still
 requires another \emph{35ms} to match its timestamp.
 In the end, both clients emit the event exactly at local time \emph{895ms} as
 expected (white circles).
 
-Note that \emph{Client 1} was harmed in the process mainly because its maximum
-time of \emph{750ms} was much smaller than the \emph{800ms} \emph{Client N}
-had.
+Note that \emph{Client~1} was harmed in the process mainly because its maximum
+time of \emph{750ms} was much smaller than the \emph{800ms} for \emph{Client~N}.
 This is because the local clocks were too distant from each other, breaking our
-\emph{goal 1}.
-As an additional remark, note that pausing \emph{Client 1}, increased the
-offset difference even further (\emph{offset diff}).
+\emph{goal~3}.
+As an additional remark, note that pausing \emph{Client~1} increased the offset
+difference even further (\emph{offset diff}).
 %
 The middleware also implements an algorithm to compensate clock drifts as
 follows:%
@@ -741,7 +745,7 @@ follows:%
     Video with two distributed instances, now with exaggerated clock drifts:
     \url{https://youtu.be/wwlAURjN5YY}
 }
-Once the server receives all acknowledges carrying local offsets
+Once the server receives all acknowledgments carrying local offsets
 (\emph{ack(700)} and \emph{ack(800)}), the server sends back how much each
 client is delayed in comparison to the maximum value (i.e., \emph{800-700=100}
 and \emph{800-800=0}).
@@ -772,9 +776,9 @@ In the next section, we evaluate the performance of the protocol%
 We present the protocol evaluation taking into consideration its main goals:
 %
 \begin{enumerate}
-\item Keeping instances clock offsets close to each other.
-\item Generating synchronous inputs back to instances with minimum delays.
 \item Ensuring that instances read inputs with perfect time accuracy.
+\item Generating synchronous inputs back to instances with minimum delays.
+\item Keeping instances clock offsets close to each other.
 \end{enumerate}
 %
 In order to verify if these goals are met, we created a series of experiments
@@ -798,11 +802,13 @@ to measure the properties as follows:
 \end{comment}
 \end{itemize}
 %
-Drift compensation ensures that clock offsets are kept closer (\emph{goal~1}),
+%The evaluation is detailed in Figure~\ref{fig.table}.
+%
+Drift compensation ensures that clock offsets are kept closer (\emph{goal~3}),
 but a high percentage of clock drift may indicate that the protocol is causing it.
 Ideally, clock drift rate should be $0\%$.
 %
-A high event latency may compromise \emph{goal 2}, but a low latency may
+A high event latency may compromise \emph{goal~2}, but a low latency may
 increase the amount of frame freezes, which is even less desirable.
 Ideally, event latency should be $1$ frame, and freeze rate, $0\%$.
 %
@@ -816,13 +822,13 @@ stress the protocol.
 %Hence, ideally, late rate should be around $TODO\%$.
 \end{comment}
 %
-Note that \emph{goal 3} is a strict requirement, which the protocol ensures
+Note that \emph{goal~1} is a strict requirement, which the protocol ensures
 with 100\% accuracy by design.
 In this sense, our experiments log the timelines of all instances and just
 asserts that they are identical in all simulations, since this is the only
 possible result.
 
-We simulated a variety of scenarios by parameterizing the following variables:
+We simulated a variety of scenarios by parameterizing the following factors:
 %
 \begin{itemize}
 \item \emph{NET} (network connection type):
@@ -843,15 +849,15 @@ could be
     FPS around \emph{50},
     and a new interaction around every \emph{500ms}.
 \end{comment}
-As an example of parameters in a concrete scenario, an interactive class over
-the Internet could have
+As an example of a concrete scenario, an interactive class over the Internet
+could have
     an RTT of \emph{50--200ms} (\emph{NET}),
     execute at \emph{25} frames per second (\emph{FPS}),
     with \emph{50} instances (\emph{N}),
     interacting every \emph{5s} (\emph{Rate}).
 %e.g., a slide advance).
 
-For each of these four dimensions, we tested the following values:
+For each of these four factors, we tested the following values:
 %
 \begin{itemize}
 \item \emph{NET}: \emph{Loopback}, \emph{LAN}, and \emph{WAN} (\emph{0--50ms} RTT).
@@ -861,7 +867,7 @@ For each of these four dimensions, we tested the following values:
 \item \emph{Rate}: $5s$, $1s$, $500ms$, and $250ms$ period between events.
 \end{itemize}                                                    % 4
 %
-This values combined result in $288$ combinations.
+These values result in $288$ combinations.
 We executed each combination $3$ times for $5$ minutes each.
 The experiments take $72$ hours to complete.
 
@@ -919,7 +925,7 @@ The freezed frames of $0.9\%$ means that for every $2400$ frames ($1$ minute),
 $20$ frames are repeated.
 %Late frames correspond to $0.67\%$, i.e., $16$ frames in $1$ minute.
 %
-Unsurprisingly, the results for local networks with the same parameters are
+Unsurprisingly, the results for local networks with the same factor levels are
 better, specially latency and drift.
 
 Rectangle \textbf{2} indicates a safe region for all network types: up to $10$
@@ -1035,9 +1041,12 @@ Nonetheless, this API can support host environments in synchronous languages.
 In GALS architectures~\cite{gals.taxonomy}, computations within local
 synchronous nodes are deterministic, with communication latency being the only
 global source of nondeterminism.
+In our proposal, we introduce a middleware to tame nondeterminism and provide
+global sequential consistency to all nodes.
+%
 Some programming languages and systems~\cite{gals.crp,gals.crsm,gals.systemj}
-expose this architecture to programmers, which remain with the responsibility
-to coordinate interprocess communication over the network.
+expose the GALS architecture to programmers, but which remain with the
+responsibility to coordinate interprocess communication over the network.
 %
 Concurrent Reactive Processes (CRP)~\cite{gals.crp} extend the synchronous
 language Esterel~\cite{esterel} with asynchronous communication
@@ -1061,7 +1070,7 @@ applications.
 PALS provides a perfectly synchronized global clock shared by all instances,
 which leads to identical state transitions in all instances.
 %
-On the one hand, PALS provides stronger synchronicity in comparison to our
+On the one hand, PALS provides stronger synchrony in comparison to our
 protocol.
 In our proposal, local clocks advance independently and events need to be
 delayed to fit all instances timelines, possibly resulting in application
@@ -1072,9 +1081,9 @@ for clock skews, network latency, and local computation time.
 We support unbounded limits that only affect the viability of applications in
 certain scenarios.
 %
-Our protocol also keeps the instances clocks close to each other, but not as a
+Our protocol also keeps the instance clocks close to each other, but not as a
 strict real-time constraint.
-This is enough to keep the instances indistinguishable for the human eyes, and
+This is enough to keep the instances indistinguishable to the human eyes, and
 not affect the prediction of input delays.
 %
 Regarding the protocol implementation, PALS also relies on a central server to
@@ -1133,9 +1142,9 @@ identically.
 %The middleware keeps the instance clocks close to each other, generates
 The synchronization protocol works in two phases when receiving an asynchronous
 input:
-First, it asks the clients for a reasonable deadline, which also prepare them
+First, it asks the clients for a reasonable deadline, which also prepares them
 for the exact incoming timestamp.
-Second, the middleware collects all client responses and sends the synchronized
+Next, the middleware collects all client responses and sends the synchronized
 event back to clients.
 
 We evaluate the performance of the protocol with a series of experiments
