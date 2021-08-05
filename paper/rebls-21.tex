@@ -64,10 +64,11 @@ We name this class of applications as \emph{symmetric distributed applications}.
 %
 Using a standard event-driven API to wait and emit events, programmers write
 code as if the application executes in a single machine.
-Our middleware intercepts event generation and synchronizes all instances so
-that receipt is identically reproducible.
-Not only distributed applications benefit from determinism but also development
-and testing can be done in a single instance with the same guarantees.
+Our middleware intercepts event generation and synchronizes all instances in a
+consistent timeline so that receipt is identically reproducible.
+Not only distributed applications benefit from consistency and determinism but
+also development and testing can be done in a single instance with the same
+guarantees.
 In our experiments, the middleware can handle applications with 25 FPS,
 distributed in up to 25 nodes over the Internet, with an event latency below
 $350ms$.
@@ -86,7 +87,7 @@ $350ms$.
 \ccsdesc[100]{Networks~Network reliability}
 \end{comment}
 
-\keywords{GALS, synchronous programming, distributed applications}
+\keywords{consistency, determinism, GALS, synchronous programming, distributed applications}
 
 \maketitle
 
@@ -98,9 +99,9 @@ re-execution with the same order and timing of inputs always leads to the same
 state.
 With such timeline reproducibility property, multiple re-executions are
 indistinguishable from each other.
-Considering now distribution, it should be possible to provide the same
-timeline to concurrent instances of a deterministic program and observe
-identical behavior \emph{in real time}.
+Considering now distribution, it should be possible to provide a
+sequentially consistent timeline to concurrent instances of a deterministic
+program and also observe identical behavior \emph{in real time}.
 
 In this work, our goal is to support the real-time reproducibility property in
 a distributed setting.
@@ -112,10 +113,13 @@ machines playing different roles in the network.
 A programmer writes the intended distributed application as if it would execute
 in a single machine.
 The underlying system we propose supports distribution and guarantees a
-consistent timeline to all instances.
+sequentially consistent timeline to all instances, which react to this timeline
+deterministically.
+Hence, we consider determinism to be a property of individual instances, while
+consistency to be a property of the whole distributed system.
 
 Collaborative networked applications fall in the class of symmetric
-distribution and can benefit from transparent determinism and reproducibility.
+distribution and can benefit from transparent reproducibility.
 As an example, \emph{watch parties} are social gatherings to watch movies and
 TV shows.
 Users expect to be perfectly synchronized so that pressing the pause button in
@@ -135,9 +139,9 @@ We also provide the middleware that connects multiple application instances
 transparently in the network.
 The middleware intercepts local event generation and synchronizes all instances
 so that receipt is identically reproducible.
-As a result, not only distributed applications benefit from determinism but
-also development and testing can be done in a single instance with the same
-guarantees.
+As a result, not only distributed applications benefit from consistency and
+determinism but also development and testing can be done in a single instance
+with the same guarantees.
 The middleware can handle applications with 25 FPS, distributed in 25 nodes
 over the Internet, with an event latency below $350ms$.
 
@@ -156,8 +160,8 @@ Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, to which
 programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses how we adapted the globally-asynchronous
-locally-synchronous architecture with a synchronization protocol for input
-reproducibility.
+locally-synchronous architecture with a synchronization protocol towards
+consistency and input reproducibility.
 %Section~\ref{sec.async} ...
 Section~\ref{sec.eval} evaluates the performance and scalability of our
 middleware in multiple network and application scenarios.
@@ -267,6 +271,26 @@ Tick    Event    Async
     instance is preserved.
   }
 \end{figure}
+
+Note that the delay between asynchronous event emission and corresponding
+synchronization is inherently nondeterminisitc due to the network.
+An hypothetical re-execution of an application with asynchronous emissions at
+the very same ticks would not guarantee that corresponding synchronizations
+would have the same delays.
+%
+Even though deterministic distributed timelines are impossible, our goal is to
+guarantee consistently timelines.
+%
+More specifically, we propose to extend Lamport's sequential consistency
+model~\cite{lamport} with third property for timing accuracy as follows:
+%
+\begin{enumerate}
+    \item There is a total order of events in which all instances agree.
+    \item All events sent from a given instance are received in the same order by all others.
+    \item All instances receive the events at the same time.
+\end{enumerate}
+%
+We name it \emph{timely-sequential consistency} due to the third property.
 
 %As detailed in Section~\ref{sec.gals}, the delta delay for user input is the
 The delta delay for user input is proportional to the maximum RTT considering
@@ -564,6 +588,8 @@ events (red arrows).
 However, unlike traditional GALS, the middleware automatically resynchronizes
 inputs in a single global timeline such that all instances observe them
 identically.
+Hence, the middleware satisfies the timely-sequential consistency model for
+distributed timelines described in Section~\ref{sec.arch}.
 
 Resynchronization adds a delta delay to the original event that is proportional
 to the maximum RTT considering all clients.
@@ -586,7 +612,7 @@ main issues:
 \item \textbf{Network delay:}
     Instances are subject to communication delays with the server, which vary
     between clients and also over time.
-    As an example, suppose a client next to the server has a consistent RTT of
+    As an example, suppose a client next to the server has a stable RTT of
     \emph{10ms}, while for a distant one, RTT may vary between \emph{50--100ms}
     over time.
 \end{itemize}
@@ -1137,6 +1163,8 @@ latency.
 However, unlike traditional GALS, our middleware automatically resynchronizes
 inputs in a single global timeline such that all instances observe them
 identically.
+The middleware satisfies the timely-sequential consistency model, which extends
+sequential consistency with timing accuracy.
 %The middleware needs to handle clock differences between instances as well as
 %latency variations in the network.
 %The middleware keeps the instance clocks close to each other, generates
