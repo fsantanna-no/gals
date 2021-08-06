@@ -115,8 +115,8 @@ in a single machine.
 The underlying system we propose supports distribution and guarantees a
 sequentially consistent timeline to all instances, which react to this timeline
 deterministically.
-Hence, we consider determinism to be a property of individual instances, while
-consistency to be a property of the whole distributed system.
+Hence, we support determinism locally at individual instances, and consistency
+globally at the whole distributed system level.
 
 Collaborative networked applications fall in the class of symmetric
 distribution and can benefit from transparent reproducibility.
@@ -138,12 +138,12 @@ to wait and emit events locally.
 We also provide the middleware that connects multiple application instances
 transparently in the network.
 The middleware intercepts local event generation and synchronizes all instances
-so that receipt is identically reproducible.
+so that receipt is identically reproducible based on a consistent timeline.
 As a result, not only distributed applications benefit from consistency and
 determinism but also development and testing can be done in a single instance
 with the same guarantees.
-The middleware can handle applications with 25 FPS, distributed in 25 nodes
-over the Internet, with an event latency below $350ms$.
+The middleware can handle applications with 25 FPS, distributed in up to 25
+nodes over the Internet, with an event latency below $350ms$.
 
 As the main limitations, our middleware relies on a central server to determine
 a total order of events, and all instances must be known and responsive during
@@ -199,7 +199,8 @@ The delays in the events are necessary because of latency in network
 communications.
 Without delays, instances would inevitably receive events too late to apply
 them, with local times already ahead of event timestamps.
-
+In Section~\ref{sec.gals}, we detail how to determine this delay in the
+synchronization protocol.
 
 \begin{figure}[t]
   \centering
@@ -278,11 +279,11 @@ An hypothetical re-execution of an application with asynchronous emissions at
 the very same ticks would not guarantee that corresponding synchronizations
 would have the same delays.
 %
-Even though deterministic distributed timelines are impossible, our goal is to
-guarantee consistently timelines.
+However, although a deterministic distributed timeline is impossible to
+achieve, our goal is to guarantee a consistent timeline to all instances.
 %
 More specifically, we propose to extend Lamport's sequential consistency
-model~\cite{lamport} with third property for timing accuracy as follows:
+model~\cite{lamport} with a third property for timing accuracy as follows:
 %
 \begin{enumerate}
     \item There is a total order of events in which all instances agree.
@@ -290,7 +291,8 @@ model~\cite{lamport} with third property for timing accuracy as follows:
     \item All instances receive the events at the same time.
 \end{enumerate}
 %
-We name it \emph{timely-sequential consistency} due to the third property.
+We name this model \emph{timely-sequential consistency} due to the third
+property.
 
 %As detailed in Section~\ref{sec.gals}, the delta delay for user input is the
 The delta delay for user input is proportional to the maximum RTT considering
@@ -317,7 +319,7 @@ event-driven API with only four commands:
 %
 Figure~\ref{fig.skel} shows the skeleton of a distributed application.
 The commands \texttt{connect} and \texttt{disconnect} are only required once to
-enclose the application logic.
+enclose the application logic \lin{2,10}.
 
 \begin{figure}[t]
 {\scriptsize
@@ -434,11 +436,11 @@ animated rectangle on the screen with the keyboard.%
 The code structure follows the synchronous scheme with well delimited regions
 to initialize memory \lin{4--8}, read inputs in a loop \lin{11--13}, update
 memory \lin{15--28}, and compute outputs \lin{30--31}.
-As highlighted in the previous paragraph, outputs are actually asynchronous
+As highlighted in the previous paragraph, outputs correspond to asynchronous
 inputs that are later retrofitted into the \dapp.
 The output region is expanded in Figure~\ref{fig.input} and is discussed next.
 The application first initializes the SDL library to create a window and
-renderer handle \lin{4--6}.
+renderer handle.
 The rectangle starts at position \texttt{(10,10)} with no movement in the axes:
 \texttt{vx=vy=0} \lin{7--8}.
 The main loop \lin{10--32} first waits for the next input to control the
@@ -567,9 +569,9 @@ Nevertheless, towards our goal of symmetric distributed applications with
 identical behavior, we need to read perfectly synchronized inputs in real time
 in all instances.
 For instance, in the rectangle example of Figure~\ref{fig.sdl}, the challenge
-is
-    to awake calls to \texttt{mid\_read} at the same time in all instances \lin{13}, and
-    to broadcast and then resynchronize all asynchronous calls to \texttt{mid\_emit} \lin{31}.
+is to broadcast and then resynchronize all asynchronous calls to
+\texttt{mid\_emit} \lin{31}, so that calls to \texttt{mid\_read} \lin{13} awake
+at the same time in all instances.
 
 In the ``Globally-Asynchronous Locally-Synchronous (GALS)'' architecture,
 independent synchronous processes communicate asynchronously through the
@@ -586,9 +588,9 @@ synchronous inputs only (green arrows), and are allowed to output asynchronous
 events (red arrows).
 %
 However, unlike traditional GALS, the middleware automatically resynchronizes
-inputs in a single global timeline such that all instances observe them
+inputs in a single global timeline so that all instances observe them
 identically.
-Hence, the middleware satisfies the timely-sequential consistency model for
+Hence, the middleware must satisfy the timely-sequential consistency model for
 distributed timelines described in Section~\ref{sec.arch}.
 
 Resynchronization adds a delta delay to the original event that is proportional
@@ -636,7 +638,7 @@ experience regarding interactivity.
 However, if too small, a distant instance may receive the delayed input after
 its local time, which is unacceptable considering \emph{goal~1}.
 In this case, the middleware may freeze the instance and pause its local time
-to ensure time accuracy.
+to ensure time accuracy, which is our ultimate goal.
 
 It is important to recognize that an instance cannot by itself determine a
 reasonable timestamp for an event and broadcast it directly to others.
@@ -651,9 +653,9 @@ Third, even if the RTT was known and bounded, local instances might still
 diverge on local time offsets, again making an instance ahead in time to miss
 the deadline.
 %
-Hence, our protocol relies on the server to determine a reasonable timestamp
-for all clients, and to ensure that instances do not miss deadlines even if
-everything goes wrong.
+Hence, our protocol relies on a central server to determine a reasonable
+timestamp for all clients, and to ensure that instances do not miss deadlines
+even if everything goes wrong.
 
 Figure~\ref{fig.protocol} describes the synchronization protocol performed by
 the middleware.%
@@ -692,10 +694,10 @@ After the startup process, each \dapp instance executes at the same pace
 (except for drifts) with similar offset differences (at most \emph{RTT1}).
 At this point, we consider instances to be indistinguishable from each other.
 
-Now, let's consider an asynchronous event (in red):
+Now, let's consider an asynchronous event (in red).
 %
 Since clients cannot determine a reasonable timestamp, \emph{Client~N} emits
-event \emph{1} towards the server at local time \emph{750ms}
+\emph{evt=1} towards the server at local time \emph{750ms}
 (\emph{async(750,1)}).
 %
 The server enqueues all requests and handles each event atomically, in
@@ -704,13 +706,12 @@ sequence, as follows:
 First, it broadcasts the intention to emit an event (\emph{propose(750,45)}),
 passing the source instance offset time (\emph{750ms}) and current overall RTT
 (\emph{RTT1=45ms}).
-The final synchronous event (\emph{sync(895,1)}) is yet to come after all
-clients acknowledge the server.
-Before that, each client calculates its own deadline as follows:
-    (i)   take the maximum time between the source and local offset,
-    (ii)  add twice the received RTT,
-    (iii) add a small constant time (\emph{5ms}),
-    (iv)  set this sum as the local event deadline.
+Before it broadcasts the synchronous event with the final deadline
+(\emph{sync(895,1)}), each client calculates its own deadline as follows:
+    (i)   takes the maximum time between the source and local offset,
+    (ii)  adds twice the received RTT,
+    (iii) adds a small constant time (\emph{5ms}),
+    (iv)  sets this sum as the local event deadline.
 As examples, the sum for
     \emph{Client~1} is $max(750,700)+2x45+5=845$, and for
     \emph{Client~N} is $max(750,800)+2x45+5=895$.
@@ -729,7 +730,7 @@ During this process, the server also recalculates the RTT to use in the next
 event emission (\emph{RTT2=50ms}).
 
 Each client also starts a timer to freeze the instance if the (now expected)
-synchronous event is not received until the deadline.
+synchronous event is not received until its local deadline.
 In this case, the client pauses the instance by repeating the same clock tick
 over and over, until it receives the event.
 Although unfortunate, this at least ensures identical timelines in all
@@ -762,8 +763,8 @@ Note that \emph{Client~1} was harmed in the process mainly because its maximum
 time of \emph{750ms} was much smaller than the \emph{800ms} for \emph{Client~N}.
 This is because the local clocks were too distant from each other, breaking our
 \emph{goal~3}.
-As an additional remark, note that pausing \emph{Client~1} increased the offset
-difference even further (\emph{offset diff}).
+Note also that pausing \emph{Client~1} increased the offset difference even
+further (\emph{offset diff}).
 %
 The middleware also implements an algorithm to compensate clock drifts as
 follows:%
@@ -773,12 +774,12 @@ follows:%
 }
 Once the server receives all acknowledgments carrying local offsets
 (\emph{ack(700)} and \emph{ack(800)}), the server sends back how much each
-client is delayed in comparison to the maximum value (i.e., \emph{800-700=100}
+client is behind in comparison to the maximum value (i.e., \emph{800-700=100}
 and \emph{800-800=0}).
 If this number is greater than zero, the client speeds up each local tick in
 \emph{20\%} until the time drift is compensated.
 For instance, if the client behind generates new ticks every \emph{25ms}, it
-will instead generate \emph{25ms} ticks every \emph{20ms}.
+will instead generate \emph{25ms} ticks every \emph{20ms} for a while.
 
 In order to maintain the overall network RTT updated and the clock offsets
 close to each other, the first client to connect with the server sends a
@@ -831,7 +832,8 @@ to measure the properties as follows:
 %The evaluation is detailed in Figure~\ref{fig.table}.
 %
 Drift compensation ensures that clock offsets are kept closer (\emph{goal~3}),
-but a high percentage of clock drift may indicate that the protocol is causing it.
+but a high percentage of clock drift may indicate that the protocol is actually
+causing it.
 Ideally, clock drift rate should be $0\%$.
 %
 A high event latency may compromise \emph{goal~2}, but a low latency may
@@ -854,13 +856,13 @@ In this sense, our experiments log the timelines of all instances and just
 asserts that they are identical in all simulations, since this is the only
 possible result.
 
-We simulated a variety of scenarios by parameterizing the following factors:
+We simulated a variety of scenarios with the following factors:
 %
 \begin{itemize}
 \item \emph{NET} (network connection type):
     affects network RTT.
 \item \emph{FPS} (application frame rate):
-    affects clients CPU load.
+    affects client CPU load.
 \item \emph{N} (number of instances in the network):
     affects network traffic and server CPU load.
 \item \emph{Rate} (rate of inputs):
@@ -986,7 +988,7 @@ The other squares in the figure should be considered in isolation and depend on
 the target application and its requirements.
 %
 As an example, let's consider rectangle \textbf{5}: $50$ FPS, $50$ instances,
-and $4$ events per second for the WAN.
+and $2$ events per second for the WAN.
 A $21.7$ latency corresponds to almost $1$ second, but which might still be a
 reasonable delay for many applications.
 A drift of $9.8$ means that the server will be constantly, but smoothly,
@@ -1067,8 +1069,8 @@ Nonetheless, this API can support host environments in synchronous languages.
 In GALS architectures~\cite{gals.taxonomy}, computations within local
 synchronous nodes are deterministic, with communication latency being the only
 global source of nondeterminism.
-In our proposal, we introduce a middleware to tame nondeterminism and provide
-global sequential consistency to all nodes.
+We propose a middleware to tame nondeterminism and provide global sequential
+consistency to all nodes.
 %
 Some programming languages and systems~\cite{gals.crp,gals.crsm,gals.systemj}
 expose the GALS architecture to programmers, but which remain with the
@@ -1082,8 +1084,8 @@ Esterel enforces determinism and bounded reactions to local instances, which
 are linked by asynchronous channels.
 Instances are asymmetric in the sense that they may execute different
 applications.
-Also, there is no central coordination towards a global timeline, and each
-instance advances its clock independently.
+Also, there is no central coordination towards a consistent global timeline,
+and each instance advances its clock independently.
 %
 CRSM~\cite{gals.crsm} and SystemJ~\cite{gals.systemj} are similar systems, with
 CSP-like asynchronous channels and Esterel-like synchronous lockstep execution.
@@ -1146,22 +1148,23 @@ Our technique relies on having a distributed common notion of time, known to som
 \label{sec.conclusion}
 
 In this work, we propose \emph{Symmetric Distributed Applications} as mirrored
-instances running in multiple machines that can broadcast inputs to each other
-and yet conform to identical behavior.
+application instances that can broadcast inputs to each other and yet conform
+to identical behavior.
 %
 Using a standard event-driven API, programmers write code as if the application
 executes in a single machine.
 Our middleware intercepts event generation and synchronizes all instances with
-a delay such that receipt is identically reproducible.
+a delay in a consistent timeline, so that receipt is identically reproducible.
 %
-Not only distributed applications benefit from determinism but also development
-and testing can be done in a single instance with the same guarantees.
+Not only distributed applications benefit from consistency and determinism but
+also development and testing can be done in a single instance with the same
+guarantees.
 
 The middleware is based on a GALS architecture, in which nodes are locally
 deterministic, but subject to a global source of nondeterminism due to network
 latency.
 However, unlike traditional GALS, our middleware automatically resynchronizes
-inputs in a single global timeline such that all instances observe them
+inputs in a single global timeline so that all instances observe them
 identically.
 The middleware satisfies the timely-sequential consistency model, which extends
 sequential consistency with timing accuracy.
@@ -1175,7 +1178,7 @@ for the exact incoming timestamp.
 Next, the middleware collects all client responses and sends the synchronized
 event back to clients.
 
-We evaluate the performance of the protocol with a series of experiments
+We evaluated the performance of the protocol with a series of experiments
 varying the network latency and size, and the application frame and event rate.
 %
 We highlighted a reliable and high-performant region of parameters of up to
@@ -1184,8 +1187,8 @@ for LANs.
 We also identified a region of interest for WANs of up to $50$ FPS and $10$
 nodes, but with an event latency in the order of $500ms$.
 %
-The protocol evaluation helps identifying the scenarios in which the middleware
-can handle hypothetical distributed applications.
+The protocol evaluation helps identifying the distributed application scenarios
+that the middleware can handle.
 
 \bibliographystyle{ACM-Reference-Format}
 \bibliography{rebls-21}
