@@ -160,8 +160,8 @@ Section~\ref{sec.arch} describes the overall architecture of our middleware.
 Section~\ref{sec.sync} discusses the synchronous programming model, to which
 programs must comply to preserve determinism.
 Section~\ref{sec.gals} discusses how we adapted the globally-asynchronous
-locally-synchronous architecture with a synchronization protocol towards
-consistency and input reproducibility.
+locally-synchronous architecture to create a synchronization protocol that
+guarantees consistency and input reproducibility.
 %Section~\ref{sec.async} ...
 Section~\ref{sec.eval} evaluates the performance and scalability of our
 middleware in multiple network and application scenarios.
@@ -215,7 +215,7 @@ synchronization protocol.
 \end{figure}
 
 Events represent user interactions, such as key presses, which are
-unpredictable and need to be communicated with the other instances.
+unpredictable and need to be communicated to the other instances.
 Since instances must be indistinguishable from each other by design, event
 sources are irrelevant and are ignored.
 For instance, if a user presses a key in one instance, the \dapp behaves as if
@@ -286,9 +286,9 @@ More specifically, we propose to extend Lamport's sequential consistency
 model~\cite{lamport} with a third property for timing accuracy as follows:
 %
 \begin{enumerate}
-    \item There is a total order of events in which all instances agree.
-    \item All events sent from a given instance are received in the same order by all others.
-    \item All instances receive the events at the same time.
+    \item There is a total order of events on which all instances agree.
+    \item All events sent from a given instance are received in the same order by others.
+    \item All instances receive a given event at the same time.
 \end{enumerate}
 %
 We name this model \emph{timely-sequential consistency} due to the third
@@ -506,8 +506,8 @@ deterministic.
 
 Figure~\ref{fig.input} expands the output region with calls to
 \texttt{mid\_emit} that generate asynchronous inputs.
-In this application, the code simply calls the SDL library to check if a key is
-pressed to forward it to the middleware \lin{11--13}.
+In this application, the code simply calls the SDL library to check whether a
+key is pressed to forward it to the middleware. % (\emph{ln. 11--13} in Figure~\ref{fig.sdl}).
 Note that in a local-only application this region of code would replace the
 region to read inputs from the middleware.
 Note also that it is not necessary to customize this code for every single
@@ -565,22 +565,22 @@ However, when we distribute the \dapp in multiple instances, we can no longer
 assume a single clock source, which compromises the synchronous hypothesis.
 % we introduce a delay due to communication, and
 %
-Nevertheless, towards our goal of symmetric distributed applications with
-identical behavior, we need to read perfectly synchronized inputs in real time
-in all instances.
-For instance, in the rectangle example of Figure~\ref{fig.sdl}, the challenge
-is to broadcast and then resynchronize all asynchronous calls to
+Nevertheless, in order to guarantee identical behavior to symmetric distributed
+applications, we need to read perfectly synchronized inputs in real time in all
+instances.
+For example, in the rectangle application of Figure~\ref{fig.sdl}, the
+challenge is to broadcast and then resynchronize all asynchronous calls to
 \texttt{mid\_emit} \lin{31}, so that calls to \texttt{mid\_read} \lin{13} awake
 at the same time in all instances.
 
-In the ``Globally-Asynchronous Locally-Synchronous (GALS)'' architecture,
+In the ``Globally-Asynchronous Locally-Synchronous Architecture'' (GALS),
 independent synchronous processes communicate asynchronously through the
 network~\cite{gals.taxonomy}.
 Since processes are locally synchronous, asynchronous communication is the only
 source of nondeterminism.
 %
 Inspired by the simplicity of GALS, we want not only to keep the local
-guarantees of synchrony, but also extend them globally, by transferring the
+guarantees of synchrony, but also to extend them globally, by transferring the
 responsibility of dealing with asynchrony to the middleware.
 %
 As illustrated in Figure~\ref{fig.middleware}, \dapp local instances depend on
@@ -650,7 +650,7 @@ Second, even if known, there is no guarantee that the RTT will not slightly
 increase momentarily, causing an instance to miss the event deadline.
 %
 Third, even if the RTT was known and bounded, local instances might still
-diverge on local time offsets, again making an instance ahead in time to miss
+diverge on local time offsets, again causing an instance ahead in time to miss
 the deadline.
 %
 Hence, our protocol relies on a central server to determine a reasonable
@@ -697,8 +697,7 @@ At this point, we consider instances to be indistinguishable from each other.
 Now, let's consider an asynchronous event (in red).
 %
 Since clients cannot determine a reasonable timestamp, \emph{Client~N} emits
-\emph{evt=1} towards the server at local time \emph{750ms}
-(\emph{async(750,1)}).
+\emph{evt=1} towards the server at local time \emph{750ms} (\emph{async(750,1)}).
 %
 The server enqueues all requests and handles each event atomically, in
 sequence, as follows:
@@ -783,7 +782,7 @@ will instead generate \emph{25ms} ticks every \emph{20ms} for a while.
 
 In order to maintain the overall network RTT updated and the clock offsets
 close to each other, the first client to connect with the server sends a
-periodic null event (\emph{id=0}) every \emph{5 seconds} to kick off the
+heartbeat null event (\emph{id=0}) every \emph{5 seconds} to kick off the
 synchronization protocol automatically%
 \footnote {
     Video with two distributed instances, now with random RTTs, clock drifts,
@@ -931,14 +930,13 @@ configurations as follows:
   %\Description{A woman and a girl in white dresses sit in an open car.}
 \end{figure*}
 
-Figure~\ref{fig.table} shows a summary with $108$ out of all $288$ measures,
-which are enough to draw the conclusions to follow.
+Figure~\ref{fig.table} shows a summary with $108$ out of all $288$ measures.
 We omit \emph{N=2}, \emph{N=100}, \emph{FPS=100}, and \emph{Rate=5s} to save
-space in the figure.
+space in the figure and because they do not affect the discussion that follows.
 The color of the squares indicates their performances
     (white=good, yellow=moderate, and red=poor).
 
-The thin vertical rectangle labelled \textbf{1} in the figure highlights a
+The thin vertical rectangle labelled \textbf{1} in the figure highlights an
 experiment running at $25$ FPS, with $25$ simultaneous instances, generating an
 event every second.
 %
@@ -949,8 +947,8 @@ The latency around $8$ frames means that an instance broadcasts an asynchronous
 event and applies it synchronized $330ms$ later, in the average.
 The drift of $2.6\%$ means that for every minute of execution in each instance,
 the middleware needs to compensate $1500ms$.
-The freezed frames of $0.9\%$ means that for every $2400$ frames ($1$ minute),
-$20$ frames are repeated.
+The two frozen frames of $0.9\%$ means that for every $2400$ frames
+($1$ minute), $20$ frames are repeated.
 %Late frames correspond to $0.67\%$, i.e., $16$ frames in $1$ minute.
 %
 Unsurprisingly, the results for local networks with the same factor levels are
