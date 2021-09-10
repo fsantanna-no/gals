@@ -135,8 +135,10 @@ applications, we also intend to make distributed programs \emph{be coded} like
 local programs.
 In this sense, we provide a standard event-driven API with two main commands
 to wait and emit events locally.
-We also provide the middleware that connects multiple application instances
-transparently in the network.
+We also provide the middleware%
+\footnote{The middleware is less than 300 lines of code in Kotlin and is
+publicly available: \url{https://github.com/fsantanna-no/gals/}}
+that connects multiple application instances transparently in the network.
 The middleware intercepts local event generation and synchronizes all instances
 so that receipt is identically reproducible based on a consistent timeline.
 As a result, not only distributed applications benefit from consistency and
@@ -145,6 +147,14 @@ with the same guarantees.
 The middleware can handle applications with 25 FPS, distributed in up to 25
 nodes over the Internet, with an event latency below $350ms$.
 
+The notion of symmetric distributed applications in the context of
+collaborative applications is not new~\cite{tbag,croquet,mars}.
+The main contributions of this paper are (i) a new synchronization algorithm
+that avoids messages to synchronize clock ticks, and (ii) a comprehensive
+protocol evaluation in multiple network and application scenarios.
+In particular, applications that require high FPS rates can benefit of our
+algorithm since it liberates the network from a vast number of messages.
+%
 As the main limitations, our middleware relies on a central server to determine
 a total order of events, and all instances must be known and responsive during
 the entire execution.
@@ -172,6 +182,15 @@ Section~\ref{sec.conclusion} concludes this paper.
 
 \section{Overall Middleware Architecture}
 \label{sec.arch}
+
+The middleware aims to ensure the following properties across mirrored
+instances:
+%
+\begin{enumerate}
+\item Inputs are applied with perfect time accuracy.
+\item Inputs are applied with minimum delays.
+\item Local clock differences are minimal.
+\end{enumerate}
 
 Figure~\ref{fig.middleware} describes the client-server architecture of our
 middleware.
@@ -274,7 +293,7 @@ Tick    Event    Async
 \end{figure}
 
 Note that the delay between asynchronous event emission and corresponding
-synchronization is inherently nondeterminisitc due to the network.
+synchronization is inherently nondeterministic due to the network.
 An hypothetical re-execution of an application with asynchronous emissions at
 the very same ticks would not guarantee that corresponding synchronizations
 would have the same delays.
@@ -344,7 +363,7 @@ enclose the application logic \lin{2,10}.
   }
 \end{figure}
 
-Figure~\ref{fig.timeline} with the timeline and \ref{fig.skel} with the program
+Figure~\ref{fig.timeline}~and~\ref{fig.skel} (the timeline and the program)
 relate as follows:
 The application initially blocks waiting for an input \lin{4}.
 According to the timeline, the first input happens at \emph{tick 0} with
@@ -356,6 +375,14 @@ in the main loop \lin{4}.
 As intended, note how the main event loop is coded like a standard local
 event-driven application.
 We extend this discussion in the next section.
+
+Even though this paper discusses only perfectly symmetric instances, it is
+reasonable to support some level of asymmetry in the user interfaces.
+For instance, the middleware could provide a \texttt{mid\_self} API to
+distinguish between instances, as well as permit that instances react to local
+events directly.
+However, a proper discussion about the implications is out of the scope of this
+paper.
 
 \section{Local Synchronous Programming}
 \label{sec.sync}
@@ -556,7 +583,7 @@ identical in every single execution.
 In the next section, we discuss how to extend these guarantees to a distributed
 setting.
 
-\section{Distributed GALS Architecture}
+\section{The Synchronization Protocol}
 \label{sec.gals}
 
 The synchronous programming model assumes a single clock that controls the main
@@ -637,21 +664,21 @@ Regarding \emph{goal~2}, the smaller the input delay, the better is the user
 experience regarding interactivity.
 However, if too small, a distant instance may receive the delayed input after
 its local time, which is unacceptable considering \emph{goal~1}.
-In this case, the middleware may freeze the instance and pause its local time
+In this case, the client freezes its associated instance pausing the local time
 to ensure time accuracy, which is our ultimate goal.
 
 It is important to recognize that an instance cannot by itself determine a
-reasonable timestamp for an event and broadcast it directly to others.
+reasonable timestamp for an event and broadcast it directly to others:
 %
-First, the client has no idea about the network RTT to guarantee that all
+First, the client has no idea about the network RTT to guarantee that all other
 clients would receive the event in time to fulfill \emph{goal~1}.
 %
 Second, even if known, there is no guarantee that the RTT will not slightly
 increase momentarily, causing an instance to miss the event deadline.
 %
 Third, even if the RTT was known and bounded, local instances might still
-diverge on local time offsets, again causing an instance ahead in time to miss
-the deadline.
+diverge on local time offsets (since they advance independently), again causing
+an instance ahead in time to miss the deadline.
 %
 Hence, our protocol relies on a central server to determine a reasonable
 timestamp for all clients, and to ensure that instances do not miss deadlines
@@ -739,6 +766,12 @@ The server then waits for all client \emph{acks} carrying their local offsets
 (\emph{ack(700)} and \emph{ack(800)}), recalculates each deadline (in the same
 way each client did), and takes the largest as the final event timestamp to
 broadcast to all clients (\emph{sync(895,1)}).
+We emphasize here that the server needs to wait for \emph{all clients} and take
+into account their local times to ensure that the final timestamp is suitable
+to all clients.
+This is a severe limitation, which we discuss further, because the protocol
+halts with a single client failure.
+%
 The server also sends drift compensations (\emph{dt(100)} and \emph{dt(0)})
 based on offset differences between clients (we will discuss this later).
 At this point, all clients are expecting a timestamp that is greater than or
@@ -789,6 +822,37 @@ synchronization protocol automatically%
     and periodic synchronization:
     \url{https://youtu.be/BYNHGsHnMx8}
 }.
+
+As mentioned above, each asynchronous request is enqueued according to server
+receipt order and is handled atomically, which includes associated roundtrips
+to clients.
+Hence, original local offsets in requests from different clients may be
+handled out of order.
+This is not a problem because final timestamps are guaranteed to remain in
+order since they depend on the maximum local times collected after each
+atomic request.
+
+As the main limitations,
+    (1) our protocol does not accept new clients, and
+    (2) clients must be responsive during the entire \dapp execution.
+%
+To address the first limitation, the server could keep the global timeline of
+synchronized events in memory and redirect it to new clients as they join,
+which then need to apply the events locally to reach the same state of other
+clients.
+%
+To address the second limitation, the server could set an arbitrary waiting
+limit (e.g., 2 seconds) to kick out a client from the session and restore
+progress in the protocol.
+The kicked client would need to restart itself, rejoin the session and,
+re-execute the whole timeline.
+%
+%It should also be possible to take snapshots of the application state to
+%optimize session joins, which impose limitations in the programming data structures.
+%
+Nevertheless, the core of the synchronization algorithm described in
+Figure~\ref{fig.protocol} still makes these assumptions and would not be
+affected by the changes.
 
 In the next section, we evaluate the performance of the protocol%
 \footnote {
@@ -913,6 +977,8 @@ networks (LAN/Loopback) and are as follows:
     \emph{Latency} (Local: 2.5,5 ; WAN: 5,10);
     \emph{Drift}   (Local: 0.5,1 ; WAN: 1,3);
     \emph{Freeze}  (Local: 0.5,1 ; WAN: 1,3).
+The threshold values are arbitrary but help to distinguish between regions of
+interest.
 %
 The \emph{Loopback} experiments used a single machine with $1$ process for the
 server, $N$ processes for the clients, and $N$ processes for the \dapp
@@ -1118,29 +1184,59 @@ Since the bounds are fixed and known in advance, and all instances are
 at the same logical tick, PALS can skip the ``proposal round'' required by our
 protocol.
 
-\begin{comment}
-Asynchronous languages and models:
+Croquet~\cite{croquet} is a 3D collaboration architecture and dynamic
+programming environment with a synchronization protocol called \emph{TeaTime},
+which more recently became a product%
+\footnote{Croquet.io: \url{https://croquet.io/}}.
+Croquet relies on a similar centralized architecture to our work, but takes
+advantage of the cloud to place the server as close to clients as possible for
+better performance.
+In contrast to our work, Croquet relies on the server to issue tick events to
+clients, which gives full control of the timeline.
+The server also timestamps events coming from the clients and redirect them to
+all participants.
+This results in a simpler protocol that supports joins and leaves
+transparently, and does not require roundtrips to determine timestamps.
+However, since all tick messages need to be transmitted in the network, the FPS
+rate of applications is proportional to the network latency.
+For instance, a latency of \emph{100ms} supports at most \emph{10 FPS}.
+The transmission of ticks at higher FPS rates also incur in higher network
+traffic and server load.
+Another distinction between the protocols is that Croquet favors instances with
+better latency, which have optimal experience.
+In contrast, our protocol adjusts event latency dynamically to accommodate the
+slower instance.
+In addition, instances execute at the same tick rate respecting local times,
+regardless of the network latencies.
 
-Derflow: distributed deterministic dataflow programming for erlang
-Erlang implements a message-passing execution model in which concurrent processes send each other messages asynchronously. This model is inherently non-deterministic: a process can receive messages sent by any process which knows its process identifier, leading to an exponential number of possible executions based on the number messages received.
-We propose a new execution model for Erlang, ''Deterministic Dataflow Programming'', based on a highly available, scalable single-assignment data store implemented on top of the riak\_core distributed systems framework.
-
-Deterministic Actors
-While actors provide a more disciplined model for concurrency than threads, their interactions, if not constrained, admit nondeterminism.
- We describe “reactors,” a new coordination model that combines ideas from several of the aforementioned approaches to enable determinism while preserving much of the style of actors.
-
-Deterministic replay of distributed Java applications
-Execution behavior of a Java application can be nondeterministic due to concurrent threads of execution, thread scheduling, and variable network delays. This nondeterminism in Java makes the understanding and debugging of multi-threaded distributed Java applications a difficult and a laborious process.
-It is well accepted that providing deterministic replay of application execution is a key step towards programmer productivity and program under-standing.
-Towards this goal, we developed a replay framework based on logical thread schedules and logical intervals.
-
-Synchronous languages and models:
-
-A Programming Model for Time-Synchronized Distributed Real-Time Systems
-Discrete-event (DE) models are formal system specifications that have analysable deterministic behaviors. Using a global, consistent notion of time, DE components communicate via time-stamped events.
-In this paper, we extend DE models with the capability of relating certain events to physical time.
-Our technique relies on having a distributed common notion of time, known to some precision.
-\end{comment}
+Alternative approaches for distributed symmetric behavior include consensus
+algorithms and conflict-free data structures towards eventual consistency.
+Both approaches have the advantage that instances can apply inputs locally
+with immediate feedback.
+%
+However, consensus algorithms may reorder events, which requires that
+operations are reversible or that instances keep snapshots of the application
+state to rollback and reapply events in new orders.
+Photon%
+\footnote{Photon engine: \url{https://www.photonengine.com}}
+is an industry networking engine and multiplayer platform that supports
+snapshots and rollback.
+%
+Conflict-free replicated data types (CRDTs)~\cite{crdts} take a data-centric
+approach.
+Instead of hiding the data in the applications and only communicating events to
+transform the data, CRDTs expose data transformations in ways that they may
+occur concurrently with the guarantee that they are merged automatically and
+reach the same state.
+One advantage is that applications work offline with the same
+guarantees~\cite{local}.
+A disadvantage is that typical data structures are not CRDTs, which requires
+that applications are designed carefully around specialized data structures.
+%
+Our work enforces sequential consistency, which ensures that events are never
+reordered, making rollbacks and CRDTs unnecessary.
+However, instances need to be always connected and they cannot apply events
+locally to support immediate feedback.
 
 \section{Conclusion}
 \label{sec.conclusion}
