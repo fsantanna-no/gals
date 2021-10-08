@@ -8,15 +8,10 @@
 \newcommand{\dapp}{\emph{dapp}\xspace}
 \newcommand{\dapps}{\emph{dapps}\xspace}
 
-\setcopyright{acmcopyright}
-\copyrightyear{2018}
-\acmYear{2018}
-\acmDOI{10.1145/1122445.1122456}
-
-\acmConference[REBLS '21]{REBLS '21: ACM Workshop on Reactive and Event-Based Languages and Systems}{June 03--05, 2018}{Chicago, IL}
-\acmBooktitle{REBLS '21: ACM Workshop on Reactive and Event-Based Languages and Systems, June 03--05, 2018, Chicago, IL}
-\acmPrice{15.00}
-\acmISBN{978-1-4503-XXXX-X/18/06}
+%\acmConference[REBLS '21]{REBLS '21: ACM Workshop on Reactive and Event-Based Languages and Systems}{June 03--05, 2018}{Chicago, IL}
+%\acmBooktitle{REBLS '21: ACM Workshop on Reactive and Event-Based Languages and Systems, June 03--05, 2018, Chicago, IL}
+%\acmPrice{15.00}
+%\acmISBN{978-1-4503-XXXX-X/18/06}
 
 %\acmSubmissionID{123-A56-BU3}
 %\citestyle{acmauthoryear}
@@ -74,20 +69,35 @@ distributed in up to 25 nodes over the Internet, with an event latency below
 $350ms$.
 \end{abstract}
 
-\begin{comment}
 \begin{CCSXML}
 <ccs2012>
- <concept>
-  <concept_id>10003033.10003083.10003095</concept_id>
-  <concept_desc>Networks~Network reliability</concept_desc>
-  <concept_significance>100</concept_significance>
- </concept>
+    <concept>
+        <concept_id>10003033.10003039.10003040</concept_id>
+        <concept_desc>Networks~Network protocol design</concept_desc>
+        <concept_significance>300</concept_significance>
+    </concept>
+    <concept>
+        <concept_id>10010520.10010521.10010537</concept_id>
+        <concept_desc>Computer systems organization~Distributed architectures</concept_desc>
+        <concept_significance>300</concept_significance>
+    </concept>
 </ccs2012>
 \end{CCSXML}
-\ccsdesc[100]{Networks~Network reliability}
-\end{comment}
+
+\ccsdesc[300]{Networks~Network protocol design}
+\ccsdesc[300]{Computer systems organization~Distributed architectures}
 
 \keywords{consistency, determinism, GALS, synchronous programming, distributed applications}
+
+\setcopyright{acmcopyright}
+\acmPrice{15.00}
+\acmDOI{10.1145/3486605.3486786}
+\acmYear{2021}
+\copyrightyear{2021}
+\acmSubmissionID{splashws21reblsmain-p35-p}
+\acmISBN{978-1-4503-9108-5/21/10}
+\acmConference[REBLS '21]{Proceedings of the 8th ACM SIGPLAN International Workshop on Reactive and Event-Based Languages and Systems}{October 18, 2021}{Chicago, IL, USA}
+\acmBooktitle{Proceedings of the 8th ACM SIGPLAN International Workshop on Reactive and Event-Based Languages and Systems (REBLS '21), October 18, 2021, Chicago, IL, USA}
 
 \maketitle
 
@@ -212,7 +222,7 @@ The clients also control the local clock ticks in the instances and issue the
 received events at the appropriate timestamps (both synchronized, in green).
 %
 Note that the clock ticks are not transmitted, nor synchronized, by the server.
-This allows for smooth local execution, event in slow networks.
+This allows for smooth local execution, even in slow networks.
 %
 The timestamps represent the exact times at which all instances must apply the
 events to their identical local timelines.
