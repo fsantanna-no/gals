@@ -138,8 +138,8 @@ fun client (server: String, port: Int = PORT_10000) {
             } else if (app_cur!!>=queue_finals[0].first) {
                 val (now_,evt_) = queue_finals.removeAt(0)
                 queue_expecteds.removeAt(0)
-                /*
                 evt = evt_
+                /*
                 if (evt == self) {
                     val v = evt_fr.removeAt(0)
                     assert((app_cur!!-v).toInt() % DT == 0)

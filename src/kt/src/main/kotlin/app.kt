@@ -30,7 +30,7 @@ fun app (port: Int, fps: Int) {
     // thread that emits random events back to the client
     thread {
         while (true) {
-            Thread.sleep(Random.nextLong(5000))
+            Thread.sleep(Random.nextLong(10000))
             writer.writeInt(1 + Random.nextInt(10))
         }
     }

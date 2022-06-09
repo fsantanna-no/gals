@@ -19,8 +19,8 @@ class Tests {
         val socket = Socket("localhost", PORT_10000)
         val writer = DataOutputStream(socket.getOutputStream()!!)
         val reader = DataInputStream(socket.getInputStream()!!)
-        writer.writeInt(10)
-        reader.readInt()
+        writer.writeInt(10)     // FPS
+        reader.readInt()            // started
 
         thread {
             while (true) {
@@ -34,7 +34,7 @@ class Tests {
         }
         thread {
             while (true) {
-                Thread.sleep(Random.nextLong(5000))
+                Thread.sleep(Random.nextLong(3000))
                 writer.writeInt(1 + Random.nextInt(10))
             }
         }
