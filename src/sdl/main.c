@@ -1,12 +1,12 @@
 #if 0
 #!/bin/sh
-gcc -Wall `sdl2-config --cflags` main.c -o xmain `sdl2-config --libs` -lSDL2_net
+gcc -Wall -I .. `sdl2-config --cflags` gals.c main.c -o xmain `sdl2-config --libs` -lSDL2_net
 exit
 #endif
 
 #include <assert.h>
 #include <SDL2/SDL.h>
-#include "gals.c"
+#include "gals.h"
 
 enum {
     EVT_NONE, EVT_UP, EVT_DOWN, EVT_RIGHT, EVT_LEFT, EVT_STOP
@@ -17,7 +17,6 @@ void _assert (int x) {}
 int main (int argc, char** argv) {
     assert(argc == 2);
 	assert(SDL_Init(SDL_INIT_VIDEO) == 0);
-	assert(SDLNet_Init() == 0);
 
     SDL_Window*   win = SDL_CreateWindow("SDL", 0,0, 400,400, SDL_WINDOW_SHOWN);
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
@@ -87,8 +86,7 @@ int main (int argc, char** argv) {
         SDL_RenderPresent(ren);
 	}
 
-	SDLNet_TCP_Close(s);
-	SDLNet_Quit();
+	gals_disconnect();
 	return 0;
 }
 
