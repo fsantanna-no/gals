@@ -5,53 +5,14 @@ exit
 #endif
 
 #include <assert.h>
-#include <endian.h>
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_net.h>
+#include "gals.c"
+
+enum {
+    EVT_NONE, EVT_UP, EVT_DOWN, EVT_RIGHT, EVT_LEFT, EVT_STOP
+};
 
 void _assert (int x) {}
-
-static TCPsocket s = NULL;
-
-int tcp_recv_u64 () {
-    uint64_t v_;
-    int i = 0;
-    int N = sizeof(v_);
-    while (i < N) {
-        i += SDLNet_TCP_Recv(s, &((char*)&v_)[i], N-i);
-    }
-    return be64toh(v_);
-}
-
-int tcp_recv_s32 () {
-    uint32_t v_;
-    int i = 0;
-    int N = sizeof(v_);
-    while (i < N) {
-        i += SDLNet_TCP_Recv(s, &((char*)&v_)[i], N-i);
-    }
-    return be32toh(v_);
-}
-
-void tcp_send_s32 (int v) {
-    uint32_t _v = htobe32(v);
-    assert(SDLNet_TCP_Send(s, &_v, sizeof(_v)) == sizeof(_v));
-}
-
-int gals_connect (int port, int fps) {
-	IPaddress ip;
-	assert(SDLNet_ResolveHost(&ip, "localhost", port) == 0);
-	s = SDLNet_TCP_Open(&ip);
-	assert(s != NULL);
-
-    tcp_send_s32(fps);
-    return tcp_recv_s32();
-}
-
-void gals_wait (uint64_t* now, int* evt) {
-    *now = tcp_recv_u64();
-    *evt = tcp_recv_s32();
-}
 
 int main (int argc, char** argv) {
     assert(argc == 2);
@@ -80,11 +41,11 @@ int main (int argc, char** argv) {
         SDL_RenderClear(ren);
 
         switch (evt) {
-            case 1: { xdir=-1; ydir=0; break; }
-            case 2: { xdir= 1; ydir=0; break; }
-            case 3: { ydir=-1; xdir=0; break; }
-            case 4: { ydir= 1; xdir=0; break; }
-            case 5: { ydir= 0; xdir=0; printf("PAUSE: t=%ld, xy=(%d,%d)\n",now,x,y); break; }
+            case EVT_LEFT:  { xdir=-1; ydir=0; break; }
+            case EVT_RIGHT: { xdir= 1; ydir=0; break; }
+            case EVT_UP:    { ydir=-1; xdir=0; break; }
+            case EVT_DOWN:  { ydir= 1; xdir=0; break; }
+            case EVT_STOP:  { ydir= 0; xdir=0; printf("PAUSE: t=%ld, xy=(%d,%d)\n",now,x,y); break; }
         }
 
         SDL_Rect r = { x, y, 10, 10 };
@@ -107,19 +68,18 @@ int main (int argc, char** argv) {
                 }
                 if (inp.type == SDL_KEYDOWN) {
                     switch (inp.key.keysym.sym) {
-                        case SDLK_LEFT:  { n=1; break; }
-                        case SDLK_RIGHT: { n=2; break; }
-                        case SDLK_UP:    { n=3; break; }
-                        case SDLK_DOWN:  { n=4; break; }
-                        case SDLK_SPACE: { n=5; break; }
+                        case SDLK_LEFT:  { n=EVT_LEFT;  break; }
+                        case SDLK_RIGHT: { n=EVT_RIGHT; break; }
+                        case SDLK_UP:    { n=EVT_UP;    break; }
+                        case SDLK_DOWN:  { n=EVT_DOWN;  break; }
+                        case SDLK_SPACE: { n=EVT_STOP;  break; }
                     }
                 }
                 if (n != 0) {
                     SDL_Rect r = { 190, 190, 20, 20 };
                     SDL_SetRenderDrawColor(ren, 0x77,0x77,0x77,0x77);
                     SDL_RenderFillRect(ren, &r);
-                    n = htobe32(n);
-                    assert(SDLNet_TCP_Send(s, &n, sizeof(n)) == sizeof(n));
+                    gals_emit(n);
                 }
             }
         }
