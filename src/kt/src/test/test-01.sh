@@ -1,6 +1,6 @@
 #!/bin/sh
 
-pkill -f GALS.jar
+pkill -9 -f GALS.jar
 sleep 1
 
 gals server 2 &

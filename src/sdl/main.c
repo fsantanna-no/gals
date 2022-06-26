@@ -11,6 +11,48 @@ exit
 
 void _assert (int x) {}
 
+static TCPsocket s = NULL;
+
+int tcp_recv_u64 () {
+    uint64_t v_;
+    int i = 0;
+    int N = sizeof(v_);
+    while (i < N) {
+        i += SDLNet_TCP_Recv(s, &((char*)&v_)[i], N-i);
+    }
+    return be64toh(v_);
+}
+
+int tcp_recv_s32 () {
+    uint32_t v_;
+    int i = 0;
+    int N = sizeof(v_);
+    while (i < N) {
+        i += SDLNet_TCP_Recv(s, &((char*)&v_)[i], N-i);
+    }
+    return be32toh(v_);
+}
+
+void tcp_send_s32 (int v) {
+    uint32_t _v = htobe32(v);
+    assert(SDLNet_TCP_Send(s, &_v, sizeof(_v)) == sizeof(_v));
+}
+
+int gals_connect (int port, int fps) {
+	IPaddress ip;
+	assert(SDLNet_ResolveHost(&ip, "localhost", port) == 0);
+	s = SDLNet_TCP_Open(&ip);
+	assert(s != NULL);
+
+    tcp_send_s32(fps);
+    return tcp_recv_s32();
+}
+
+void gals_wait (uint64_t* now, int* evt) {
+    *now = tcp_recv_u64();
+    *evt = tcp_recv_s32();
+}
+
 int main (int argc, char** argv) {
     assert(argc == 2);
 	assert(SDL_Init(SDL_INIT_VIDEO) == 0);
@@ -19,19 +61,8 @@ int main (int argc, char** argv) {
     SDL_Window*   win = SDL_CreateWindow("SDL", 0,0, 400,400, SDL_WINDOW_SHOWN);
     SDL_Renderer* ren = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 
-	IPaddress ip;
-	assert(SDLNet_ResolveHost(&ip, "localhost", atoi(argv[1])) == 0);
-	TCPsocket s = SDLNet_TCP_Open(&ip);
-	assert(s != NULL);
-
-    uint32_t fps = htobe32(20);
-    assert(SDLNet_TCP_Send(s, &fps, sizeof(fps)) == sizeof(fps));
-    uint32_t self;
-    int n = 0;
-    while (n < sizeof(self)) {
-        n += SDLNet_TCP_Recv(s, &((char*)&self)[n], sizeof(self)-n);
-    }
-    //printf(">>> %d\n", self);
+    int self = gals_connect(atoi(argv[1]), 20);
+    printf(">>> %d\n", self);
 
     int x = 10;
     int y = 10;
@@ -40,15 +71,9 @@ int main (int argc, char** argv) {
     uint64_t prv = 0;
 
 	while (1) {
-        char buf[sizeof(uint64_t) + sizeof(uint32_t)];
-        int n = 0;
-        while (n < sizeof(buf)) {
-            int x = SDLNet_TCP_Recv(s, &buf[n], sizeof(buf)-n);
-            assert(x > 0);
-            n += x;
-        }
-        uint64_t now = be64toh(*(uint64_t*)&buf[0]);
-        uint32_t evt = be32toh(*(uint32_t*)&buf[sizeof(uint64_t)]);
+        uint64_t now;
+        int evt;
+        gals_wait(&now, &evt);
         //printf("now=%ld evt=%d\n", now, evt);
 
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
