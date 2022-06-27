@@ -46,13 +46,23 @@ void gals_disconnet (void) {
 	SDLNet_Quit();
 }
 
-void gals_wait (uint64_t* now, int* evt, int* pay) {
+void gals_wait (uint64_t* now, int* evt, int* pay1, int* pay2) {
     *now = tcp_recv_u64();
     *evt = tcp_recv_s32();
-    *pay = tcp_recv_s32();
+    if (pay1 != NULL) {
+        *pay1 = tcp_recv_s32();
+    } else {
+        tcp_recv_s32();
+    }
+    if (pay2 != NULL) {
+        *pay2 = tcp_recv_s32();
+    } else {
+        tcp_recv_s32();
+    }
 }
 
-void gals_emit (int evt, int pay) {
+void gals_emit (int evt, int pay1, int pay2) {
     tcp_send_s32(evt);
-    tcp_send_s32(pay);
+    tcp_send_s32(pay1);
+    tcp_send_s32(pay2);
 }

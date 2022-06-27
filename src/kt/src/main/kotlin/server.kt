@@ -33,7 +33,7 @@ fun server (N: Int) { // number of app clients
     log("[server] all connected")
 
     val lock = java.lang.Object()
-    val queue: MutableList<Triple<Long, Int, Int>> = mutableListOf()
+    val queue: MutableList<Triple<Long, Int, Pair<Int,Int>>> = mutableListOf()
     var RTT = 1L  // max RTT from previous cycle considering all clients
     var DT: Int? = null
 
@@ -61,13 +61,10 @@ fun server (N: Int) { // number of app clients
             while (true) {
                 val now = reader1.readLong()    // desired event timestamp
                 val evt = reader1.readInt()
-                val pay = reader1.readInt()     // payload 1
-                //val xxx = reader1.readInt()     // payload 1
-                val yyy = reader1.readInt()     // payload 2
-                //assert(xxx==111 && yyy==222)
-                assert(yyy==222)
+                val pay1 = reader1.readInt()
+                val pay2 = reader1.readInt()
                 synchronized(lock) {
-                    queue.add(Triple(now, evt, pay))
+                    queue.add(Triple(now, evt, Pair(pay1,pay2)))
                     lock.notify()
                 }
             }
@@ -128,8 +125,8 @@ fun server (N: Int) { // number of app clients
                 val drift = max(0, (maxLocal - tms[it] - DT!!))
                 writer2.writeLong(TIME)      // at least MAX, at most MAX+100
                 writer2.writeInt(want.second)
-                writer2.writeInt(want.third)   // payload 1
-                writer2.writeInt(222)   // payload 2
+                writer2.writeInt(want.third.first)    // payload 1
+                writer2.writeInt(want.third.second)   // payload 2
                 writer2.writeInt(drift.toInt())
             }
         }.map { it.join() }

@@ -47,7 +47,7 @@ fun client (server: String, port: Int = PORT_10000) {
     var app_nxt = 0.toLong()
 
     val queue_expecteds: MutableList<Long> = mutableListOf()
-    val queue_finals: MutableList<Triple<Long,Int,Int>> = mutableListOf()
+    val queue_finals: MutableList<Triple<Long,Int,Pair<Int,Int>>> = mutableListOf()
 
     // first client generates null event every 5s
     if (self == 1) {
@@ -70,7 +70,8 @@ fun client (server: String, port: Int = PORT_10000) {
     thread {
         while (true) {
             val evt = reader0.readInt()
-            val pay = reader0.readInt()
+            val pay1 = reader0.readInt()
+            val pay2 = reader0.readInt()
             val nxt = app_nxt
             ///evt_fr.add(nxt)
             if (DEBUG) {
@@ -79,8 +80,8 @@ fun client (server: String, port: Int = PORT_10000) {
             synchronized(lock) {
                 writer1.writeLong(nxt+DT)
                 writer1.writeInt(evt)
-                writer1.writeInt(pay)       // payload 1
-                writer1.writeInt(222)       // payload 2
+                writer1.writeInt(pay1)
+                writer1.writeInt(pay2)
             }
         }
     }
@@ -105,16 +106,15 @@ fun client (server: String, port: Int = PORT_10000) {
 
             val decided = reader2.readLong()
             val evt = reader2.readInt()
-            val pay = reader2.readInt()     // payload 1
-            val yyy = reader2.readInt()     // payload 2
-            //assert(xxx==111 && yyy==222)
+            val pay1 = reader2.readInt()
+            val pay2 = reader2.readInt()
             val drift = reader2.readInt()
             synchronized(lock) {
                 //if (decided+DT < app_nxt) { log("[client] decided=$decided + DT=$DT >= NXT=$app_nxt") }
                 //assert(decided+DT >= app_nxt)
                 if (drift>DRIFT) { log("drift [$self] $drift") }
                 DRIFT = drift
-                queue_finals.add(Triple(decided,evt,pay))
+                queue_finals.add(Triple(decided,evt,Pair(pay1,pay2)))
             }
         }
     }
@@ -124,7 +124,7 @@ fun client (server: String, port: Int = PORT_10000) {
     while (true) {
         var app_cur: Long? = null
         var evt = 0
-        var pay = 0
+        var pay = Pair(0,0)
 
         synchronized(lock) {
             app_cur = app_nxt
@@ -155,7 +155,8 @@ fun client (server: String, port: Int = PORT_10000) {
 
         writer0.writeLong(app_cur!!)
         writer0.writeInt(evt)
-        writer0.writeInt(pay)
+        writer0.writeInt(pay.first)
+        writer0.writeInt(pay.second)
         old = evt
 
         // uncomment to force large drift (see also emit above and DT/2 below)
