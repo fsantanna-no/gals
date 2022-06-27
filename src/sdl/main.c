@@ -34,7 +34,7 @@ int main (int argc, char** argv) {
         uint64_t now;
         int evt;
         int pay;
-        gals_wait(&now, &evt, &pay, NULL);
+        gals_wait(&now, &evt, &pay, NULL, NULL);
         //printf("now=%ld evt=%d\n", now, evt);
 
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
@@ -76,7 +76,7 @@ int main (int argc, char** argv) {
                         SDL_Rect r = { 190, 190, 20, 20 };
                         SDL_SetRenderDrawColor(ren, 0x77,0x77,0x77,0x77);
                         SDL_RenderFillRect(ren, &r);
-                        gals_emit(EVT_KEY, key, 0);
+                        gals_emit(EVT_KEY, key, 0, 0);
                     }
                 }
             }

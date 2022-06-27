@@ -28,9 +28,10 @@ class Tests {
                 val evt = reader.readInt()
                 val pay1 = reader.readInt()
                 val pay2 = reader.readInt()
+                val pay3 = reader.readInt()
                 when (evt) {
                     0    -> println("[app] now=$now")
-                    else -> println("[app] now=$now evt=$evt pay=($pay1,$pay2)")
+                    else -> println("[app] now=$now evt=$evt pay=($pay1,$pay2,$pay3)")
                 }
             }
         }
@@ -41,6 +42,7 @@ class Tests {
                 writer.writeInt(1 + Random.nextInt(10))
                 writer.writeInt(pay)
                 writer.writeInt(pay+10)
+                writer.writeInt(pay+100)
                 pay++
             }
         }

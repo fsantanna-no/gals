@@ -33,7 +33,7 @@ fun server (N: Int) { // number of app clients
     log("[server] all connected")
 
     val lock = java.lang.Object()
-    val queue: MutableList<Triple<Long, Int, Pair<Int,Int>>> = mutableListOf()
+    val queue: MutableList<Triple<Long, Int, Triple<Int,Int,Int>>> = mutableListOf()
     var RTT = 1L  // max RTT from previous cycle considering all clients
     var DT: Int? = null
 
@@ -63,8 +63,9 @@ fun server (N: Int) { // number of app clients
                 val evt = reader1.readInt()
                 val pay1 = reader1.readInt()
                 val pay2 = reader1.readInt()
+                val pay3 = reader1.readInt()
                 synchronized(lock) {
-                    queue.add(Triple(now, evt, Pair(pay1,pay2)))
+                    queue.add(Triple(now, evt, Triple(pay1,pay2,pay3)))
                     lock.notify()
                 }
             }
@@ -127,6 +128,7 @@ fun server (N: Int) { // number of app clients
                 writer2.writeInt(want.second)
                 writer2.writeInt(want.third.first)    // payload 1
                 writer2.writeInt(want.third.second)   // payload 2
+                writer2.writeInt(want.third.third)    // payload 3
                 writer2.writeInt(drift.toInt())
             }
         }.map { it.join() }
