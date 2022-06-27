@@ -6,24 +6,23 @@
 
 static TCPsocket S = NULL;
 
-int tcp_recv_u64 (void) {
-    uint64_t v_;
+void tcp_recv_n (int N, char* buf) {
     int i = 0;
-    int N = sizeof(v_);
     while (i < N) {
-        i += SDLNet_TCP_Recv(S, &((char*)&v_)[i], N-i);
+        i += SDLNet_TCP_Recv(S, &buf[i], N-i);
     }
-    return be64toh(v_);
+}
+
+int tcp_recv_u64 (void) {
+    uint64_t v;
+    tcp_recv_n(sizeof(v), (char*)&v);
+    return be64toh(v);
 }
 
 int tcp_recv_s32 (void) {
-    uint32_t v_;
-    int i = 0;
-    int N = sizeof(v_);
-    while (i < N) {
-        i += SDLNet_TCP_Recv(S, &((char*)&v_)[i], N-i);
-    }
-    return be32toh(v_);
+    uint32_t v;
+    tcp_recv_n(sizeof(v), (char*)&v);
+    return be32toh(v);
 }
 
 void tcp_send_s32 (int v) {
@@ -47,11 +46,13 @@ void gals_disconnet (void) {
 	SDLNet_Quit();
 }
 
-void gals_wait (uint64_t* now, int* evt) {
+void gals_wait (uint64_t* now, int* evt, int* pay) {
     *now = tcp_recv_u64();
     *evt = tcp_recv_s32();
+    *pay = tcp_recv_s32();
 }
 
-void gals_emit (int evt) {
+void gals_emit (int evt, int pay) {
     tcp_send_s32(evt);
+    tcp_send_s32(pay);
 }

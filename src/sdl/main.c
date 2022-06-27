@@ -9,7 +9,7 @@ exit
 #include "gals.h"
 
 enum {
-    EVT_NONE, EVT_UP, EVT_DOWN, EVT_RIGHT, EVT_LEFT, EVT_STOP
+    EVT_TIME, EVT_KEY
 };
 
 void _assert (int x) {}
@@ -33,25 +33,28 @@ int main (int argc, char** argv) {
 	while (1) {
         uint64_t now;
         int evt;
-        gals_wait(&now, &evt);
+        int pay;
+        gals_wait(&now, &evt, &pay);
         //printf("now=%ld evt=%d\n", now, evt);
 
         SDL_SetRenderDrawColor(ren, 0xFF,0xFF,0xFF,0xFF);
         SDL_RenderClear(ren);
 
-        switch (evt) {
-            case EVT_LEFT:  { xdir=-1; ydir=0; break; }
-            case EVT_RIGHT: { xdir= 1; ydir=0; break; }
-            case EVT_UP:    { ydir=-1; xdir=0; break; }
-            case EVT_DOWN:  { ydir= 1; xdir=0; break; }
-            case EVT_STOP:  { ydir= 0; xdir=0; printf("PAUSE: t=%ld, xy=(%d,%d)\n",now,x,y); break; }
+        if (evt == EVT_KEY) {
+            switch (pay) {
+                case SDLK_LEFT:  { xdir=-1; ydir=0; break; }
+                case SDLK_RIGHT: { xdir= 1; ydir=0; break; }
+                case SDLK_UP:    { ydir=-1; xdir=0; break; }
+                case SDLK_DOWN:  { ydir= 1; xdir=0; break; }
+                case SDLK_SPACE: { ydir= 0; xdir=0; printf("PAUSE: t=%ld, xy=(%d,%d)\n",now,x,y); break; }
+            }
         }
 
         SDL_Rect r = { x, y, 10, 10 };
         SDL_SetRenderDrawColor(ren, 0xFF,0x00,0x00,0xFF);
         SDL_RenderFillRect(ren, &r);
 
-        if (now!=prv && evt==0) {
+        if (now!=prv && evt==EVT_TIME) {
             x += 5 * xdir;
             y += 5 * ydir;
         }
@@ -61,24 +64,20 @@ int main (int argc, char** argv) {
         {
             SDL_Event inp;
             while (SDL_PollEvent(&inp)) {
-                uint32_t n = 0;
                 if (inp.type == SDL_QUIT) {
                     exit(0);
                 }
                 if (inp.type == SDL_KEYDOWN) {
-                    switch (inp.key.keysym.sym) {
-                        case SDLK_LEFT:  { n=EVT_LEFT;  break; }
-                        case SDLK_RIGHT: { n=EVT_RIGHT; break; }
-                        case SDLK_UP:    { n=EVT_UP;    break; }
-                        case SDLK_DOWN:  { n=EVT_DOWN;  break; }
-                        case SDLK_SPACE: { n=EVT_STOP;  break; }
+                    int key = inp.key.keysym.sym;
+                    if (key==SDLK_LEFT || key==SDLK_RIGHT ||
+                        key==SDLK_UP   || key==SDLK_DOWN  ||
+                        key==SDLK_SPACE
+                    ) {
+                        SDL_Rect r = { 190, 190, 20, 20 };
+                        SDL_SetRenderDrawColor(ren, 0x77,0x77,0x77,0x77);
+                        SDL_RenderFillRect(ren, &r);
+                        gals_emit(EVT_KEY, key);
                     }
-                }
-                if (n != 0) {
-                    SDL_Rect r = { 190, 190, 20, 20 };
-                    SDL_SetRenderDrawColor(ren, 0x77,0x77,0x77,0x77);
-                    SDL_RenderFillRect(ren, &r);
-                    gals_emit(n);
                 }
             }
         }

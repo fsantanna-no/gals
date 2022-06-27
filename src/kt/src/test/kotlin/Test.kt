@@ -26,16 +26,20 @@ class Tests {
             while (true) {
                 val now = reader.readLong()
                 val evt = reader.readInt()
+                val pay = reader.readInt()
                 when (evt) {
                     0    -> println("[app] now=$now")
-                    else -> println("[app] now=$now evt=$evt")
+                    else -> println("[app] now=$now evt=$evt pay=$pay")
                 }
             }
         }
         thread {
+            var pay = 1
             while (true) {
                 Thread.sleep(Random.nextLong(3000))
                 writer.writeInt(1 + Random.nextInt(10))
+                writer.writeInt(pay)
+                pay++
             }
         }
         Thread.sleep(100000)
